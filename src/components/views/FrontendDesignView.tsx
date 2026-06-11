@@ -104,12 +104,12 @@ export default function FrontendDesignView({ onSwitchView }: { onSwitchView: (v:
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#00E5FF20' }}>
-              <Palette className="w-5 h-5" style={{ color: '#00E5FF' }} />
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#DC262620' }}>
+              <Palette className="w-5 h-5" style={{ color: '#DC2626' }} />
             </div>
             <div>
               <h2 className="text-3xl md:text-4xl font-bold">
-                Frontend <span style={{ color: '#00E5FF' }}>Design</span> Perspectives
+                Frontend <span style={{ color: '#DC2626' }}>Design</span> Perspectives
               </h2>
               <p className="text-muted-foreground text-sm">
                 Creative (Dolphin) and Strategic (Eagle) lenses on resilient frontend design
@@ -224,7 +224,7 @@ export default function FrontendDesignView({ onSwitchView }: { onSwitchView: (v:
         <Card className="bg-card/50 mb-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Layers className="w-5 h-5" style={{ color: '#5632c3' }} />
+              <Layers className="w-5 h-5" style={{ color: '#DC2626' }} />
               Dolphin vs. Eagle — Design Aspect Comparison
             </CardTitle>
             <CardDescription>How each perspective approaches the same frontend challenges</CardDescription>

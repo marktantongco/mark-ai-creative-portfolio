@@ -51,9 +51,9 @@ function ProxyDiscussionCard({ proxy, index }: { proxy: typeof PROXY_DISCUSSION[
             <div className="flex items-center gap-3">
               <div
                 className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
-                style={{ backgroundColor: '#5632c320' }}
+                style={{ backgroundColor: '#DC262620' }}
               >
-                <Icon className="w-5 h-5" style={{ color: '#5632c3' }} />
+                <Icon className="w-5 h-5" style={{ color: '#DC2626' }} />
               </div>
               <div>
                 <CardTitle className="text-lg">{proxy.name}</CardTitle>
@@ -122,7 +122,7 @@ function ProxyDiscussionCard({ proxy, index }: { proxy: typeof PROXY_DISCUSSION[
           {/* Expand for full text */}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="w-full flex items-center justify-center gap-2 py-2 text-sm font-medium text-purple-300 transition-colors rounded-lg hover:bg-muted/30"
+            className="w-full flex items-center justify-center gap-2 py-2 text-sm font-medium text-red-300 transition-colors rounded-lg hover:bg-muted/30"
           >
             {isExpanded ? 'Show Less' : 'Expand Full Discussion'}
             <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
@@ -170,10 +170,10 @@ function ProxyDiscussionCard({ proxy, index }: { proxy: typeof PROXY_DISCUSSION[
                   {/* Cross-domain and historical */}
                   {proxyData && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                      <div className="p-3 rounded-lg bg-red-600/10 border border-red-600/20">
                         <div className="flex items-center gap-2 mb-1">
-                          <Brain className="w-3 h-3" style={{ color: '#5632c3' }} />
-                          <span className="text-xs font-semibold" style={{ color: '#5632c3' }}>Cross-Domain Insight</span>
+                          <Brain className="w-3 h-3" style={{ color: '#DC2626' }} />
+                          <span className="text-xs font-semibold" style={{ color: '#DC2626' }}>Cross-Domain Insight</span>
                         </div>
                         <p className="text-xs text-muted-foreground leading-relaxed">{proxyData.crossDomainInsight}</p>
                       </div>
@@ -280,9 +280,9 @@ export default function ProxyDiscussionView({ onSwitchView }: { onSwitchView: (v
         </Card>
 
         {/* Key takeaway */}
-        <div className="p-4 rounded-lg bg-gradient-to-r from-purple-500/10 via-cyan-500/10 to-emerald-500/10 border border-purple-500/20 mb-8">
+        <div className="p-4 rounded-lg bg-gradient-to-r from-red-600/10 via-cyan-500/10 to-emerald-500/10 border border-red-600/20 mb-8">
           <div className="flex items-start gap-3">
-            <ArrowRight className="w-5 h-5 mt-0.5 shrink-0" style={{ color: '#5632c3' }} />
+            <ArrowRight className="w-5 h-5 mt-0.5 shrink-0" style={{ color: '#DC2626' }} />
             <div>
               <h4 className="text-sm font-semibold mb-1">Key Takeaway</h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
@@ -302,7 +302,7 @@ export default function ProxyDiscussionView({ onSwitchView }: { onSwitchView: (v
         {/* How proxies stand out */}
         <div className="mt-10 border-t border-border/50 pt-8">
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <BookOpen className="w-5 h-5" style={{ color: '#5632c3' }} />
+            <BookOpen className="w-5 h-5" style={{ color: '#DC2626' }} />
             How These Proxies Stand Out — Comparative Advantages
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

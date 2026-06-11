@@ -19,7 +19,7 @@ const FILE_TYPE_CONFIG: Record<string, { icon: typeof FileText; color: string; l
   image: { icon: Image, color: '#e040fb', label: 'Image' },
   pdf: { icon: FileText, color: '#E63946', label: 'PDF' },
   script: { icon: Code2, color: '#49d08c', label: 'Script' },
-  document: { icon: BookOpen, color: '#5632c3', label: 'Document' },
+  document: { icon: BookOpen, color: '#DC2626', label: 'Document' },
   shell: { icon: Terminal, color: '#f59e0b', label: 'Shell Script' },
   other: { icon: FileText, color: '#8C8C8C', label: 'File' },
 }
@@ -87,7 +87,7 @@ function FileCard({ file, onPreview }: { file: ProjectFile; onPreview: (file: Pr
       transition={{ duration: 0.4 }}
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
     >
-      <Card className="h-full bg-card/50 hover:shadow-lg hover:shadow-purple-500/5 hover:border-purple-500/30 transition-all duration-300 overflow-hidden">
+      <Card className="h-full bg-card/50 hover:shadow-lg hover:shadow-red-600/5 hover:border-red-600/30 transition-all duration-300 overflow-hidden">
         {/* Image thumbnail for image files */}
         {isImage && (
           <div
@@ -205,12 +205,12 @@ export default function ResearchReportView({ onSwitchView }: { onSwitchView: (v:
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#5632c320' }}>
-              <FolderOpen className="w-5 h-5" style={{ color: '#5632c3' }} />
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#DC262620' }}>
+              <FolderOpen className="w-5 h-5" style={{ color: '#DC2626' }} />
             </div>
             <div>
               <h2 className="text-3xl md:text-4xl font-bold">
-                Research <span style={{ color: '#5632c3' }}>Archive</span>
+                Research <span style={{ color: '#DC2626' }}>Archive</span>
               </h2>
               <p className="text-muted-foreground text-sm">
                 All documentation, visualizations, and artifacts from the project
@@ -231,7 +231,7 @@ export default function ResearchReportView({ onSwitchView }: { onSwitchView: (v:
                 onClick={() => setFilterType(filterType === type ? 'all' : type)}
                 className={`flex items-center gap-2 p-3 rounded-lg border transition-all text-left ${
                   filterType === type
-                    ? 'border-purple-500/50 bg-purple-500/10 shadow-sm'
+                    ? 'border-red-600/50 bg-red-600/10 shadow-sm'
                     : 'border-border/50 bg-muted/20 hover:bg-muted/40'
                 }`}
               >
@@ -253,7 +253,7 @@ export default function ResearchReportView({ onSwitchView }: { onSwitchView: (v:
             placeholder="Search files by name or description..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-muted/30 border border-border/50 rounded-lg text-sm focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/20 transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-muted/30 border border-border/50 rounded-lg text-sm focus:outline-none focus:border-red-600/50 focus:ring-1 focus:ring-red-600/20 transition-all"
           />
         </div>
 
@@ -263,7 +263,7 @@ export default function ResearchReportView({ onSwitchView }: { onSwitchView: (v:
           <button
             onClick={() => setFilterType('all')}
             className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-              filterType === 'all' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-muted/30 text-muted-foreground border border-transparent hover:bg-muted/50'
+              filterType === 'all' ? 'bg-red-600/20 text-red-300 border border-red-600/30' : 'bg-muted/30 text-muted-foreground border border-transparent hover:bg-muted/50'
             }`}
           >
             All ({RESEARCH_FILES.length})
@@ -304,7 +304,7 @@ export default function ResearchReportView({ onSwitchView }: { onSwitchView: (v:
         {/* Document access section */}
         <div className="mt-12 border-t border-border/50 pt-8">
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <BookOpen className="w-5 h-5" style={{ color: '#5632c3' }} />
+            <BookOpen className="w-5 h-5" style={{ color: '#DC2626' }} />
             Quick Access — Key Documents
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -312,13 +312,13 @@ export default function ResearchReportView({ onSwitchView }: { onSwitchView: (v:
               href="/api/files/download?file=Impeccable_Error_Fix_Handler_Audit.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-start gap-4 p-4 rounded-lg border border-border/50 bg-muted/20 hover:bg-muted/40 hover:border-purple-500/30 transition-all"
+              className="group flex items-start gap-4 p-4 rounded-lg border border-border/50 bg-muted/20 hover:bg-muted/40 hover:border-red-600/30 transition-all"
             >
               <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-red-500/10">
                 <FileText className="w-5 h-5 text-red-400" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold group-hover:text-purple-300 transition-colors flex items-center gap-1">
+                <div className="text-sm font-semibold group-hover:text-red-300 transition-colors flex items-center gap-1">
                   Error Fix Handler Audit <ExternalLink className="w-3 h-3" />
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -330,13 +330,13 @@ export default function ResearchReportView({ onSwitchView }: { onSwitchView: (v:
               href="/api/files/download?file=Portfolio_Website_Recreation_SOP_final.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex items-start gap-4 p-4 rounded-lg border border-border/50 bg-muted/20 hover:bg-muted/40 hover:border-purple-500/30 transition-all"
+              className="group flex items-start gap-4 p-4 rounded-lg border border-border/50 bg-muted/20 hover:bg-muted/40 hover:border-red-600/30 transition-all"
             >
               <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-red-500/10">
                 <FileText className="w-5 h-5 text-red-400" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold group-hover:text-purple-300 transition-colors flex items-center gap-1">
+                <div className="text-sm font-semibold group-hover:text-red-300 transition-colors flex items-center gap-1">
                   Portfolio Website Recreation SOP <ExternalLink className="w-3 h-3" />
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">

@@ -168,12 +168,12 @@ export default function AuditView({ onSwitchView }: { onSwitchView: (v: ViewKey)
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#5632c320' }}>
-              <Eye className="w-5 h-5" style={{ color: '#5632c3' }} />
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#DC262620' }}>
+              <Eye className="w-5 h-5" style={{ color: '#DC2626' }} />
             </div>
             <div>
               <h2 className="text-3xl md:text-4xl font-bold">
-                Impeccable Error Fix Handler <span style={{ color: '#5632c3' }}>Audit</span>
+                Impeccable Error Fix Handler <span style={{ color: '#DC2626' }}>Audit</span>
               </h2>
               <p className="text-muted-foreground text-sm">
                 Five perspectives examining error handling, resilience, and hidden factors
@@ -257,12 +257,12 @@ export default function AuditView({ onSwitchView }: { onSwitchView: (v: ViewKey)
         {/* Synthesis section */}
         <div className="mt-10 border-t border-border/50 pt-8">
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <BookOpen className="w-5 h-5" style={{ color: '#5632c3' }} />
+            <BookOpen className="w-5 h-5" style={{ color: '#DC2626' }} />
             Synthesis — What All Five Perspectives Agree On
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
-              <h4 className="text-sm font-semibold text-purple-300 mb-2">The Meta-Monitoring Gap</h4>
+            <div className="p-4 rounded-lg bg-red-600/10 border border-red-600/20">
+              <h4 className="text-sm font-semibold text-red-300 mb-2">The Meta-Monitoring Gap</h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 Every perspective independently identified that the monitoring system itself has no health check. The Owl saw it as observational bias, the Eagle as a strategic vulnerability, the Beaver as a practical oversight, the Dolphin as a creative opportunity, and the Elephant as a cross-domain pattern (aviation dual-redundancy).
               </p>

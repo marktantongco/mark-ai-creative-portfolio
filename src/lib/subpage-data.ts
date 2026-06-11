@@ -114,7 +114,7 @@ export const AUDIT_PERSPECTIVES = [
     name: 'Owl',
     title: 'The Analytical Eye',
     icon: '🔍',
-    color: '#5632c3',
+    color: '#DC2626',
     domain: 'Error Detection & Analysis',
     keyInsight: 'Error handling is a system\'s immune response — each catch block is an antibody, each retry policy a white blood cell. The system that monitors its own health is the system that survives.',
     detailedAnalysis: `From the owl's slow, observant vantage point, the Impeccable Error Fix Handler reveals layers most developers overlook. The first hidden factor is that error cascades follow a power-law distribution — 80% of downtime comes from just 3 failure modes: git lock corruption, shell hook deadlocks, and framework guard infinite loops. The owl sees that the current system treats these equally, but they demand radically different response strategies.
