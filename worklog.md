@@ -7,21 +7,42 @@ Work Log:
 - Inspected and analyzed all project files (page.tsx 2163 lines, 6 images, 2 PDFs, 5 scripts, error handler README)
 - Fixed remaining name references: "ALEX CHEN" → "MARK ANTHONY TANTONGCO" in brutalist hero, cyberpunk ID, brutalist nav logo
 - Updated default nav logo from "A.lex.dev" → "M.ark.dev"
-- Copied 6 images (design_approaches, decision_tree, architecture_diagram, perspectives-tab, error-handler-tab, proxy-topics-page) to /public/images/ for frontend access
-- Created API route /api/files/route.ts for file listing with metadata and descriptions
-- Created API route /api/files/download/route.ts for serving PDFs, scripts, and documents
-- Created /src/lib/subpage-data.ts with shared data: RESEARCH_FILES (13 entries), AUDIT_PERSPECTIVES (5 animal metaphors with full analysis), FRONTEND_PERSPECTIVES (2 perspectives), PROXY_DISCUSSION (6 proxy types × 3 perspectives), PROXY_DATA (6 entries with fitScore/latency)
-- Created /src/components/views/ResearchReportView.tsx - File gallery with search, filter by type, image preview modal, quick access docs section
-- Created /src/components/views/AuditView.tsx - 5 animal perspectives (Owl, Eagle, Beaver, Dolphin, Elephant) with expandable analysis, hidden factors, recommendations, synthesis section
-- Created /src/components/views/FrontendDesignView.tsx - Dolphin + Eagle design perspectives, comparison table, 2026 design standards, WCAG 2.2 checklist
-- Created /src/components/views/ProxyDiscussionView.tsx - 6 proxy types with Elephant/Dolphin/Eagle insights, fit score bar chart, comparative advantages section
-- Updated page.tsx: new ViewKey types (research, audit, frontend-design, proxy-discussion), imports for 4 new view components, 9-item navigation with "More" dropdown, Research & Deep Dives section on Home page
-- Added PROXY_DATA export to subpage-data.ts (was missing, caught by browser test)
-- All lint checks pass, zero console errors across all 9 views
+- Copied 6 images to /public/images/ for frontend access
+- Created API routes for file listing and document download
+- Created /src/lib/subpage-data.ts with shared data: RESEARCH_FILES, AUDIT_PERSPECTIVES, FRONTEND_PERSPECTIVES, PROXY_DISCUSSION, PROXY_DATA
+- Created 4 view components: ResearchReportView, AuditView, FrontendDesignView, ProxyDiscussionView
+- Updated page.tsx with 9-item navigation with "More" dropdown
+- Added "Research & Deep Dives" section on Home page
 
 Stage Summary:
-- 4 new interactive subpages fully functional: Research Archive, Audit, Frontend Design, Proxy Discussion
-- All project files (images, PDFs, scripts, docs) accessible from frontend
-- 5 animal perspectives fully integrated with expandable analysis, hidden factors, and recommendations
-- Navigation updated with "More" dropdown for 9 views
-- Browser-verified: all pages load, image thumbnails render, expandable sections work, zero errors
+- 4 new interactive subpages fully functional
+- All project files accessible from frontend
+- Browser-verified: all pages load, zero errors
+
+---
+Task ID: 2
+Agent: Main Agent
+Task: Integrate Mark Anthony Tantongco's real portfolio background from uploaded HTML
+
+Work Log:
+- Read and extracted all personal data from /home/z/my-project/upload/portfolio-mark-v2-FINAL.html
+- Extracted: real title (AI Creative Technologist), location (Taguig, Philippines), brand (powerUP), 3 real projects (InsureHUB, Habits Class PWA, BREAKTHROUGH), 6 service pillars, 4-stage journey timeline, social links, faith-driven mission statements, design aesthetic (#ccff00 accent, neo-brutalist)
+- Updated layout.tsx metadata with real identity and SEO keywords
+- Updated hero section: "AI CREATIVE TECHNOLOGIST" badge, "Prompt engineering. Digital brand systems. Faith-driven code." subtitle, Taguig location, powerUP brand
+- Changed accent color from purple (#5632c3) to electric lime (#ccff00) matching powerUP brand
+- Replaced generic timeline with Mark's real 4-stage journey (2020→2025-26)
+- Replaced generic projects with InsureHUB (300KB, 98 Lighthouse, 40%↑ inquiries), Habits Class PWA (200+ users, 92% completion), BREAKTHROUGH (50+ pieces, 30% pass rate)
+- Added new "Six Service Pillars" section with 6 cards: Prompt Engineering, Brand Systems, Production Code, ComfyUI Pipelines, GEO & SEO Strategy, Brand Mastery
+- Updated manifesto: "Quality over speed. Faith-driven. Impact-focused. Always."
+- Updated footer: "© 2024–2026 powerUP · Taguig, Philippines", GitHub/Instagram/LinkedIn links
+- Updated nav logo: "MARK.TECH" with #ccff00 accent
+- Updated hero gradient and animated bar to #ccff00/#00ffff color scheme
+- Fixed service numbering display (01-06 prefix visible in cards)
+- Pre-flight button kept purple (#5632c3) for technical section consistency
+
+Stage Summary:
+- Portfolio fully integrated with Mark Anthony Tantongco's real identity, projects, services, and brand
+- powerUP brand identity with #ccff00 accent color throughout home/default views
+- All 3 real projects with metrics, 6 service pillars, faith-driven manifesto
+- Social links: github.com/marktantongco, instagram.com/markytanky, linkedin.com/in/marktantongco1
+- Browser-verified: all sections render correctly, zero errors

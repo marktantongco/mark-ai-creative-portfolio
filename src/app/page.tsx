@@ -151,17 +151,25 @@ const PREFLIGHT_CHECKS = [
 ]
 
 const PROJECTS = [
-  { name: 'Resilience Proxy', desc: 'Self-healing middleware with automatic failover and circuit breaking for multi-target deployments', tech: ['TypeScript', 'WebSocket', 'Circuit Breaker'], color: '#5632c3' },
-  { name: 'Deploy Sentinel', desc: 'Pre-flight deployment checker with real-time health monitoring and rollback capabilities', tech: ['Next.js', 'Node.js', 'Health Checks'], color: '#49d08c' },
-  { name: 'Mesh Visualizer', desc: 'Interactive service mesh topology and real-time traffic flow viewer for microservices', tech: ['React', 'D3.js', 'gRPC'], color: '#e040fb' },
-  { name: 'API Forge', desc: 'Gateway composition layer for microservices with intelligent request routing', tech: ['GraphQL', 'REST', 'Rate Limiting'], color: '#ff6d00' },
+  { name: 'InsureHUB', desc: 'Pacific Cross health platform with GSAP animations, interactive HEV calculator, Chart.js radar visualization, and neo-brutalist design. Single-file HTML deployment on production.', tech: ['GSAP', 'Chart.js', 'HTML5', 'Cloudflare Worker'], color: '#ccff00', metrics: '300KB · 98 Lighthouse · 40%↑ inquiries' },
+  { name: 'Habits Class PWA', desc: 'Faith-based 4-week discipleship tracker with S.O.A.P. journaling, gamification system, teacher dashboard, and real-time sync. 200+ active users, 92% completion rate.', tech: ['React', 'PWA', 'GSAP', 'Vercel'], color: '#00e676', metrics: '200+ users · 92% completion · 500ms load' },
+  { name: 'BREAKTHROUGH Series', desc: 'Cinematic AI visual series — 50+ faith + empowerment compositions. ComfyUI pipelines, Flux AI generation, photography AI scaffold method. 30% quality pass rate.', tech: ['ComfyUI', 'Flux AI', 'Photography AI', 'Prompt Engineering'], color: '#00ffff', metrics: '50+ pieces · 8 LoRA models · 30% pass rate' },
+]
+
+const SERVICES = [
+  { id: '01', category: 'INTELLIGENCE', title: 'Prompt Engineering', subtitle: 'Systems & Frameworks', detail: 'Advanced prompt architectures. Claude API integration. Meta-frameworks for self-improving systems. Structured outputs. Critique loops that refine themselves.', tags: ['Claude API', 'Prompt Design', 'Structured Output'], icon: Brain },
+  { id: '02', category: 'IDENTITY', title: 'Brand Systems', subtitle: 'Design Tokens & Runtime', detail: 'Living design systems. Token-driven architecture. Neo-brutalist aesthetics. Brand runtimes that survive AI generation. Design as code.', tags: ['Design Tokens', 'CSS Variables', 'Type System'], icon: Layers },
+  { id: '03', category: 'FRONTEND', title: 'Production Code', subtitle: 'React · Next.js · Vite', detail: 'React/Next.js/Vite applications. GSAP cinematic animations. Three.js WebGL. WebGPU shaders. Single-file deployments. Performance-first.', tags: ['React/Next.js', 'GSAP', 'WebGL/WebGPU'], icon: Code2 },
+  { id: '04', category: 'AUTOMATION', title: 'ComfyUI Pipelines', subtitle: 'AI Image Workflows', detail: 'ComfyUI node architecture. ACES color science. Flux & Gemini Imagen prompts. Photography AI. Lightroom automation. Systems that run 24/7.', tags: ['ComfyUI', 'ACES Color', 'Photography AI'], icon: Sparkles },
+  { id: '05', category: 'DISCOVERY', title: 'GEO & SEO Strategy', subtitle: 'AI Citation Architecture', detail: 'AI citation architecture (GEO). Structured data for AI engines. JSON-LD strategies. Content designed to be cited by Claude, ChatGPT, Perplexity.', tags: ['GEO Strategy', 'JSON-LD', 'SEO Architecture'], icon: Search },
+  { id: '06', category: 'INSURANCE', title: 'Brand Mastery', subtitle: 'Licensed Agent · Pacific Cross', detail: 'Licensed insurance agent (Pacific Cross). Blue Royale (lifetime coverage). FlexiShield (HEV enhancer). Combining technical expertise with financial literacy.', tags: ['Pacific Cross', 'Blue Royale', 'FlexiShield'], icon: Shield },
 ]
 
 const TIMELINE = [
-  { year: '2015', title: 'The Terminal Years', desc: 'Started coding in Vim, deploying via FTP. Every script was an adventure and every server a mystery waiting to be solved.', style: 'terminal' as const },
-  { year: '2020', title: 'The Cloud Shift', desc: 'Containers, orchestration, infrastructure as code. Kubernetes changed everything — including our sleep schedules and on-call rotations.', style: 'cyberpunk' as const },
-  { year: '2023', title: 'The Design Renaissance', desc: 'When developers started caring about typography and whitespace. Craft met engineering at the intersection of beauty and reliability.', style: 'editorial' as const },
-  { year: '2026', title: 'The Resilient Future', desc: 'Self-healing systems, AI-assisted debugging, and the era of antifragile infrastructure. Failures became features, not fears.', style: 'bento' as const },
+  { year: '2020', title: 'The Beginning', desc: 'Photographer → Creative Director. Built creative direction frameworks. Realized: the leverage wasn\'t in individual pieces — it was in systems. Started teaching others.', style: 'terminal' as const },
+  { year: '2021–22', title: 'Code as a Medium', desc: 'Closed the gap between imagination and execution. Learned React, shipped WebGL projects, built GSAP animations. Code became a creative medium, not a limitation.', style: 'cyberpunk' as const },
+  { year: '2023–24', title: 'AI Systems Architecture', desc: 'Built ComfyUI pipelines. Claude API integrations. Prompt engineering frameworks. Realized: highest leverage is building tools, not using them. Systems over execution.', style: 'editorial' as const },
+  { year: '2025–26', title: 'Living Digital Organisms', desc: 'Everything converged. Building systems that think, adapt, grow. Faith-driven. Impact-focused. Quality over speed. Always. powerUP brand is the vehicle.', style: 'bento' as const },
 ]
 
 const DEPLOYMENT_TARGETS = [
@@ -552,7 +560,7 @@ function TimelineEraCard({ era, index }: { era: typeof TIMELINE[number]; index: 
       className={`relative flex items-start gap-4 md:gap-8 ${isLeft ? 'md:flex-row' : 'md:flex-row-reverse'} flex-row`}
     >
       <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 z-10">
-        <div className="w-4 h-4 rounded-full border-2 border-purple-500 bg-background" />
+        <div className="w-4 h-4 rounded-full border-2 border-[#ccff00] bg-background" />
       </div>
       <div className="hidden md:block w-1/2" />
       <div className="w-full md:w-1/2">
@@ -585,8 +593,8 @@ function HomeView({ onSwitchView, timelineRef }: { onSwitchView: (v: ViewKey) =>
             backgroundSize: '60px 60px',
           }}
         />
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#ccff00]/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#00ffff]/5 rounded-full blur-3xl" />
 
         <div className="relative max-w-6xl mx-auto px-4 md:px-6 py-24 md:py-36 text-center">
           <motion.div
@@ -595,17 +603,36 @@ function HomeView({ onSwitchView, timelineRef }: { onSwitchView: (v: ViewKey) =>
             transition={{ duration: 0.7, delay: 0.1 }}
           >
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6">
-              Mark Anthony <span style={{ color: '#5632c3' }}>Tantongco</span>
+              Mark Anthony <span style={{ color: '#ccff00' }}>Tantongco</span>
             </h1>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="mb-4"
+          >
+            <span className="inline-block px-4 py-1.5 text-sm font-mono tracking-[0.2em] uppercase border border-[#ccff00]/40 text-[#ccff00] rounded-sm">
+              AI Creative Technologist
+            </span>
           </motion.div>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10"
+            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4"
           >
-            Building resilient systems from frontend to deployment
+            Prompt engineering. Digital brand systems. Faith-driven code.
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
+            className="text-sm text-muted-foreground/60 mb-10"
+          >
+            I build systems that think, remember, and grow. Based in Taguig, Philippines. Operating under <span style={{ color: '#ccff00' }}>powerUP</span>.
           </motion.p>
 
           <motion.div
@@ -636,7 +663,7 @@ function HomeView({ onSwitchView, timelineRef }: { onSwitchView: (v: ViewKey) =>
         <div className="h-0.5 w-full overflow-hidden">
           <motion.div
             className="h-full w-[200%]"
-            style={{ background: 'linear-gradient(90deg, #5632c3, #49d08c, #5632c3, #49d08c)' }}
+            style={{ background: 'linear-gradient(90deg, #ccff00, #00ffff, #ccff00, #00ffff)' }}
             animate={{ x: ['-50%', '0%'] }}
             transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
           />
@@ -651,7 +678,7 @@ function HomeView({ onSwitchView, timelineRef }: { onSwitchView: (v: ViewKey) =>
           viewport={{ once: true }}
           className="text-3xl md:text-4xl font-bold text-center mb-4"
         >
-          The <span style={{ color: '#5632c3' }}>Journey</span>
+          The <span style={{ color: '#ccff00' }}>Journey</span>
         </motion.h2>
         <motion.p
           initial={{ opacity: 0 }}
@@ -663,14 +690,14 @@ function HomeView({ onSwitchView, timelineRef }: { onSwitchView: (v: ViewKey) =>
         </motion.p>
 
         <div className="relative">
-          <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-purple-500/40 via-emerald-500/40 to-purple-500/40" />
-          <div className="md:hidden absolute left-3 top-0 bottom-0 w-px bg-gradient-to-b from-purple-500/40 via-emerald-500/40 to-purple-500/40" />
+          <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-[#ccff00]/40 via-[#00ffff]/40 to-[#ccff00]/40" />
+          <div className="md:hidden absolute left-3 top-0 bottom-0 w-px bg-gradient-to-b from-[#ccff00]/40 via-[#00ffff]/40 to-[#ccff00]/40" />
 
           <div className="space-y-8 md:space-y-12">
             {TIMELINE.map((era, index) => (
               <div key={era.year} className="relative">
                 <div className="md:hidden absolute left-3 top-4 -translate-x-1/2 z-10">
-                  <div className="w-3 h-3 rounded-full border-2 border-purple-500 bg-background" />
+                  <div className="w-3 h-3 rounded-full border-2 border-[#ccff00] bg-background" />
                 </div>
                 <div className="md:hidden pl-8">
                   <TimelineEraCard era={era} index={0} />
@@ -692,7 +719,7 @@ function HomeView({ onSwitchView, timelineRef }: { onSwitchView: (v: ViewKey) =>
           viewport={{ once: true }}
           className="text-3xl md:text-4xl font-bold text-center mb-4"
         >
-          Featured <span style={{ color: '#49d08c' }}>Projects</span>
+          Featured <span style={{ color: '#00ffff' }}>Work</span>
         </motion.h2>
         <motion.p
           initial={{ opacity: 0 }}
@@ -700,10 +727,10 @@ function HomeView({ onSwitchView, timelineRef }: { onSwitchView: (v: ViewKey) =>
           viewport={{ once: true }}
           className="text-muted-foreground text-center mb-12"
         >
-          Things I&apos;ve built, broken, and shipped
+          Things I&apos;ve built with faith, code, and conviction
         </motion.p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           {PROJECTS.map((project, i) => (
             <motion.div
               key={project.name}
@@ -713,7 +740,7 @@ function HomeView({ onSwitchView, timelineRef }: { onSwitchView: (v: ViewKey) =>
               transition={{ duration: 0.5, delay: i * 0.1 }}
             >
               <a href="#" className="block group" onClick={(e) => e.preventDefault()}>
-                <Card className="h-full transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/5 hover:border-purple-500/30 bg-card/50">
+                <Card className="h-full transition-all duration-300 hover:shadow-lg hover:shadow-[#ccff00]/5 hover:border-[#ccff00]/30 bg-card/50">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <CardTitle className="text-lg group-hover:transition-colors" style={{ color: project.color }}>
@@ -724,16 +751,78 @@ function HomeView({ onSwitchView, timelineRef }: { onSwitchView: (v: ViewKey) =>
                     <CardDescription className="text-sm">{project.desc}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 mb-3">
                       {project.tech.map((t) => (
-                        <Badge key={t} variant="secondary" className="text-xs">{t}</Badge>
+                        <Badge key={t} variant="outline" className="text-xs" style={{ borderColor: `${project.color}40`, color: project.color }}>{t}</Badge>
                       ))}
                     </div>
+                    {project.metrics && (
+                      <div className="text-[10px] font-mono tracking-wider text-muted-foreground/60 border-t border-border/30 pt-2">
+                        {project.metrics}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </a>
             </motion.div>
           ))}
+        </div>
+      </section>
+
+      {/* ===== SERVICES SECTION ===== */}
+      <section className="max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-24">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-3xl md:text-4xl font-bold text-center mb-4"
+        >
+          Six <span style={{ color: '#ccff00' }}>Service</span> Pillars
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="text-muted-foreground text-center mb-12"
+        >
+          From intelligence to insurance — full-spectrum digital capability
+        </motion.p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {SERVICES.map((service, i) => {
+            const Icon = service.icon
+            return (
+              <motion.div
+                key={service.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              >
+                <Card className="h-full bg-card/50 hover:shadow-lg hover:shadow-[#ccff00]/5 transition-all">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-mono tracking-[0.15em] text-[#ccff00]/60">{service.id} {service.category}</span>
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#ccff0015' }}>
+                        <Icon className="w-4 h-4" style={{ color: '#ccff00' }} />
+                      </div>
+                    </div>
+                    <CardTitle className="text-base">{service.title}</CardTitle>
+                    <CardDescription className="text-xs">{service.subtitle}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-xs text-muted-foreground leading-relaxed mb-3">{service.detail}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {service.tags.map((tag) => (
+                        <Badge key={tag} variant="outline" className="text-[10px] px-1.5 py-0 border-[#ccff00]/20 text-[#ccff00]/70">{tag}</Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )
+          })}
         </div>
       </section>
 
@@ -801,8 +890,8 @@ function HomeView({ onSwitchView, timelineRef }: { onSwitchView: (v: ViewKey) =>
 
       {/* ===== MANIFESTO SECTION ===== */}
       <section className="relative overflow-hidden py-20 md:py-32">
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-purple-900/10 to-background" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-[#ccff00]/5 to-background" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#ccff00]/5 rounded-full blur-3xl" />
 
         <div className="relative max-w-4xl mx-auto px-4 md:px-6 text-center">
           <motion.div
@@ -812,30 +901,30 @@ function HomeView({ onSwitchView, timelineRef }: { onSwitchView: (v: ViewKey) =>
             transition={{ duration: 0.7 }}
           >
             <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">
-              The best error is the one
+              Quality over speed.
               <br />
-              <span style={{ color: '#5632c3' }}>your system handles before</span>
+              <span style={{ color: '#ccff00' }}>Faith-driven. Impact-focused.</span>
               <br />
-              anyone notices.
+              Always.
             </h2>
             <p className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto">
-              Resilience isn&apos;t about never failing — it&apos;s about failing gracefully, recovering instantly,
-              and making it look effortless.
+              Building living digital organisms at the intersection of prompt engineering,
+              visual design, and faith-driven code. Systems that think, remember, and grow.
             </p>
             <motion.button
               onClick={() => onSwitchView('error-handler')}
               className="inline-flex items-center gap-2 px-8 py-4 text-lg font-bold rounded-lg transition-all"
               style={{
-                backgroundColor: '#00E5FF',
-                color: '#000',
-                border: '3px solid #000',
-                boxShadow: '4px 4px 0px #000',
+                backgroundColor: '#ccff00',
+                color: '#0a0a0a',
+                border: '3px solid #0a0a0a',
+                boxShadow: '4px 4px 0px #0a0a0a',
               }}
-              whileHover={{ scale: 1.05, boxShadow: '6px 6px 0px #000' }}
+              whileHover={{ scale: 1.05, boxShadow: '6px 6px 0px #0a0a0a' }}
               whileTap={{ scale: 0.95 }}
             >
               <Zap className="w-5 h-5" />
-              See How I Build for Failure
+              See How I Build for Resilience
             </motion.button>
           </motion.div>
         </div>
@@ -2071,7 +2160,7 @@ export default function PortfolioPage() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-6xl mx-auto px-4 md:px-6 h-14 flex items-center justify-between">
           <button onClick={() => switchView('home')} className="text-lg font-bold tracking-tight">
-            <span style={{ color: '#5632c3' }}>M</span>ark<span className="text-muted-foreground">.dev</span>
+            <span style={{ color: '#ccff00' }}>M</span>ARK<span className="text-muted-foreground">.TECH</span>
           </button>
           <div className="flex items-center gap-1 md:gap-3 overflow-x-auto">
             {primaryItems.map((item) => (
@@ -2087,7 +2176,7 @@ export default function PortfolioPage() {
                   <motion.div
                     layoutId="nav-underline"
                     className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
-                    style={{ backgroundColor: '#5632c3' }}
+                    style={{ backgroundColor: '#ccff00' }}
                   />
                 )}
               </button>
@@ -2103,7 +2192,7 @@ export default function PortfolioPage() {
                   <motion.div
                     layoutId="nav-underline"
                     className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
-                    style={{ backgroundColor: '#5632c3' }}
+                    style={{ backgroundColor: '#ccff00' }}
                   />
                 )}
               </button>
@@ -2200,16 +2289,19 @@ export default function PortfolioPage() {
       <footer className="border-t border-border py-6 px-4 mt-auto">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Last deployed: Live</span>
+            <div className="w-2 h-2 rounded-full bg-[#ccff00] animate-pulse" />
+            <span>© 2024–2026 <span style={{ color: '#ccff00' }}>powerUP</span> · Taguig, Philippines</span>
           </div>
-          <span>Built with Next.js + GSAP spirit</span>
+          <span className="font-mono text-xs">Built with faith, code, and GSAP spirit</span>
           <div className="flex items-center gap-4">
-            <a href="#" className="hover:text-foreground transition-colors flex items-center gap-1" onClick={(e) => e.preventDefault()}>
+            <a href="https://github.com/marktantongco" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors flex items-center gap-1">
               <Code2 className="w-4 h-4" /> GitHub
             </a>
-            <a href="#" className="hover:text-foreground transition-colors flex items-center gap-1" onClick={(e) => e.preventDefault()}>
-              <Mail className="w-4 h-4" /> Email
+            <a href="https://instagram.com/markytanky" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors flex items-center gap-1">
+              <Mail className="w-4 h-4" /> Instagram
+            </a>
+            <a href="https://linkedin.com/in/marktantongco1" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors flex items-center gap-1">
+              <ArrowUpRight className="w-4 h-4" /> LinkedIn
             </a>
           </div>
         </div>
