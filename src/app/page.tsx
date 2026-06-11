@@ -591,7 +591,7 @@ function HomeView({ onSwitchView, timelineRef }: { onSwitchView: (v: ViewKey) =>
             transition={{ duration: 0.7, delay: 0.1 }}
           >
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6">
-              Alex <span style={{ color: '#5632c3' }}>Chen</span>
+              Mark Anthony <span style={{ color: '#5632c3' }}>Tantongco</span>
             </h1>
           </motion.div>
 
@@ -1297,7 +1297,7 @@ function OrganicView({
               className="text-5xl md:text-7xl lg:text-8xl font-serif italic mb-6 leading-tight"
               style={{ color: '#2C2C2C' }}
             >
-              Alex Chen
+              Mark Anthony Tantongco
             </h1>
           </motion.div>
           <motion.div
@@ -1940,7 +1940,7 @@ export default function PortfolioPage() {
         <nav className="fixed top-0 left-0 right-0 z-50 bg-[#FAF8F5]/90 backdrop-blur-md border-b border-[#D4C5A9]/30 font-serif">
           <div className="max-w-6xl mx-auto px-4 md:px-6 h-14 flex items-center justify-between">
             <button onClick={() => switchView('home')} className="text-lg font-serif font-semibold text-[#2C2C2C]">
-              Alex <span className="text-[#A8B5A0]">Chen</span>
+              Mark Anthony <span className="text-[#A8B5A0]">Tantongco</span>
             </button>
             <div className="flex items-center gap-6">
               {navItems.map((item) => (

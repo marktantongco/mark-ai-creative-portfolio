@@ -14,21 +14,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Alex Chen — Portfolio",
+  title: "Mark Anthony Tantongco — Portfolio",
   description: "Building resilient systems from frontend to deployment. Interactive portfolio with proxy architecture deep-dive.",
   keywords: ["portfolio", "Next.js", "TypeScript", "proxy", "error handling", "resilience"],
-  authors: [{ name: "Alex Chen" }],
+  authors: [{ name: "Mark Anthony Tantongco" }],
   icons: {
     icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
   },
   openGraph: {
-    title: "Alex Chen — Portfolio",
+    title: "Mark Anthony Tantongco — Portfolio",
     description: "Building resilient systems from frontend to deployment",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Alex Chen — Portfolio",
+    title: "Mark Anthony Tantongco — Portfolio",
     description: "Building resilient systems from frontend to deployment",
   },
 };
