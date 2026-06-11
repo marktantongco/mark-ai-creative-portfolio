@@ -16,12 +16,16 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import {
   Accordion, AccordionItem, AccordionTrigger, AccordionContent,
 } from '@/components/ui/accordion'
+import ResearchReportView from '@/components/views/ResearchReportView'
+import AuditView from '@/components/views/AuditView'
+import FrontendDesignView from '@/components/views/FrontendDesignView'
+import ProxyDiscussionView from '@/components/views/ProxyDiscussionView'
 
 // =============================================================
 // TYPES
 // =============================================================
 
-type ViewKey = 'home' | 'error-handler' | 'brutalist' | 'organic' | 'cyberpunk'
+type ViewKey = 'home' | 'error-handler' | 'brutalist' | 'organic' | 'cyberpunk' | 'research' | 'audit' | 'frontend-design' | 'proxy-discussion'
 type PreflightStatus = 'idle' | 'running' | 'pass' | 'fail'
 
 // =============================================================
@@ -733,6 +737,68 @@ function HomeView({ onSwitchView, timelineRef }: { onSwitchView: (v: ViewKey) =>
         </div>
       </section>
 
+      {/* ===== RESEARCH & DEEP DIVES SECTION ===== */}
+      <section className="max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-24">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-3xl md:text-4xl font-bold text-center mb-4"
+        >
+          Research & <span style={{ color: '#e040fb' }}>Deep Dives</span>
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="text-muted-foreground text-center mb-12"
+        >
+          Multi-perspective audits, cross-domain analysis, and design philosophy
+        </motion.p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { key: 'research' as ViewKey, label: 'Research Archive', desc: 'All documentation, visualizations, and project artifacts', color: '#5632c3', icon: BookOpen },
+            { key: 'audit' as ViewKey, label: 'Error Handler Audit', desc: '5 animal-metaphor perspectives on resilience and error handling', color: '#f59e0b', icon: Search },
+            { key: 'frontend-design' as ViewKey, label: 'Frontend Design', desc: 'Creative and strategic lenses on resilient UI/UX patterns', color: '#00E5FF', icon: Sparkles },
+            { key: 'proxy-discussion' as ViewKey, label: 'Proxy Discussion', desc: 'Cross-domain insights and strategic analysis of proxy types', color: '#e040fb', icon: Lightbulb },
+          ].map((item, i) => {
+            const Icon = item.icon
+            return (
+              <motion.div
+                key={item.key}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                whileHover={{ y: -6, transition: { duration: 0.2 } }}
+              >
+                <Card
+                  className="cursor-pointer h-full bg-card/50 hover:shadow-lg transition-all hover:border-opacity-50"
+                  style={{ borderTop: `3px solid ${item.color}` }}
+                  onClick={() => onSwitchView(item.key)}
+                >
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-8 h-8 rounded-lg flex items-center justify-center"
+                        style={{ backgroundColor: `${item.color}20` }}
+                      >
+                        <Icon className="w-4 h-4" style={{ color: item.color }} />
+                      </div>
+                      <CardTitle className="text-sm" style={{ color: item.color }}>{item.label}</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )
+          })}
+        </div>
+      </section>
+
       {/* ===== MANIFESTO SECTION ===== */}
       <section className="relative overflow-hidden py-20 md:py-32">
         <div className="absolute inset-0 bg-gradient-to-b from-background via-purple-900/10 to-background" />
@@ -1076,7 +1142,7 @@ function BrutalistView({
             transition={{ duration: 0.1 }}
             className="text-5xl md:text-7xl lg:text-8xl font-mono uppercase tracking-[0.1em] mb-4"
           >
-            ALEX <span className="text-[#E63946]">CHEN</span>
+            MARK ANTHONY <span className="text-[#E63946]">TANTONGCO</span>
           </motion.h1>
           <div className="w-48 h-1 bg-[#E63946] mb-8" />
           <motion.p
@@ -1619,7 +1685,7 @@ function CyberpunkView({
               NEX//DEV
             </h1>
             <div className="text-[#00E5FF]/60 text-sm mb-8">
-              {'>'} ID: ALEX_CHEN // ROLE: RESILIENCE_ARCHITECT // STATUS: ONLINE
+              {'>'} ID: MARK_ANTHONY_TANTONGCO // ROLE: RESILIENCE_ARCHITECT // STATUS: ONLINE
             </div>
           </motion.div>
 
@@ -1901,6 +1967,10 @@ export default function PortfolioPage() {
     { key: 'brutalist', label: 'Brutalist' },
     { key: 'organic', label: 'Organic' },
     { key: 'cyberpunk', label: 'Cyberpunk' },
+    { key: 'research', label: 'Research' },
+    { key: 'audit', label: 'Audit' },
+    { key: 'frontend-design', label: 'Design' },
+    { key: 'proxy-discussion', label: 'Proxies' },
   ]
 
   // Determine nav style based on current view
@@ -1915,7 +1985,7 @@ export default function PortfolioPage() {
         <nav className="fixed top-0 left-0 right-0 z-50 bg-[#1a1a1a] border-b-2 border-[#F5F5F0] font-mono">
           <div className="max-w-6xl mx-auto px-4 md:px-6 h-14 flex items-center justify-between">
             <button onClick={() => switchView('home')} className="text-lg font-bold tracking-[0.1em] uppercase text-[#F5F5F0]">
-              <span className="text-[#E63946]">A</span>LEX.DEV
+              <span className="text-[#E63946]">M</span>ARK.DEV
             </button>
             <div className="flex items-center gap-6">
               {navItems.map((item) => (
@@ -1992,19 +2062,23 @@ export default function PortfolioPage() {
       )
     }
 
-    // Default nav (home / error-handler)
+    // Default nav (home / error-handler / research / audit / etc.)
+    const primaryItems = navItems.slice(0, 5)
+    const secondaryItems = navItems.slice(5)
+    const showSecondary = secondaryItems.some(item => currentView === item.key)
+
     return (
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-6xl mx-auto px-4 md:px-6 h-14 flex items-center justify-between">
           <button onClick={() => switchView('home')} className="text-lg font-bold tracking-tight">
-            <span style={{ color: '#5632c3' }}>A</span>lex<span className="text-muted-foreground">.dev</span>
+            <span style={{ color: '#5632c3' }}>M</span>ark<span className="text-muted-foreground">.dev</span>
           </button>
-          <div className="flex items-center gap-6">
-            {navItems.map((item) => (
+          <div className="flex items-center gap-1 md:gap-3 overflow-x-auto">
+            {primaryItems.map((item) => (
               <button
                 key={item.key}
                 onClick={() => switchView(item.key)}
-                className={`text-sm font-medium transition-colors relative pb-1 ${
+                className={`text-sm font-medium transition-colors relative pb-1 whitespace-nowrap px-1 ${
                   currentView === item.key ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
@@ -2018,6 +2092,35 @@ export default function PortfolioPage() {
                 )}
               </button>
             ))}
+            <div className="relative group">
+              <button
+                className={`text-sm font-medium transition-colors relative pb-1 px-1 flex items-center gap-1 ${
+                  showSecondary ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                More <ChevronDown className="w-3 h-3" />
+                {showSecondary && (
+                  <motion.div
+                    layoutId="nav-underline"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
+                    style={{ backgroundColor: '#5632c3' }}
+                  />
+                )}
+              </button>
+              <div className="absolute right-0 top-full mt-1 py-2 bg-background/95 backdrop-blur-md border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 min-w-[180px]">
+                {secondaryItems.map((item) => (
+                  <button
+                    key={item.key}
+                    onClick={() => switchView(item.key)}
+                    className={`block w-full text-left px-4 py-2 text-sm transition-colors ${
+                      currentView === item.key ? 'text-foreground font-medium bg-purple-500/10' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </nav>
@@ -2153,6 +2256,18 @@ export default function PortfolioPage() {
               toggleProxy={toggleProxy}
               onSwitchView={switchView}
             />
+          )}
+          {currentView === 'research' && (
+            <ResearchReportView onSwitchView={switchView} />
+          )}
+          {currentView === 'audit' && (
+            <AuditView onSwitchView={switchView} />
+          )}
+          {currentView === 'frontend-design' && (
+            <FrontendDesignView onSwitchView={switchView} />
+          )}
+          {currentView === 'proxy-discussion' && (
+            <ProxyDiscussionView onSwitchView={switchView} />
           )}
         </AnimatePresence>
       </main>
