@@ -32,33 +32,26 @@ type ViewKey = 'home' | 'error-handler' | 'brutalist' | 'organic' | 'cyberpunk' 
 type PreflightStatus = 'idle' | 'running' | 'pass' | 'fail'
 
 // =============================================================
-// RED COLOR SYSTEM
+// MIDNIGHT EMBER COLOR SYSTEM
+// Premium dark + warm amber/gold accent
+// Palette DNA: craftsmanship, faith, technology, warmth
 // =============================================================
 
-const RED = {
-  50: '#FEF2F2',
-  100: '#FEE2E2',
-  200: '#FECACA',
-  300: '#FCA5A5',
-  400: '#F87171',
-  500: '#EF4444',
-  600: '#DC2626',
-  700: '#B91C1C',
-  800: '#991B1B',
-  900: '#7F1D1D',
-  950: '#450A0A',
-}
-
 const COLORS = {
-  primary: RED[600],
-  primaryLight: RED[400],
-  primaryDark: RED[800],
-  accent: '#FBBF24',
-  cyan: '#22D3EE',
-  emerald: '#34D399',
-  amber: '#F59E0B',
-  violet: '#A78BFA',
-  fuchsia: '#E879F9',
+  // Primary — Warm amber/gold (the signature)
+  primary: '#D4A017',       // Rich gold — premium, faith-driven
+  primaryLight: '#F5D060',  // Bright gold — highlights, active states
+  primaryDark: '#A17B12',   // Deep gold — borders, subtle accents
+
+  // Accent — Warm teal (intelligence + technology)
+  accent: '#2DD4BF',
+
+  // Supporting — each with purpose
+  cyan: '#22D3EE',          // Innovation, fresh ideas
+  emerald: '#34D399',       // Success, growth, faith
+  amber: '#F59E0B',         // Warmth, energy, urgency
+  violet: '#A78BFA',        // Creativity, AI, imagination
+  rose: '#FB7185',          // Care, compassion, insurance
 }
 
 // =============================================================
@@ -116,7 +109,7 @@ const SERVICES = [
     label: 'INSURANCE',
     title: 'Brand Mastery',
     subtitle: 'Licensed Agent · Pacific Cross',
-    color: COLORS.cyan,
+    color: COLORS.rose,
     description: 'Licensed insurance agent (Pacific Cross). Blue Royale (lifetime coverage). FlexiShield (HEV enhancer). Combining technical expertise with financial literacy.',
     tags: ['Pacific Cross', 'Blue Royale', 'FlexiShield'],
   },
@@ -331,16 +324,16 @@ function ScrollableNav({ currentView, onNavigate }: { currentView: ViewKey; onNa
   const backlinks = BACKLINKS[currentView]
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-red-600/20 bg-[#0a0a0a]/95 backdrop-blur-xl">
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-amber-600/20 bg-[#0f0e0c]/95 backdrop-blur-xl">
       {/* Main nav row */}
       <div className="flex items-center gap-4 px-4 md:px-6 h-14">
         {/* Logo */}
         <button onClick={() => onNavigate('home')} className="shrink-0 flex flex-col items-start">
-          <span className="font-bold text-red-500 text-lg tracking-widest leading-none">MARK.TECH</span>
+          <span className="font-bold text-amber-500 text-lg tracking-widest leading-none">MARK.TECH</span>
           <span className="text-[9px] tracking-[0.25em] text-muted-foreground/50 uppercase leading-none mt-0.5">powerUP</span>
         </button>
 
-        <div className="w-px h-6 bg-red-600/20 shrink-0" />
+        <div className="w-px h-6 bg-amber-600/20 shrink-0" />
 
         {/* Scrollable nav links */}
         <div ref={navRef} className="nav-scroll flex-1 flex items-center gap-1 overflow-x-auto" style={{ scrollbarWidth: 'thin' }}>
@@ -353,7 +346,7 @@ function ScrollableNav({ currentView, onNavigate }: { currentView: ViewKey; onNa
                 onClick={() => { onNavigate(link.key); setMobileMenuOpen(false) }}
                 className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium tracking-wide transition-all duration-200 ${
                   isActive
-                    ? 'bg-red-600/15 text-red-400 border border-red-600/30'
+                    ? 'bg-amber-500/10 text-amber-400 border border-amber-600/25'
                     : 'text-muted-foreground/70 hover:text-foreground hover:bg-muted/30 border border-transparent'
                 }`}
               >
@@ -383,14 +376,14 @@ function ScrollableNav({ currentView, onNavigate }: { currentView: ViewKey; onNa
       </div>
 
       {/* Worktree + Backlinks row */}
-      <div className="flex items-center gap-3 px-4 md:px-6 h-8 border-t border-border/30 bg-[#0a0a0a]/60">
+      <div className="flex items-center gap-3 px-4 md:px-6 h-8 border-t border-border/30 bg-[#0f0e0c]/60">
         {/* Worktree path */}
         <div className="flex items-center gap-1 text-[10px] font-mono text-muted-foreground/50 overflow-x-auto shrink-0">
           <FolderTree className="w-3 h-3 shrink-0" />
           {worktree.map((segment, i) => (
             <React.Fragment key={i}>
-              {i > 0 && <ChevronRight className="w-2.5 h-2.5 shrink-0 text-red-600/30" />}
-              <span className={i === worktree.length - 1 ? 'text-red-400 font-medium' : ''}>{segment}</span>
+              {i > 0 && <ChevronRight className="w-2.5 h-2.5 shrink-0 text-amber-600/30" />}
+              <span className={i === worktree.length - 1 ? 'text-amber-400 font-medium' : ''}>{segment}</span>
             </React.Fragment>
           ))}
         </div>
@@ -404,7 +397,7 @@ function ScrollableNav({ currentView, onNavigate }: { currentView: ViewKey; onNa
               <button
                 key={i}
                 onClick={() => onNavigate(bl.target)}
-                className="text-[10px] font-mono text-muted-foreground/50 hover:text-red-400 transition-colors underline decoration-dotted underline-offset-2"
+                className="text-[10px] font-mono text-muted-foreground/50 hover:text-amber-400 transition-colors underline decoration-dotted underline-offset-2"
               >
                 {bl.label}
               </button>
@@ -414,7 +407,7 @@ function ScrollableNav({ currentView, onNavigate }: { currentView: ViewKey; onNa
 
         {/* Current section badge */}
         <div className="ml-auto shrink-0">
-          <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-red-600/30 text-red-400 bg-red-600/5 font-mono tracking-wider">
+          <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-amber-600/25 text-amber-400 bg-amber-500/5 font-mono tracking-wider">
             {currentView.replace('-', '/').toUpperCase()}
           </Badge>
         </div>
@@ -428,7 +421,7 @@ function ScrollableNav({ currentView, onNavigate }: { currentView: ViewKey; onNa
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden overflow-hidden border-t border-border/30 bg-[#0a0a0a]/98"
+            className="md:hidden overflow-hidden border-t border-border/30 bg-[#0f0e0c]/98"
           >
             <div className="p-3 flex flex-col gap-1">
               {NAV_LINKS.map((link) => {
@@ -440,7 +433,7 @@ function ScrollableNav({ currentView, onNavigate }: { currentView: ViewKey; onNa
                     onClick={() => { onNavigate(link.key); setMobileMenuOpen(false) }}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                       isActive
-                        ? 'bg-red-600/15 text-red-400'
+                        ? 'bg-amber-500/10 text-amber-400'
                         : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
                     }`}
                   >
@@ -503,10 +496,10 @@ function HeroSection({ onNavigate }: { onNavigate: (v: ViewKey) => void }) {
   const isInView = useInView(ref, { once: true })
 
   return (
-    <section ref={ref} className="relative min-h-screen flex items-center justify-center px-4 md:px-6 border-b border-red-600/10">
+    <section ref={ref} className="relative min-h-screen flex items-center justify-center px-4 md:px-6 border-b border-amber-600/10">
       {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-red-950/20 via-transparent to-amber-950/10 pointer-events-none" />
-      <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-red-600/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-amber-950/20 via-transparent to-amber-950/10 pointer-events-none" />
+      <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
 
       <motion.div
         variants={heroVariants}
@@ -516,7 +509,7 @@ function HeroSection({ onNavigate }: { onNavigate: (v: ViewKey) => void }) {
       >
         {/* Tag */}
         <motion.div variants={heroItem} className="mb-6">
-          <Badge variant="outline" className="px-3 py-1 text-xs font-mono tracking-[0.2em] border-red-600/30 text-red-400 bg-red-600/5">
+          <Badge variant="outline" className="px-3 py-1 text-xs font-mono tracking-[0.2em] border-amber-600/25 text-amber-400 bg-amber-500/5">
             AI CREATIVE TECHNOLOGIST
           </Badge>
         </motion.div>
@@ -527,7 +520,7 @@ function HeroSection({ onNavigate }: { onNavigate: (v: ViewKey) => void }) {
           className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight leading-[0.95] mb-6"
         >
           BUILD{' '}
-          <span className="text-red-500">INTELLIGENT</span>
+          <span className="text-amber-500">INTELLIGENT</span>
           <br />
           EXPERIENCES
         </motion.h1>
@@ -536,7 +529,7 @@ function HeroSection({ onNavigate }: { onNavigate: (v: ViewKey) => void }) {
         <motion.p variants={heroItem} className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
           Prompt engineering. Digital brand systems. Faith-driven code.
           I build systems that think, remember, and grow.
-          Based in <span className="text-red-400">Taguig, Philippines</span>.
+          Based in <span className="text-amber-400">Taguig, Philippines</span>.
           Operating under <span className="text-amber-400 font-medium">powerUP</span>.
         </motion.p>
 
@@ -544,7 +537,7 @@ function HeroSection({ onNavigate }: { onNavigate: (v: ViewKey) => void }) {
         <motion.div variants={heroItem} className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Button
             onClick={() => onNavigate('error-handler')}
-            className="bg-red-600 hover:bg-red-700 text-white px-8 py-6 text-sm font-mono tracking-widest uppercase rounded-none border-2 border-red-600 hover:border-red-500 transition-all"
+            className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-6 text-sm font-mono tracking-widest uppercase rounded-none border-2 border-amber-600 hover:border-amber-500 transition-all"
           >
             Explore Systems
             <ArrowRight className="w-4 h-4 ml-2" />
@@ -554,7 +547,7 @@ function HeroSection({ onNavigate }: { onNavigate: (v: ViewKey) => void }) {
             onClick={() => {
               document.getElementById('work')?.scrollIntoView({ behavior: 'smooth' })
             }}
-            className="px-8 py-6 text-sm font-mono tracking-widest uppercase rounded-none border-2 border-red-600/30 text-red-400 hover:bg-red-600/10 hover:border-red-600/50 transition-all"
+            className="px-8 py-6 text-sm font-mono tracking-widest uppercase rounded-none border-2 border-amber-600/25 text-amber-400 hover:bg-amber-500/8 hover:border-amber-600/40 transition-all"
           >
             View Work
           </Button>
@@ -569,7 +562,7 @@ function HeroSection({ onNavigate }: { onNavigate: (v: ViewKey) => void }) {
             { value: '98', label: 'Lighthouse Score' },
           ].map((stat) => (
             <div key={stat.label} className="text-center">
-              <div className="text-2xl md:text-3xl font-black text-red-400">{stat.value}</div>
+              <div className="text-2xl md:text-3xl font-black text-amber-400">{stat.value}</div>
               <div className="text-[10px] font-mono tracking-[0.15em] uppercase text-muted-foreground/50 mt-1">{stat.label}</div>
             </div>
           ))}
@@ -582,7 +575,7 @@ function HeroSection({ onNavigate }: { onNavigate: (v: ViewKey) => void }) {
         transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2"
       >
-        <ChevronDown className="w-6 h-6 text-red-600/30" />
+        <ChevronDown className="w-6 h-6 text-amber-600/30" />
       </motion.div>
     </section>
   )
@@ -597,12 +590,12 @@ function ServicesSection() {
   const isInView = useInView(ref, { once: true, margin: '-100px' })
 
   return (
-    <section ref={ref} id="services" className="px-4 md:px-6 py-20 md:py-28 border-b border-red-600/10">
+    <section ref={ref} id="services" className="px-4 md:px-6 py-20 md:py-28 border-b border-amber-600/10">
       <div className="max-w-6xl mx-auto">
         <SectionLabel number="01" label="What I Do" />
         <motion.div variants={clipReveal} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
           <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-2">
-            Six Core <span className="text-red-500">Capabilities</span>
+            Six Core <span className="text-amber-500">Capabilities</span>
           </h2>
           <p className="text-muted-foreground mb-4 max-w-xl">
             That drive modern AI-first brands and products.
@@ -620,7 +613,7 @@ function ServicesSection() {
             <motion.div key={service.id} variants={cardReveal}>
               <motion.div
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                className="h-full p-6 rounded-lg border border-border/50 bg-card/50 hover:border-red-600/30 hover:shadow-lg hover:shadow-red-600/5 transition-all duration-300 group"
+                className="h-full p-6 rounded-lg border border-border/50 bg-card/50 hover:border-amber-600/25 hover:shadow-lg hover:shadow-amber-500/5 transition-all duration-300 group"
               >
                 {/* Number badge */}
                 <div className="flex items-center justify-between mb-4">
@@ -631,7 +624,7 @@ function ServicesSection() {
                   <span className="text-[10px] font-mono text-muted-foreground/30">{service.id}/06</span>
                 </div>
 
-                <h3 className="text-xl font-bold mb-1 group-hover:text-red-400 transition-colors">{service.title}</h3>
+                <h3 className="text-xl font-bold mb-1 group-hover:text-amber-400 transition-colors">{service.title}</h3>
                 <p className="text-xs font-mono mb-3" style={{ color: service.color }}>{service.subtitle}</p>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-4">{service.description}</p>
 
@@ -661,12 +654,12 @@ function WorkSection() {
   const [expandedProject, setExpandedProject] = useState<string | null>(null)
 
   return (
-    <section ref={ref} id="work" className="px-4 md:px-6 py-20 md:py-28 border-b border-red-600/10">
+    <section ref={ref} id="work" className="px-4 md:px-6 py-20 md:py-28 border-b border-amber-600/10">
       <div className="max-w-6xl mx-auto">
         <SectionLabel number="02" label="Case Studies" />
         <motion.div variants={clipReveal} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
           <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-2">
-            Projects That <span className="text-red-500">Define</span>
+            Projects That <span className="text-amber-500">Define</span>
           </h2>
           <p className="text-muted-foreground mb-4 max-w-xl">
             The intersection of strategy, design, and code.
@@ -684,7 +677,7 @@ function WorkSection() {
             <motion.div key={project.id} variants={cardReveal}>
               <motion.div
                 whileHover={{ y: -6, transition: { duration: 0.25 } }}
-                className="h-full rounded-lg border border-border/50 bg-card/50 overflow-hidden hover:border-red-600/30 hover:shadow-xl hover:shadow-red-600/5 transition-all duration-300 group cursor-pointer"
+                className="h-full rounded-lg border border-border/50 bg-card/50 overflow-hidden hover:border-amber-600/25 hover:shadow-xl hover:shadow-amber-500/5 transition-all duration-300 group cursor-pointer"
                 onClick={() => setExpandedProject(expandedProject === project.id ? null : project.id)}
               >
                 {/* Color strip */}
@@ -697,10 +690,10 @@ function WorkSection() {
                       style={{ borderColor: `${project.color}30`, color: project.color }}>
                       {project.badge}
                     </Badge>
-                    <ArrowUpRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-red-400 transition-colors" />
+                    <ArrowUpRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-amber-400 transition-colors" />
                   </div>
 
-                  <h3 className="text-2xl font-black mb-1 group-hover:text-red-400 transition-colors">{project.title}</h3>
+                  <h3 className="text-2xl font-black mb-1 group-hover:text-amber-400 transition-colors">{project.title}</h3>
                   <p className="text-xs font-mono mb-3" style={{ color: project.color }}>{project.subtitle}</p>
                   <p className="text-sm text-muted-foreground leading-relaxed mb-4">{project.description}</p>
 
@@ -761,12 +754,12 @@ function JourneySection() {
   const isInView = useInView(ref, { once: true, margin: '-100px' })
 
   return (
-    <section ref={ref} id="journey" className="px-4 md:px-6 py-20 md:py-28 border-b border-red-600/10">
+    <section ref={ref} id="journey" className="px-4 md:px-6 py-20 md:py-28 border-b border-amber-600/10">
       <div className="max-w-3xl mx-auto">
         <SectionLabel number="03" label="The Journey" />
         <motion.div variants={clipReveal} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
           <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-2">
-            From <span className="text-red-500">Photographer</span> to Architect
+            From <span className="text-amber-500">Photographer</span> to Architect
           </h2>
           <p className="text-muted-foreground mb-4">
             Systems over execution. Always.
@@ -827,12 +820,12 @@ function ContactSection() {
   ]
 
   return (
-    <section ref={ref} id="contact" className="px-4 md:px-6 py-20 md:py-28 border-b border-red-600/10">
+    <section ref={ref} id="contact" className="px-4 md:px-6 py-20 md:py-28 border-b border-amber-600/10">
       <div className="max-w-3xl mx-auto text-center">
         <SectionLabel number="04" label="Connect" color={COLORS.amber} />
         <motion.div variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
           <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4">
-            Let&apos;s Build <span className="text-red-500">Together</span>
+            Let&apos;s Build <span className="text-amber-500">Together</span>
           </h2>
           <p className="text-muted-foreground max-w-lg mx-auto mb-8 leading-relaxed">
             Whether you need a prompt engineering system, brand redesign, or full-stack build — let&apos;s talk.
@@ -856,13 +849,13 @@ function ContactSection() {
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                className="flex items-center gap-3 px-6 py-4 rounded-lg border border-red-600/20 bg-card/50 hover:border-red-600/40 hover:shadow-lg hover:shadow-red-600/5 transition-all duration-300 group"
+                className="flex items-center gap-3 px-6 py-4 rounded-lg border border-amber-600/20 bg-card/50 hover:border-amber-600/30 hover:shadow-lg hover:shadow-amber-500/5 transition-all duration-300 group"
               >
-                <Icon className="w-5 h-5 text-red-400 group-hover:text-red-300 transition-colors" />
+                <Icon className="w-5 h-5 text-amber-400 group-hover:text-amber-300 transition-colors" />
                 <span className="text-sm font-mono tracking-wider uppercase text-muted-foreground group-hover:text-foreground transition-colors">
                   {social.label}
                 </span>
-                <ExternalLink className="w-3 h-3 text-muted-foreground/30 group-hover:text-red-400 transition-colors" />
+                <ExternalLink className="w-3 h-3 text-muted-foreground/30 group-hover:text-amber-400 transition-colors" />
               </motion.a>
             )
           })}
@@ -878,11 +871,11 @@ function ContactSection() {
 
 function Footer() {
   return (
-    <footer className="border-t border-red-600/10 bg-[#0a0a0a]/80">
+    <footer className="border-t border-amber-600/10 bg-[#0f0e0c]/80">
       <div className="max-w-6xl mx-auto px-4 md:px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div>
-            <div className="text-red-500 font-bold text-lg tracking-widest mb-1">MARK.TECH</div>
+            <div className="text-amber-500 font-bold text-lg tracking-widest mb-1">MARK.TECH</div>
             <div className="text-[9px] tracking-[0.25em] text-muted-foreground/40 uppercase">powerUP</div>
             <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
               AI Creative Technologist<br />
@@ -890,19 +883,19 @@ function Footer() {
             </p>
           </div>
           <div>
-            <h4 className="text-xs font-mono tracking-[0.15em] uppercase text-red-400/60 mb-3">Services</h4>
+            <h4 className="text-xs font-mono tracking-[0.15em] uppercase text-amber-400/60 mb-3">Services</h4>
             {['Prompt Engineering', 'Brand Systems', 'Full-Stack Development', 'AI Automation', '1:1 Mentorship'].map((s) => (
               <p key={s} className="text-sm text-muted-foreground mb-1.5">{s}</p>
             ))}
           </div>
           <div>
-            <h4 className="text-xs font-mono tracking-[0.15em] uppercase text-red-400/60 mb-3">Tech Stack</h4>
+            <h4 className="text-xs font-mono tracking-[0.15em] uppercase text-amber-400/60 mb-3">Tech Stack</h4>
             {['React · Next.js · Vite', 'GSAP · Three.js · WebGPU', 'Claude API · ComfyUI', 'TypeScript · Node.js'].map((s) => (
               <p key={s} className="text-sm text-muted-foreground mb-1.5">{s}</p>
             ))}
           </div>
         </div>
-        <div className="border-t border-red-600/10 pt-6 text-center">
+        <div className="border-t border-amber-600/10 pt-6 text-center">
           <p className="text-[10px] font-mono tracking-[0.12em] text-muted-foreground/30">
             &copy; 2024–2026 powerUP. Built with faith, code, and purpose. Quality over speed. Always.
           </p>
@@ -913,7 +906,7 @@ function Footer() {
 }
 
 // =============================================================
-// ERROR HANDLER DEMO (from existing — redesigned in RED)
+// ERROR HANDLER DEMO (resilience system demo)
 // =============================================================
 
 function ErrorHandlerDemo() {
@@ -971,7 +964,7 @@ function ErrorHandlerDemo() {
       <SectionLabel number="SYS" label="Error Handler" color={COLORS.primary} />
       <div className="mb-6">
         <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-2">
-          Impeccable Error Fix <span className="text-red-500">Handler</span>
+          Impeccable Error Fix <span className="text-amber-500">Handler</span>
         </h2>
         <p className="text-muted-foreground text-sm">
           Three-tier resilience system: Prevention, Detection, Recovery
@@ -984,7 +977,7 @@ function ErrorHandlerDemo() {
         <Button
           onClick={runPreflight}
           disabled={status === 'running'}
-          className="bg-red-600 hover:bg-red-700 text-white font-mono text-xs tracking-wider rounded-none"
+          className="bg-amber-600 hover:bg-amber-700 text-white font-mono text-xs tracking-wider rounded-none"
         >
           {status === 'running' ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Play className="w-4 h-4 mr-2" />}
           RUN PREFLIGHT
@@ -993,7 +986,7 @@ function ErrorHandlerDemo() {
           onClick={simulateFail}
           disabled={status === 'running'}
           variant="outline"
-          className="font-mono text-xs tracking-wider rounded-none border-red-600/30 text-red-400 hover:bg-red-600/10"
+          className="font-mono text-xs tracking-wider rounded-none border-amber-600/25 text-amber-400 hover:bg-amber-500/8"
         >
           <AlertTriangle className="w-4 h-4 mr-2" />
           SIMULATE FAILURE
@@ -1015,7 +1008,7 @@ function ErrorHandlerDemo() {
           <div className={`w-3 h-3 rounded-full ${
             status === 'running' ? 'bg-amber-400 animate-pulse' :
             status === 'pass' ? 'bg-emerald-400' :
-            'bg-red-500 animate-pulse'
+            'bg-rose-500 animate-pulse'
           }`} />
           <span className="text-sm font-mono" style={{
             color: status === 'running' ? '#FBBF24' : status === 'pass' ? '#34D399' : '#EF4444'
@@ -1028,12 +1021,12 @@ function ErrorHandlerDemo() {
       )}
 
       {/* Terminal output */}
-      <div className="bg-[#030303] border border-red-600/20 rounded-lg p-4 font-mono text-xs min-h-[200px] max-h-[300px] overflow-y-auto">
+      <div className="bg-[#080706] border border-amber-600/20 rounded-lg p-4 font-mono text-xs min-h-[200px] max-h-[300px] overflow-y-auto">
         {logs.length === 0 ? (
           <p className="text-muted-foreground/30">$ awaiting command...</p>
         ) : (
           logs.map((log, i) => (
-            <div key={i} className={`mb-1 ${log.includes('ERROR') || log.includes('BLOCKED') || log.includes('✗') ? 'text-red-400' : log.includes('✓') ? 'text-emerald-400' : 'text-red-300/60'}`}>
+            <div key={i} className={`mb-1 ${log.includes('ERROR') || log.includes('BLOCKED') || log.includes('✗') ? 'text-amber-400' : log.includes('✓') ? 'text-emerald-400' : 'text-amber-300/60'}`}>
               {log}
             </div>
           ))
@@ -1043,7 +1036,7 @@ function ErrorHandlerDemo() {
       {/* Proxy comparison */}
       <div className="mt-10">
         <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-          <Shield className="w-5 h-5 text-red-400" />
+          <Shield className="w-5 h-5 text-amber-400" />
           Proxy Fit Score Overview
         </h3>
         <div className="space-y-3">

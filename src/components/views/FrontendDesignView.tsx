@@ -104,12 +104,12 @@ export default function FrontendDesignView({ onSwitchView }: { onSwitchView: (v:
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#DC262620' }}>
-              <Palette className="w-5 h-5" style={{ color: '#DC2626' }} />
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#D4A01720' }}>
+              <Palette className="w-5 h-5" style={{ color: '#D4A017' }} />
             </div>
             <div>
               <h2 className="text-3xl md:text-4xl font-bold">
-                Frontend <span style={{ color: '#DC2626' }}>Design</span> Perspectives
+                Frontend <span style={{ color: '#D4A017' }}>Design</span> Perspectives
               </h2>
               <p className="text-muted-foreground text-sm">
                 Creative (Dolphin) and Strategic (Eagle) lenses on resilient frontend design
@@ -224,7 +224,7 @@ export default function FrontendDesignView({ onSwitchView }: { onSwitchView: (v:
         <Card className="bg-card/50 mb-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Layers className="w-5 h-5" style={{ color: '#DC2626' }} />
+              <Layers className="w-5 h-5" style={{ color: '#D4A017' }} />
               Dolphin vs. Eagle — Design Aspect Comparison
             </CardTitle>
             <CardDescription>How each perspective approaches the same frontend challenges</CardDescription>
@@ -261,7 +261,7 @@ export default function FrontendDesignView({ onSwitchView }: { onSwitchView: (v:
         <Card className="bg-card/50 mb-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Monitor className="w-5 h-5" style={{ color: '#e040fb' }} />
+              <Monitor className="w-5 h-5" style={{ color: '#D4A017' }} />
               Modern 2026 Design Standards
             </CardTitle>
             <CardDescription>WCAG 2.2, variable fonts, 8pt grid, micro-interactions</CardDescription>
@@ -272,7 +272,7 @@ export default function FrontendDesignView({ onSwitchView }: { onSwitchView: (v:
               <DesignPrincipleCard icon={Type} title="Variable Fonts" color="#5632c3" description="Single font file with weight, width, and slant axes. Reduces payload by 60% while enabling fluid typography transitions." />
               <DesignPrincipleCard icon={Layout} title="8pt Grid System" color="#f59e0b" description="All spacing, sizing, and positioning aligned to an 8-pixel base grid. Ensures visual rhythm and consistent proportions across breakpoints." />
               <DesignPrincipleCard icon={Zap} title="Micro-interactions" color="#00E5FF" description="Subtle motion feedback on every interaction: hover lifts, press scales, success pulses. Each under 300ms for perceived responsiveness." />
-              <DesignPrincipleCard icon={Smartphone} title="Responsive-First" color="#e040fb" description="Mobile-first breakpoints at sm:640, md:768, lg:1024, xl:1280. Touch targets minimum 44px. Safe area insets for iOS." />
+              <DesignPrincipleCard icon={Smartphone} title="Responsive-First" color="#D4A017" description="Mobile-first breakpoints at sm:640, md:768, lg:1024, xl:1280. Touch targets minimum 44px. Safe area insets for iOS." />
               <DesignPrincipleCard icon={MousePointer} title="Performance Budget" color="#E63946" description="LCP under 2.5s, FID under 100ms, CLS under 0.1. WebP/AVIF images, code splitting, lazy hydration for below-fold content." />
             </div>
           </CardContent>

@@ -51,9 +51,9 @@ function ProxyDiscussionCard({ proxy, index }: { proxy: typeof PROXY_DISCUSSION[
             <div className="flex items-center gap-3">
               <div
                 className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
-                style={{ backgroundColor: '#DC262620' }}
+                style={{ backgroundColor: '#D4A01720' }}
               >
-                <Icon className="w-5 h-5" style={{ color: '#DC2626' }} />
+                <Icon className="w-5 h-5" style={{ color: '#D4A017' }} />
               </div>
               <div>
                 <CardTitle className="text-lg">{proxy.name}</CardTitle>
@@ -96,17 +96,17 @@ function ProxyDiscussionCard({ proxy, index }: { proxy: typeof PROXY_DISCUSSION[
 
           {/* Three perspectives summary */}
           <div className="grid grid-cols-1 gap-3 mb-4">
-            <div className="p-3 rounded-lg border-l-3 border-[#e040fb]" style={{ borderLeft: '3px solid #e040fb', backgroundColor: '#e040fb08' }}>
+            <div className="p-3 rounded-lg border-l-3 border-[#D4A017]" style={{ borderLeft: '3px solid #D4A017', backgroundColor: '#D4A01708' }}>
               <div className="flex items-center gap-2 mb-1">
-                <Lightbulb className="w-3 h-3 text-[#e040fb]" />
-                <span className="text-xs font-semibold text-[#e040fb]">Elephant — Cross-Domain</span>
+                <Lightbulb className="w-3 h-3 text-[#D4A017]" />
+                <span className="text-xs font-semibold text-[#D4A017]">Elephant — Cross-Domain</span>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">{proxy.elephantInsight}</p>
             </div>
-            <div className="p-3 rounded-lg border-l-3 border-[#00E5FF]" style={{ borderLeft: '3px solid #00E5FF', backgroundColor: '#00E5FF08' }}>
+            <div className="p-3 rounded-lg border-l-3 border-[#2DD4BF]" style={{ borderLeft: '3px solid #2DD4BF', backgroundColor: '#2DD4BF08' }}>
               <div className="flex items-center gap-2 mb-1">
-                <Sparkles className="w-3 h-3 text-[#00E5FF]" />
-                <span className="text-xs font-semibold text-[#00E5FF]">Dolphin — Creative</span>
+                <Sparkles className="w-3 h-3 text-[#2DD4BF]" />
+                <span className="text-xs font-semibold text-[#2DD4BF]">Dolphin — Creative</span>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">{proxy.dolphinCreative}</p>
             </div>
@@ -122,7 +122,7 @@ function ProxyDiscussionCard({ proxy, index }: { proxy: typeof PROXY_DISCUSSION[
           {/* Expand for full text */}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="w-full flex items-center justify-center gap-2 py-2 text-sm font-medium text-red-300 transition-colors rounded-lg hover:bg-muted/30"
+            className="w-full flex items-center justify-center gap-2 py-2 text-sm font-medium text-amber-300 transition-colors rounded-lg hover:bg-muted/30"
           >
             {isExpanded ? 'Show Less' : 'Expand Full Discussion'}
             <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
@@ -141,19 +141,19 @@ function ProxyDiscussionCard({ proxy, index }: { proxy: typeof PROXY_DISCUSSION[
               >
                 <div className="pt-4 mt-2 border-t border-border/50 space-y-4">
                   {/* Elephant full */}
-                  <div className="p-4 rounded-lg" style={{ borderLeft: '3px solid #e040fb', backgroundColor: '#e040fb08' }}>
+                  <div className="p-4 rounded-lg" style={{ borderLeft: '3px solid #D4A017', backgroundColor: '#D4A01708' }}>
                     <div className="flex items-center gap-2 mb-2">
-                      <Lightbulb className="w-4 h-4 text-[#e040fb]" />
-                      <span className="text-sm font-semibold text-[#e040fb]">Elephant — Cross-Domain Memory</span>
+                      <Lightbulb className="w-4 h-4 text-[#D4A017]" />
+                      <span className="text-sm font-semibold text-[#D4A017]">Elephant — Cross-Domain Memory</span>
                     </div>
                     <p className="text-sm text-muted-foreground leading-relaxed">{proxy.elephantInsight}</p>
                   </div>
 
                   {/* Dolphin full */}
-                  <div className="p-4 rounded-lg" style={{ borderLeft: '3px solid #00E5FF', backgroundColor: '#00E5FF08' }}>
+                  <div className="p-4 rounded-lg" style={{ borderLeft: '3px solid #2DD4BF', backgroundColor: '#2DD4BF08' }}>
                     <div className="flex items-center gap-2 mb-2">
-                      <Sparkles className="w-4 h-4 text-[#00E5FF]" />
-                      <span className="text-sm font-semibold text-[#00E5FF]">Dolphin — Creative Innovation</span>
+                      <Sparkles className="w-4 h-4 text-[#2DD4BF]" />
+                      <span className="text-sm font-semibold text-[#2DD4BF]">Dolphin — Creative Innovation</span>
                     </div>
                     <p className="text-sm text-muted-foreground leading-relaxed">{proxy.dolphinCreative}</p>
                   </div>
@@ -170,10 +170,10 @@ function ProxyDiscussionCard({ proxy, index }: { proxy: typeof PROXY_DISCUSSION[
                   {/* Cross-domain and historical */}
                   {proxyData && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div className="p-3 rounded-lg bg-red-600/10 border border-red-600/20">
+                      <div className="p-3 rounded-lg bg-amber-500/8 border border-amber-600/20">
                         <div className="flex items-center gap-2 mb-1">
-                          <Brain className="w-3 h-3" style={{ color: '#DC2626' }} />
-                          <span className="text-xs font-semibold" style={{ color: '#DC2626' }}>Cross-Domain Insight</span>
+                          <Brain className="w-3 h-3" style={{ color: '#D4A017' }} />
+                          <span className="text-xs font-semibold" style={{ color: '#D4A017' }}>Cross-Domain Insight</span>
                         </div>
                         <p className="text-xs text-muted-foreground leading-relaxed">{proxyData.crossDomainInsight}</p>
                       </div>
@@ -213,12 +213,12 @@ export default function ProxyDiscussionView({ onSwitchView }: { onSwitchView: (v
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#e040fb20' }}>
-              <Network className="w-5 h-5" style={{ color: '#e040fb' }} />
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#D4A01720' }}>
+              <Network className="w-5 h-5" style={{ color: '#D4A017' }} />
             </div>
             <div>
               <h2 className="text-3xl md:text-4xl font-bold">
-                Proxy <span style={{ color: '#e040fb' }}>Discussion</span>
+                Proxy <span style={{ color: '#D4A017' }}>Discussion</span>
               </h2>
               <p className="text-muted-foreground text-sm">
                 Cross-domain insights, creative innovations, and strategic analysis for each proxy type
@@ -230,10 +230,10 @@ export default function ProxyDiscussionView({ onSwitchView }: { onSwitchView: (v
         {/* Perspective legend */}
         <div className="flex flex-wrap items-center gap-3 mb-8 p-4 rounded-lg bg-muted/20 border border-border/50">
           <span className="text-xs font-semibold text-muted-foreground">Examining through:</span>
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs" style={{ backgroundColor: '#e040fb15', color: '#e040fb' }}>
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs" style={{ backgroundColor: '#D4A01715', color: '#D4A017' }}>
             <Lightbulb className="w-3 h-3" /> Elephant — Cross-Domain Memory
           </div>
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs" style={{ backgroundColor: '#00E5FF15', color: '#00E5FF' }}>
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs" style={{ backgroundColor: '#2DD4BF15', color: '#2DD4BF' }}>
             <Sparkles className="w-3 h-3" /> Dolphin — Creative & Inventive
           </div>
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs" style={{ backgroundColor: '#49d08c15', color: '#49d08c' }}>
@@ -280,9 +280,9 @@ export default function ProxyDiscussionView({ onSwitchView }: { onSwitchView: (v
         </Card>
 
         {/* Key takeaway */}
-        <div className="p-4 rounded-lg bg-gradient-to-r from-red-600/10 via-cyan-500/10 to-emerald-500/10 border border-red-600/20 mb-8">
+        <div className="p-4 rounded-lg bg-gradient-to-r from-amber-500/10 via-cyan-500/10 to-emerald-500/10 border border-amber-600/20 mb-8">
           <div className="flex items-start gap-3">
-            <ArrowRight className="w-5 h-5 mt-0.5 shrink-0" style={{ color: '#DC2626' }} />
+            <ArrowRight className="w-5 h-5 mt-0.5 shrink-0" style={{ color: '#D4A017' }} />
             <div>
               <h4 className="text-sm font-semibold mb-1">Key Takeaway</h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
@@ -302,7 +302,7 @@ export default function ProxyDiscussionView({ onSwitchView }: { onSwitchView: (v
         {/* How proxies stand out */}
         <div className="mt-10 border-t border-border/50 pt-8">
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <BookOpen className="w-5 h-5" style={{ color: '#DC2626' }} />
+            <BookOpen className="w-5 h-5" style={{ color: '#D4A017' }} />
             How These Proxies Stand Out — Comparative Advantages
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -318,8 +318,8 @@ export default function ProxyDiscussionView({ onSwitchView }: { onSwitchView: (v
                 The API Gateway (65%) offers intelligent routing and centralized auth — valuable for microservices but overkill for a single-site portfolio. It stands out in scenarios where the portfolio evolves into a platform with multiple API endpoints. The strategic play is to keep it as an upgrade path, not a starting point.
               </p>
             </div>
-            <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20">
-              <h4 className="text-sm font-semibold text-red-300 mb-2">Low-Fit Proxies (&lt;50%)</h4>
+            <div className="p-4 rounded-lg bg-rose-500/10 border border-rose-500/20">
+              <h4 className="text-sm font-semibold text-amber-300 mb-2">Low-Fit Proxies (&lt;50%)</h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 Forward Proxy (25%), Service Mesh (15%), and Transparent Proxy (10%) add complexity without proportional reliability gains for a portfolio site. They stand out in enterprise environments with hundreds of microservices or strict compliance requirements, but for a deployment with 2-3 targets, their overhead is unjustified.
               </p>

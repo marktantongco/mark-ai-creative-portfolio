@@ -114,7 +114,7 @@ export const AUDIT_PERSPECTIVES = [
     name: 'Owl',
     title: 'The Analytical Eye',
     icon: '🔍',
-    color: '#DC2626',
+    color: '#D4A017',
     domain: 'Error Detection & Analysis',
     keyInsight: 'Error handling is a system\'s immune response — each catch block is an antibody, each retry policy a white blood cell. The system that monitors its own health is the system that survives.',
     detailedAnalysis: `From the owl's slow, observant vantage point, the Impeccable Error Fix Handler reveals layers most developers overlook. The first hidden factor is that error cascades follow a power-law distribution — 80% of downtime comes from just 3 failure modes: git lock corruption, shell hook deadlocks, and framework guard infinite loops. The owl sees that the current system treats these equally, but they demand radically different response strategies.
@@ -195,7 +195,7 @@ Total time: approximately 9.5 hours for a complete, production-ready system. The
     name: 'Dolphin',
     title: 'The Creative Swimmer',
     icon: '✨',
-    color: '#00E5FF',
+    color: '#2DD4BF',
     domain: 'Creative Solutions & Playful Innovation',
     keyInsight: 'Errors are features in disguise. Every 500 error is a chance to show personality, build trust, and create memorable experiences. The best error handler doesn\'t just recover — it delights.',
     detailedAnalysis: `The dolphin swims through the error handling problem with curiosity and playfulness, finding creative solutions that the analytical owl and practical beaver would never consider. Here are the dolphin's most inventive ideas:
@@ -222,7 +222,7 @@ Creative Solution 5 — Error Karaoke: Let developers "sing along" with error re
     name: 'Elephant',
     title: 'The Cross-Domain Memory',
     icon: '💡',
-    color: '#e040fb',
+    color: '#D4A017',
     domain: 'Cross-Domain Connections & Historical Parallels',
     keyInsight: 'Every domain has solved the resilience problem. We just need to translate their solutions into code. The elephant remembers that the best innovations come from cross-pollination between fields.',
     detailedAnalysis: `The elephant's powerful memory reaches across disciplines to find solutions that software engineering has overlooked. Here are the most powerful cross-domain connections:
@@ -253,7 +253,7 @@ export const FRONTEND_PERSPECTIVES = [
     id: 'dolphin-design',
     name: 'Dolphin — Creative & Playful',
     icon: '✨',
-    color: '#00E5FF',
+    color: '#2DD4BF',
     insight: 'The best frontend error handling doesn\'t just recover — it creates moments of delight that build trust and brand loyalty.',
     analysis: `In frontend design, the dolphin's creative approach transforms error states from pain points into brand-defining moments. Consider GitHub's unicorn error page, Slack's clever loading messages, or Cloudflare's detective — these are not accidents but deliberate design decisions that treat errors as touchpoints rather than dead ends.
 
