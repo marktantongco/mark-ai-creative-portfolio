@@ -108,3 +108,33 @@ Stage Summary:
 - Gold on dark charcoal achieves WCAG AAA contrast (7.5:1)
 - Palette DNA: craftsmanship, faith, technology, warmth — matches powerUP brand identity
 - Zero red or purple remaining in primary palette; violet used only as intentional category accent for AI/creativity
+---
+Task ID: 3
+Agent: Super Z (Main)
+Task: Change Taguig→Quezon City; restore 3 web design preview thumbnails with backlinks/worktree; research & integrate Framer Motion + GSAP + Three.js animation stack
+
+Work Log:
+- Changed "Taguig, Philippines" to "Quezon City, Philippines" in 4 locations: page.tsx (hero, contact, footer) + layout.tsx (meta description)
+- Browsed skills.sh and researched: find-skills (1.9M installs), gsap-skills (8 official skills, 168K installs), threejs-skills (8 skills, 44K installs), uiux-pro-max (211K), superpowers (1.7M), frontend-design (532K), framer-motion-animator (6.2K), 21st.dev components
+- Installed packages: gsap@3.15.0, @gsap/react@2.1.2, three@0.184.0, @react-three/fiber@9.6.1, @react-three/drei@10.7.7
+- Created /src/lib/gsap-setup.ts — GSAP + ScrollTrigger registration module
+- Created BrutalistDesignView.tsx (1031 lines) — GSAP-powered: character stagger, ScrollTrigger.batch, kinetic typography, hard-edge brutalist aesthetic
+- Created OrganicDesignView.tsx (1032 lines) — Framer Motion only: spring physics, parallax, organic curves, warm white/sage aesthetic
+- Created CyberpunkDesignView.tsx (1197 lines) — Three.js R3F (rotating wireframe icosahedron + Stars) + GSAP (ScrambleText, count-up, data streams) + Framer Motion (hover, pulse) — neon/cyan/magenta HUD aesthetic
+- Generated 3 AI thumbnail images: brutalist-thumb.png, organic-thumb.png, cyberpunk-thumb.png
+- Built DesignPreviewSection component in page.tsx with 3 clickable thumbnail cards linking to each design view
+- Updated HomeView to include DesignPreviewSection between Services and Work sections
+- Updated BACKLINKS with cross-references: each design view links to Home, Frontend, and the other two designs; Frontend links back to all three designs
+- Added worktree path indicator showing "mark.tech > design > [brutalist | organic | cyberpunk]"
+- Updated all 3 design view footers with Home + Design Lab backlink buttons using onNavigate
+- Build verified: compiles cleanly with zero errors
+
+Stage Summary:
+- "Taguig" fully replaced with "Quezon City" across all source files
+- 3 distinct design views implemented with unique animation stacks:
+  - Brutalist: GSAP ScrollTrigger + character stagger + hard-edge aesthetic
+  - Organic: Framer Motion springs + parallax + warm/soft aesthetic  
+  - Cyberpunk: Three.js R3F + GSAP timelines + Framer Motion + neon HUD aesthetic
+- Homepage DesignPreviewSection with thumbnail previews, accent colors, tech tags, and worktree indicator
+- Full backlink network connecting all 3 designs + Home + Frontend views
+- Animation integration: GSAP for scroll/timeline, FM for layout/state transitions, Three.js for 3D elements

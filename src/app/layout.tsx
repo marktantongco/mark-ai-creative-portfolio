@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Mark Anthony Tantongco | AI Creative Technologist | powerUP",
-  description: "Mark Anthony Tantongco. AI Creative Technologist. Prompt Engineering. Digital Brand Systems. Building faith-driven, intelligent experiences. Taguig, Philippines.",
+  description: "Mark Anthony Tantongco. AI Creative Technologist. Prompt Engineering. Digital Brand Systems. Building faith-driven, intelligent experiences. Quezon City, Philippines.",
   keywords: ["AI Creative Technologist", "Prompt Engineering", "Brand Systems", "Faith-Driven Code", "powerUP", "Next.js", "GSAP", "ComfyUI", "React", "Red Portfolio"],
   authors: [{ name: "Mark Anthony Tantongco" }],
   icons: {

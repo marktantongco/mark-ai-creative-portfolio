@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useCallback, useEffect } from 'react'
+import Image from 'next/image'
 import { motion, AnimatePresence, useInView, useScroll, useTransform } from 'framer-motion'
 import {
   Globe, Server, Eye, Layers, Network, Shield,
@@ -16,13 +17,14 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import {
-  Accordion, AccordionItem, AccordionTrigger, AccordionContent,
-} from '@/components/ui/accordion'
+// accordion removed — unused
 import ResearchReportView from '@/components/views/ResearchReportView'
 import AuditView from '@/components/views/AuditView'
 import FrontendDesignView from '@/components/views/FrontendDesignView'
 import ProxyDiscussionView from '@/components/views/ProxyDiscussionView'
+import OrganicDesignView from '@/components/views/OrganicDesignView'
+import CyberpunkDesignView from '@/components/views/CyberpunkDesignView'
+import BrutalistDesignView from '@/components/views/BrutalistDesignView'
 
 // =============================================================
 // TYPES
@@ -267,12 +269,12 @@ const WORKTREE_PATHS: Record<ViewKey, string[]> = {
 const BACKLINKS: Record<ViewKey, { label: string; target: ViewKey }[]> = {
   home: [],
   'error-handler': [{ label: 'Audit', target: 'audit' }, { label: 'Proxies', target: 'proxy-discussion' }],
-  brutalist: [{ label: 'Frontend', target: 'frontend-design' }],
-  organic: [{ label: 'Frontend', target: 'frontend-design' }],
-  cyberpunk: [{ label: 'Frontend', target: 'frontend-design' }],
+  brutalist: [{ label: 'Home', target: 'home' }, { label: 'Frontend', target: 'frontend-design' }, { label: 'Organic', target: 'organic' }, { label: 'Cyberpunk', target: 'cyberpunk' }],
+  organic: [{ label: 'Home', target: 'home' }, { label: 'Frontend', target: 'frontend-design' }, { label: 'Brutalist', target: 'brutalist' }, { label: 'Cyberpunk', target: 'cyberpunk' }],
+  cyberpunk: [{ label: 'Home', target: 'home' }, { label: 'Frontend', target: 'frontend-design' }, { label: 'Brutalist', target: 'brutalist' }, { label: 'Organic', target: 'organic' }],
   research: [{ label: 'Home', target: 'home' }],
   audit: [{ label: 'Error Handler', target: 'error-handler' }],
-  'frontend-design': [{ label: 'Home', target: 'home' }],
+  'frontend-design': [{ label: 'Home', target: 'home' }, { label: 'Brutalist', target: 'brutalist' }, { label: 'Organic', target: 'organic' }, { label: 'Cyberpunk', target: 'cyberpunk' }],
   'proxy-discussion': [{ label: 'Error Handler', target: 'error-handler' }, { label: 'Audit', target: 'audit' }],
 }
 
@@ -529,7 +531,7 @@ function HeroSection({ onNavigate }: { onNavigate: (v: ViewKey) => void }) {
         <motion.p variants={heroItem} className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
           Prompt engineering. Digital brand systems. Faith-driven code.
           I build systems that think, remember, and grow.
-          Based in <span className="text-amber-400">Taguig, Philippines</span>.
+          Based in <span className="text-amber-400">Quezon City, Philippines</span>.
           Operating under <span className="text-amber-400 font-medium">powerUP</span>.
         </motion.p>
 
@@ -829,7 +831,7 @@ function ContactSection() {
           </h2>
           <p className="text-muted-foreground max-w-lg mx-auto mb-8 leading-relaxed">
             Whether you need a prompt engineering system, brand redesign, or full-stack build — let&apos;s talk.
-            Based in <span className="text-amber-400 font-medium">Taguig, Philippines</span>. Open to local & remote projects.
+            Based in <span className="text-amber-400 font-medium">Quezon City, Philippines</span>. Open to local & remote projects.
           </p>
         </motion.div>
 
@@ -879,7 +881,7 @@ function Footer() {
             <div className="text-[9px] tracking-[0.25em] text-muted-foreground/40 uppercase">powerUP</div>
             <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
               AI Creative Technologist<br />
-              Taguig, Philippines
+              Quezon City, Philippines
             </p>
           </div>
           <div>
@@ -1073,6 +1075,127 @@ function ErrorHandlerDemo() {
 // HOME VIEW (assembles all portfolio sections)
 // =============================================================
 
+// =============================================================
+// DESIGN PREVIEW SECTION — Three web design approaches
+// =============================================================
+
+const DESIGN_APPROACHES = [
+  {
+    key: 'brutalist' as ViewKey,
+    title: 'Brutalist Industrial',
+    subtitle: 'Raw. Honest. Unapologetic.',
+    description: 'Hard edges, monospace grids, exposed structure. No decoration — only function. Like a construction site blueprint brought to life.',
+    image: '/images/brutalist-thumb.png',
+    accent: '#FFD600',
+    tags: ['GSAP', 'ScrollTrigger', 'Monospace'],
+  },
+  {
+    key: 'organic' as ViewKey,
+    title: 'Organic Minimalism',
+    subtitle: 'Calm. Breathing. Tactile.',
+    description: 'Soft curves, earth tones, spring physics. Interfaces that feel like linen and handmade ceramics. Generous whitespace as a design choice.',
+    image: '/images/organic-thumb.png',
+    accent: '#8B9E7E',
+    tags: ['Framer Motion', 'Spring Physics', 'Sage & Clay'],
+  },
+  {
+    key: 'cyberpunk' as ViewKey,
+    title: 'Cyberpunk Neon',
+    subtitle: 'Intense. Futuristic. Alive.',
+    description: 'Neon glow, 3D wireframes, HUD dashboards, data streams. A hacker control center aesthetic powered by Three.js and GSAP.',
+    image: '/images/cyberpunk-thumb.png',
+    accent: '#00FFD4',
+    tags: ['Three.js', 'R3F', 'GSAP', 'Neon FX'],
+  },
+]
+
+function DesignPreviewSection({ onNavigate }: { onNavigate: (v: ViewKey) => void }) {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: '-80px' })
+
+  return (
+    <section ref={ref} id="designs" className="px-4 md:px-6 py-20 md:py-28 border-b border-amber-600/10">
+      <div className="max-w-6xl mx-auto">
+        <SectionLabel number="03" label="Design Approaches" color={COLORS.amber} />
+        <motion.div variants={clipReveal} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
+          <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-2">
+            Three <span className="text-amber-500">Visions</span>, One <span className="text-amber-500">Craft</span>
+          </h2>
+          <p className="text-muted-foreground mb-10 max-w-xl">
+            Every project demands its own visual language. Explore three distinct design philosophies — each a complete aesthetic system with unique animation stacks.
+          </p>
+        </motion.div>
+
+        <motion.div
+          variants={cardStagger}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+          className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+        >
+          {DESIGN_APPROACHES.map((approach) => (
+            <motion.div key={approach.key} variants={cardReveal}>
+              <motion.div
+                whileHover={{ y: -8, transition: { duration: 0.3 } }}
+                className="h-full rounded-lg border border-border/50 bg-card/50 overflow-hidden hover:border-amber-600/25 hover:shadow-xl hover:shadow-amber-500/5 transition-all duration-300 group cursor-pointer"
+                onClick={() => onNavigate(approach.key)}
+              >
+                {/* Thumbnail */}
+                <div className="relative h-48 md:h-56 overflow-hidden">
+                  <Image
+                    src={approach.image}
+                    alt={`${approach.title} design preview`}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    sizes="(max-width: 1024px) 100vw, 33vw"
+                  />
+                  {/* Gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  {/* Accent bar */}
+                  <div className="absolute bottom-0 left-0 right-0 h-1" style={{ backgroundColor: approach.accent }} />
+                  {/* Play/Enter badge */}
+                  <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-white/20 bg-black/60 backdrop-blur-sm">
+                    <ArrowUpRight className="w-3 h-3" style={{ color: approach.accent }} />
+                    <span className="text-[10px] font-mono tracking-wider" style={{ color: approach.accent }}>EXPLORE</span>
+                  </div>
+                </div>
+
+                <div className="p-6">
+                  {/* Title + Subtitle */}
+                  <h3 className="text-xl font-black mb-1 group-hover:text-amber-400 transition-colors">{approach.title}</h3>
+                  <p className="text-xs font-mono mb-3" style={{ color: approach.accent }}>{approach.subtitle}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">{approach.description}</p>
+
+                  {/* Tech Tags */}
+                  <div className="flex flex-wrap gap-1.5">
+                    {approach.tags.map((tag) => (
+                      <span key={tag} className="text-[10px] font-mono px-2 py-0.5 rounded border border-border/30 text-muted-foreground/60 bg-muted/10">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Worktree indicator */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+          className="mt-8 flex items-center justify-center gap-3 text-xs font-mono text-muted-foreground/40"
+        >
+          <FolderTree className="w-3.5 h-3.5" />
+          <span>mark.tech &gt; design &gt; [brutalist | organic | cyberpunk]</span>
+          <Link2 className="w-3 h-3" />
+          <span>backlinks: frontend-design</span>
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
 function HomeView({ onNavigate }: { onNavigate: (v: ViewKey) => void }) {
   return (
     <motion.div
@@ -1084,6 +1207,7 @@ function HomeView({ onNavigate }: { onNavigate: (v: ViewKey) => void }) {
     >
       <HeroSection onNavigate={onNavigate} />
       <ServicesSection />
+      <DesignPreviewSection onNavigate={onNavigate} />
       <WorkSection />
       <JourneySection />
       <ContactSection />
@@ -1123,9 +1247,9 @@ export default function PortfolioPage() {
           {currentView === 'audit' && <AuditView key="audit" onSwitchView={handleNavigate} />}
           {currentView === 'frontend-design' && <FrontendDesignView key="frontend-design" onSwitchView={handleNavigate} />}
           {currentView === 'proxy-discussion' && <ProxyDiscussionView key="proxy-discussion" onSwitchView={handleNavigate} />}
-          {currentView === 'brutalist' && <HomeView key="brutalist" onNavigate={handleNavigate} />}
-          {currentView === 'organic' && <HomeView key="organic" onNavigate={handleNavigate} />}
-          {currentView === 'cyberpunk' && <HomeView key="cyberpunk" onNavigate={handleNavigate} />}
+          {currentView === 'brutalist' && <BrutalistDesignView key="brutalist" onSwitchView={handleNavigate} onNavigate={handleNavigate} />}
+          {currentView === 'organic' && <OrganicDesignView key="organic" onSwitchView={handleNavigate} onNavigate={handleNavigate} />}
+          {currentView === 'cyberpunk' && <CyberpunkDesignView key="cyberpunk" onSwitchView={handleNavigate} onNavigate={handleNavigate} />}
         </AnimatePresence>
       </main>
     </div>
