@@ -25,6 +25,16 @@ import ProxyDiscussionView from '@/components/views/ProxyDiscussionView'
 import OrganicDesignView from '@/components/views/OrganicDesignView'
 import CyberpunkDesignView from '@/components/views/CyberpunkDesignView'
 import BrutalistDesignView from '@/components/views/BrutalistDesignView'
+import {
+  CapabilityDemoModal,
+  PromptEngineeringDemo,
+  BrandSystemsDemo,
+  ProductionCodeDemo,
+  ComfyUIPipelinesDemo,
+  GeoSeoDemo,
+  BrandMasteryDemo,
+  type CapabilityDemoData,
+} from '@/components/demos/CapabilityDemos'
 
 // =============================================================
 // TYPES
@@ -69,6 +79,12 @@ const SERVICES = [
     color: COLORS.primary,
     description: 'Build advanced prompt architectures. Claude API integration. Meta-frameworks for self-improving systems. Structured outputs. Critique loops that refine themselves.',
     tags: ['Claude API', 'Prompt Design', 'Structured Output'],
+    thumbnail: '/thumbnails/prompt-engineering.png',
+    repos: [
+      { name: 'anthropics/prompt-eng-interactive-tutorial', url: 'https://github.com/anthropics/prompt-eng-interactive-tutorial', stars: '36.3K', description: 'Official Anthropic interactive prompt engineering tutorial — comprehensive course covering prompt structure, failure modes, and advanced techniques for Claude' },
+      { name: 'langgptai/awesome-claude-prompts', url: 'https://github.com/langgptai/awesome-claude-prompts', stars: '5.2K', description: 'Community-curated collection of Claude prompt examples and structured output techniques' },
+      { name: 'anthropics/claude-cookbooks', url: 'https://github.com/anthropics/claude-cookbooks', stars: '3.5K', description: 'Official cookbooks — notebooks/recipes showcasing Claude usage patterns: prompt caching, tool use, and structured output' },
+    ],
   },
   {
     id: '02',
@@ -78,6 +94,11 @@ const SERVICES = [
     color: COLORS.cyan,
     description: 'Living design systems. Token-driven architecture. Neo-brutalist aesthetics. Brand runtimes that survive AI generation. Design as code.',
     tags: ['Design Tokens', 'CSS Variables', 'Type System'],
+    thumbnail: '/thumbnails/brand-systems.png',
+    repos: [
+      { name: 'style-dictionary/style-dictionary', url: 'https://github.com/style-dictionary/style-dictionary', stars: '4K', description: 'Amazon-built industry standard design token build system — define styles once in JSON, export to CSS Custom Properties, SCSS, JS, and more' },
+      { name: 'amzn/style-dictionary', url: 'https://github.com/amzn/style-dictionary', stars: '4K', description: 'Original Amazon design token system — powers design systems at Amazon, Salesforce, and many others' },
+    ],
   },
   {
     id: '03',
@@ -87,6 +108,12 @@ const SERVICES = [
     color: COLORS.amber,
     description: 'React/Next.js/Vite applications. GSAP cinematic animations. Three.js WebGL. WebGPU shaders. Single-file deployments. Performance-first.',
     tags: ['React/Next.js', 'GSAP', 'WebGL/WebGPU'],
+    thumbnail: '/thumbnails/production-code.png',
+    repos: [
+      { name: 'vercel/next.js', url: 'https://github.com/vercel/next.js', stars: '140K', description: 'The React Framework — full-stack web applications with SSR, SSG, API routes, and App Router' },
+      { name: 'mrdoob/three.js', url: 'https://github.com/mrdoob/three.js', stars: '113K', description: 'JavaScript 3D Library — cross-browser WebGL/WebGPU for animated 3D computer graphics' },
+      { name: 'greensock/GSAP', url: 'https://github.com/greensock/GSAP', stars: '20K', description: 'GreenSock Animation Platform — industry standard for high-performance web animations and scroll triggers' },
+    ],
   },
   {
     id: '04',
@@ -96,6 +123,12 @@ const SERVICES = [
     color: COLORS.violet,
     description: 'ComfyUI node architecture. ACES color science. Flux & Gemini Imagen prompts. Photography AI. Lightroom automation. Systems that run 24/7.',
     tags: ['ComfyUI', 'ACES Color', 'Photography AI'],
+    thumbnail: '/thumbnails/comfyui-pipelines.png',
+    repos: [
+      { name: 'comfyanonymous/ComfyUI', url: 'https://github.com/comfyanonymous/ComfyUI', stars: '80K', description: 'The most powerful and modular diffusion model GUI/backend with graph/nodes interface — top 100 GitHub repos of all time' },
+      { name: 'comfyanonymous/ComfyUI_examples', url: 'https://github.com/comfyanonymous/ComfyUI_examples', stars: '4.3K', description: 'Official ComfyUI workflow examples — all images contain metadata that can be loaded directly into ComfyUI' },
+      { name: 'AcademySoftwareFoundation/OpenColorIO', url: 'https://github.com/AcademySoftwareFoundation/OpenColorIO', stars: '2K', description: 'Industry-standard color management framework for VFX and animation — the foundation for ACES color science' },
+    ],
   },
   {
     id: '05',
@@ -105,6 +138,11 @@ const SERVICES = [
     color: COLORS.emerald,
     description: 'AI citation architecture (GEO). Structured data for AI engines. JSON-LD strategies. Content designed to be cited by Claude, ChatGPT, Perplexity.',
     tags: ['GEO Strategy', 'JSON-LD', 'SEO Architecture'],
+    thumbnail: '/thumbnails/geo-seo-strategy.png',
+    repos: [
+      { name: 'google/schema-dts', url: 'https://github.com/google/schema-dts', stars: '1.2K', description: 'Google official TypeScript definitions for Schema.org vocabulary in JSON-LD format — complete discriminated type unions' },
+      { name: 'amplifying-ai/awesome-generative-engine-optimization', url: 'https://github.com/amplifying-ai/awesome-generative-engine-optimization', stars: '200+', description: 'Curated guide to GEO — resources, guides, tools & research to boost visibility in AI-powered search engines' },
+    ],
   },
   {
     id: '06',
@@ -114,6 +152,11 @@ const SERVICES = [
     color: COLORS.rose,
     description: 'Licensed insurance agent (Pacific Cross). Blue Royale (lifetime coverage). FlexiShield (HEV enhancer). Combining technical expertise with financial literacy.',
     tags: ['Pacific Cross', 'Blue Royale', 'FlexiShield'],
+    thumbnail: '/thumbnails/brand-mastery.png',
+    repos: [
+      { name: 'aposin/openinsuranceplatform', url: 'https://github.com/aposin/openinsuranceplatform', stars: '87', description: 'Comprehensive core insurance platform — full scope of business capabilities for the insurance industry across all lines of business' },
+      { name: 'CMSgov/QHP-provider-formulary-APIs', url: 'https://github.com/CMSgov/QHP-provider-formulary-APIs', stars: '44', description: 'US Government CMS official API — schemas describing health insurance plan providers and drug formularies' },
+    ],
   },
 ]
 
@@ -590,6 +633,34 @@ function HeroSection({ onNavigate }: { onNavigate: (v: ViewKey) => void }) {
 function ServicesSection() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const [activeDemo, setActiveDemo] = useState<string | null>(null)
+
+  const activeService = SERVICES.find((s) => s.id === activeDemo)
+
+  const demoData: CapabilityDemoData | null = activeService
+    ? {
+        id: activeService.id,
+        title: activeService.title,
+        subtitle: activeService.subtitle,
+        color: activeService.color,
+        thumbnail: activeService.thumbnail,
+        repos: activeService.repos,
+      }
+    : null
+
+  const renderDemo = (serviceId: string) => {
+    const svc = SERVICES.find((s) => s.id === serviceId)
+    if (!svc) return null
+    switch (serviceId) {
+      case '01': return <PromptEngineeringDemo color={svc.color} />
+      case '02': return <BrandSystemsDemo color={svc.color} />
+      case '03': return <ProductionCodeDemo color={svc.color} />
+      case '04': return <ComfyUIPipelinesDemo color={svc.color} />
+      case '05': return <GeoSeoDemo color={svc.color} />
+      case '06': return <BrandMasteryDemo color={svc.color} />
+      default: return null
+    }
+  }
 
   return (
     <section ref={ref} id="services" className="px-4 md:px-6 py-20 md:py-28 border-b border-amber-600/10">
@@ -615,33 +686,74 @@ function ServicesSection() {
             <motion.div key={service.id} variants={cardReveal}>
               <motion.div
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                className="h-full p-6 rounded-lg border border-border/50 bg-card/50 hover:border-amber-600/25 hover:shadow-lg hover:shadow-amber-500/5 transition-all duration-300 group"
+                className="h-full rounded-lg border border-border/50 bg-card/50 hover:border-amber-600/25 hover:shadow-lg hover:shadow-amber-500/5 transition-all duration-300 group cursor-pointer overflow-hidden"
+                onClick={() => setActiveDemo(service.id)}
               >
-                {/* Number badge */}
-                <div className="flex items-center justify-between mb-4">
-                  <Badge variant="outline" className="text-[9px] px-1.5 py-0 font-mono tracking-wider"
-                    style={{ borderColor: `${service.color}30`, color: service.color, backgroundColor: `${service.color}08` }}>
-                    {service.label}
-                  </Badge>
-                  <span className="text-[10px] font-mono text-muted-foreground/30">{service.id}/06</span>
+                {/* Thumbnail Preview */}
+                <div className="relative aspect-video overflow-hidden bg-black/30">
+                  <Image
+                    src={service.thumbnail}
+                    alt={`${service.title} preview`}
+                    fill
+                    className="object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition-all duration-500"
+                  />
+                  {/* Gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-card via-card/30 to-transparent" />
+                  {/* Demo badge */}
+                  <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-sm border border-border/20">
+                    <Play className="w-2.5 h-2.5" style={{ color: service.color }} />
+                    <span className="text-[8px] font-mono tracking-wider uppercase" style={{ color: service.color }}>
+                      Demo
+                    </span>
+                  </div>
+                  {/* Number badge over thumbnail */}
+                  <div className="absolute top-2 left-2">
+                    <Badge variant="outline" className="text-[9px] px-1.5 py-0 font-mono tracking-wider"
+                      style={{ borderColor: `${service.color}30`, color: service.color, backgroundColor: `rgba(0,0,0,0.6)`, backdropFilter: 'blur(4px)' }}>
+                      {service.label}
+                    </Badge>
+                  </div>
                 </div>
 
-                <h3 className="text-xl font-bold mb-1 group-hover:text-amber-400 transition-colors">{service.title}</h3>
-                <p className="text-xs font-mono mb-3" style={{ color: service.color }}>{service.subtitle}</p>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-4">{service.description}</p>
+                <div className="p-5">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-xl font-bold group-hover:text-amber-400 transition-colors">{service.title}</h3>
+                    <span className="text-[10px] font-mono text-muted-foreground/30">{service.id}/06</span>
+                  </div>
+                  <p className="text-xs font-mono mb-2" style={{ color: service.color }}>{service.subtitle}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-3">{service.description}</p>
 
-                <div className="flex flex-wrap gap-1.5">
-                  {service.tags.map((tag) => (
-                    <span key={tag} className="text-[10px] font-mono px-2 py-0.5 rounded border border-border/30 text-muted-foreground/60 bg-muted/10">
-                      {tag}
-                    </span>
-                  ))}
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {service.tags.map((tag) => (
+                      <span key={tag} className="text-[10px] font-mono px-2 py-0.5 rounded border border-border/30 text-muted-foreground/60 bg-muted/10">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Try Demo CTA */}
+                  <div className="flex items-center justify-center gap-2 pt-3 border-t border-border/20 text-xs font-mono tracking-wider" style={{ color: service.color }}>
+                    <Play className="w-3 h-3" />
+                    <span>Try Interactive Demo</span>
+                    <ArrowUpRight className="w-3 h-3 opacity-50 group-hover:opacity-100 transition-opacity" />
+                  </div>
                 </div>
               </motion.div>
             </motion.div>
           ))}
         </motion.div>
       </div>
+
+      {/* Demo Modal */}
+      {demoData && (
+        <CapabilityDemoModal
+          isOpen={!!activeDemo}
+          onClose={() => setActiveDemo(null)}
+          demo={demoData}
+        >
+          {renderDemo(activeDemo!)}
+        </CapabilityDemoModal>
+      )}
     </section>
   )
 }
