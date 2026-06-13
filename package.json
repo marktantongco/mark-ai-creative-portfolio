@@ -13,7 +13,7 @@
   "scripts": {
     "dev": "next dev -p 3000 2>&1 | tee dev.log",
     "build": "next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/",
-    "build:static": "NEXT_STATIC_EXPORT=true next build",
+    "build:static": "mv src/app/api/files _api_files_tmp && NEXT_STATIC_EXPORT=true next build; mv _api_files_tmp src/app/api/files",
     "start": "NODE_ENV=production bun .next/standalone/server.js 2>&1 | tee server.log",
     "lint": "eslint .",
     "db:push": "prisma db push",

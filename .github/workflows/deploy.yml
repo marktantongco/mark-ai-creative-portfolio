@@ -29,25 +29,18 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Temporarily remove API routes for static export
-        run: mv src/app/api src/app/_api_disabled
-
       - name: Build static export
-        run: bunx next build
         env:
           NEXT_STATIC_EXPORT: "true"
-
-      - name: Restore API routes
-        if: always()
-        run: mv src/app/_api_disabled src/app/api
+        run: bun run build:static
 
       - name: Add .nojekyll
-        run: touch ./out/.nojekyll
+        run: touch out/.nojekyll
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./out
+          path: out
 
   deploy:
     environment:
