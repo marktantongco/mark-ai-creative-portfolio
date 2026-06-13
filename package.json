@@ -1,10 +1,19 @@
 {
-  "name": "nextjs_tailwind_shadcn_ts",
-  "version": "0.2.0",
+  "name": "mark-ai-creative-portfolio",
+  "version": "1.0.0",
   "private": true,
+  "description": "MARK.TECH — AI Creative Technologist Portfolio by Mark Anthony Tantongco | Next.js 16 · GSAP · Three.js · Framer Motion",
+  "author": "Mark Anthony Tantongco",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marktantongco/mark-ai-creative-portfolio.git"
+  },
+  "homepage": "https://mark-ai-creative-portfolio.vercel.app",
   "scripts": {
     "dev": "next dev -p 3000 2>&1 | tee dev.log",
     "build": "next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/",
+    "build:static": "NEXT_STATIC_EXPORT=true next build",
     "start": "NODE_ENV=production bun .next/standalone/server.js 2>&1 | tee server.log",
     "lint": "eslint .",
     "db:push": "prisma db push",
@@ -94,6 +103,6 @@
     "eslint-config-next": "^16.1.1",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.5",
-    "typescript": "^5"
+    "typescript": "^6.0.3"
   }
 }

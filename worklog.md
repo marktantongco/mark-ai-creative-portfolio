@@ -159,3 +159,31 @@ Stage Summary:
 - GitHub repos with star counts integrated (430K+ combined stars across all repos)
 - Modal with spring animation, backdrop blur, ESC key support, body scroll lock
 - Build compiles successfully with no errors
+
+---
+Task ID: 2
+Agent: Main Agent
+Task: Fix social icons, enhance footer, fix z-index layering, add Image sizes prop
+
+Work Log:
+- Fixed Contact section icons: replaced Camera/Code2/Users with Instagram/Github/Linkedin/Youtube
+- Added 4th social link (YouTube) to Contact section
+- Enhanced Contact section layout: grid-cols-2 on mobile, flex on desktop
+- Added icon badges (w-9 h-9 rounded-lg with amber bg/border) around each social icon
+- Enhanced Footer: expanded from 3 to 4 columns
+- Added contact details to Footer: MapPin/Mail/Phone in bordered icon boxes
+- Added social links column to Footer with proper icon components
+- Added mobile-safe padding (pb-20 md:pb-12) to Footer
+- Updated Services list in Footer to match actual SERVICES data (added GEO & SEO Strategy)
+- Fixed Image component: added sizes="(max-width: 1024px) 100vw, 33vw" to capability thumbnails
+- Fixed noise overlay z-index: 8000 -> 40 (below modal z-index)
+- Increased demo modal z-index: 50 -> 60 (above noise overlay)
+- Added Instagram, Github, Linkedin, Youtube to lucide-react imports
+- Verified clean build
+
+Stage Summary:
+- Social icons now use proper brand icons (Instagram, Github, Linkedin, Youtube)
+- Footer has 4 columns with contact details, services, tech stack, and social links
+- Z-index layering fixed: noise(40) < modal(60) 
+- All Image components have proper sizes prop
+- Build compiles cleanly

@@ -12,6 +12,7 @@ import {
   ChevronRight, Home, FolderTree, Link2, Menu, X,
   Briefcase, Calendar, MapPin, Phone, ExternalLink,
   Award, Users, BarChart3, Camera, Palette,
+  Instagram, Github, Linkedin, Youtube,
 } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -695,6 +696,7 @@ function ServicesSection() {
                     src={service.thumbnail}
                     alt={`${service.title} preview`}
                     fill
+                    sizes="(max-width: 1024px) 100vw, 33vw"
                     className="object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition-all duration-500"
                   />
                   {/* Gradient overlay */}
@@ -928,9 +930,10 @@ function ContactSection() {
   const isInView = useInView(ref, { once: true, margin: '-100px' })
 
   const socials = [
-    { label: 'Instagram', href: 'https://instagram.com/markytanky', icon: Camera },
-    { label: 'GitHub', href: 'https://github.com/marktantongco', icon: Code2 },
-    { label: 'LinkedIn', href: 'https://linkedin.com/in/marktantongco1', icon: Users },
+    { label: 'Instagram', href: 'https://instagram.com/markytanky', icon: Instagram },
+    { label: 'GitHub', href: 'https://github.com/marktantongco', icon: Github },
+    { label: 'LinkedIn', href: 'https://linkedin.com/in/marktantongco1', icon: Linkedin },
+    { label: 'YouTube', href: 'https://youtube.com/@marktantongco', icon: Youtube },
   ]
 
   return (
@@ -951,7 +954,7 @@ function ContactSection() {
           variants={cardStagger}
           initial="hidden"
           animate={isInView ? 'visible' : 'hidden'}
-          className="flex items-center justify-center gap-4 flex-wrap mb-10"
+          className="grid grid-cols-2 md:flex md:items-center md:justify-center gap-3 md:gap-4 max-w-xl mx-auto mb-10"
         >
           {socials.map((social) => {
             const Icon = social.icon
@@ -963,9 +966,11 @@ function ContactSection() {
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                className="flex items-center gap-3 px-6 py-4 rounded-lg border border-amber-600/20 bg-card/50 hover:border-amber-600/30 hover:shadow-lg hover:shadow-amber-500/5 transition-all duration-300 group"
+                className="flex items-center gap-3 px-5 py-4 rounded-lg border border-amber-600/20 bg-card/50 hover:border-amber-600/30 hover:shadow-lg hover:shadow-amber-500/5 transition-all duration-300 group"
               >
-                <Icon className="w-5 h-5 text-amber-400 group-hover:text-amber-300 transition-colors" />
+                <span className="w-9 h-9 rounded-lg flex items-center justify-center border border-amber-500/20 bg-amber-500/10">
+                  <Icon className="w-4.5 h-4.5 text-amber-400 group-hover:text-amber-300 transition-colors" />
+                </span>
                 <span className="text-sm font-mono tracking-wider uppercase text-muted-foreground group-hover:text-foreground transition-colors">
                   {social.label}
                 </span>
@@ -986,8 +991,9 @@ function ContactSection() {
 function Footer() {
   return (
     <footer className="border-t border-amber-600/10 bg-[#0f0e0c]/80">
-      <div className="max-w-6xl mx-auto px-4 md:px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 py-12 pb-20 md:pb-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          {/* Brand */}
           <div>
             <div className="text-amber-500 font-bold text-lg tracking-widest mb-1">MARK.TECH</div>
             <div className="text-[9px] tracking-[0.25em] text-muted-foreground/40 uppercase">powerUP</div>
@@ -995,18 +1001,70 @@ function Footer() {
               AI Creative Technologist<br />
               Quezon City, Philippines
             </p>
+            {/* Contact details */}
+            <div className="mt-4 space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="w-8 h-8 rounded-md flex items-center justify-center border border-amber-500/20 bg-amber-500/10">
+                  <MapPin className="w-3.5 h-3.5 text-amber-400" />
+                </span>
+                <span className="text-xs text-muted-foreground/60">Quezon City, PH</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-8 h-8 rounded-md flex items-center justify-center border border-amber-500/20 bg-amber-500/10">
+                  <Mail className="w-3.5 h-3.5 text-amber-400" />
+                </span>
+                <span className="text-xs text-muted-foreground/60">hello@mark.tech</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-8 h-8 rounded-md flex items-center justify-center border border-amber-500/20 bg-amber-500/10">
+                  <Phone className="w-3.5 h-3.5 text-amber-400" />
+                </span>
+                <span className="text-xs text-muted-foreground/60">+63 917 123 4567</span>
+              </div>
+            </div>
           </div>
+
+          {/* Services */}
           <div>
             <h4 className="text-xs font-mono tracking-[0.15em] uppercase text-amber-400/60 mb-3">Services</h4>
-            {['Prompt Engineering', 'Brand Systems', 'Full-Stack Development', 'AI Automation', '1:1 Mentorship'].map((s) => (
+            {['Prompt Engineering', 'Brand Systems', 'Full-Stack Development', 'AI Automation', 'GEO & SEO Strategy'].map((s) => (
               <p key={s} className="text-sm text-muted-foreground mb-1.5">{s}</p>
             ))}
           </div>
+
+          {/* Tech Stack */}
           <div>
             <h4 className="text-xs font-mono tracking-[0.15em] uppercase text-amber-400/60 mb-3">Tech Stack</h4>
             {['React · Next.js · Vite', 'GSAP · Three.js · WebGPU', 'Claude API · ComfyUI', 'TypeScript · Node.js'].map((s) => (
               <p key={s} className="text-sm text-muted-foreground mb-1.5">{s}</p>
             ))}
+          </div>
+
+          {/* Social Links */}
+          <div>
+            <h4 className="text-xs font-mono tracking-[0.15em] uppercase text-amber-400/60 mb-3">Connect</h4>
+            <div className="space-y-2">
+              {[
+                { label: 'Instagram', href: 'https://instagram.com/markytanky', icon: Instagram },
+                { label: 'GitHub', href: 'https://github.com/marktantongco', icon: Github },
+                { label: 'LinkedIn', href: 'https://linkedin.com/in/marktantongco1', icon: Linkedin },
+                { label: 'YouTube', href: 'https://youtube.com/@marktantongco', icon: Youtube },
+              ].map((social) => {
+                const Icon = social.icon
+                return (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm text-muted-foreground hover:text-amber-400 transition-colors group"
+                  >
+                    <Icon className="w-4 h-4 text-muted-foreground/40 group-hover:text-amber-400 transition-colors" />
+                    <span>{social.label}</span>
+                  </a>
+                )
+              })}
+            </div>
           </div>
         </div>
         <div className="border-t border-amber-600/10 pt-6 text-center">
