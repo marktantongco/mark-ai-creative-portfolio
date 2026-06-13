@@ -6,12 +6,14 @@
 
 **powerUP** — Systems over execution. Always.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Vercel-Deployed-000?logo=vercel&logoColor=white)](https://vercel.com)
+[![Deployed on Vercel](https://img.shields.io/badge/Vercel-Live-000?logo=vercel&logoColor=white)](https://my-project-one-lime-24.vercel.app)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-222?logo=github&logoColor=white)](https://marktantongco.github.io/mark-ai-creative-portfolio)
 [![Next.js 16](https://img.shields.io/badge/Next.js-16-000?logo=next.js&logoColor=white)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://typescriptlang.org)
 [![GSAP](https://img.shields.io/badge/GSAP-3.15-88CE02?logo=greensock&logoColor=white)](https://gsap.com)
 [![Three.js](https://img.shields.io/badge/Three.js-0.184-000?logo=three.js&logoColor=white)](https://threejs.org)
+
+**🌐 Live Site:** [my-project-one-lime-24.vercel.app](https://my-project-one-lime-24.vercel.app) · **📄 Static Mirror:** [marktantongco.github.io/mark-ai-creative-portfolio](https://marktantongco.github.io/mark-ai-creative-portfolio)
 
 </div>
 
@@ -22,6 +24,13 @@
 **Mark Anthony Tantongco** is an AI Creative Technologist based in Quezon City, Philippines. This portfolio showcases six core capabilities at the intersection of strategy, design, and code — building systems that think, adapt, and grow.
 
 > "The leverage wasn't in individual pieces — it was in systems."
+
+### 🔗 Live Deployment Links
+
+| Platform | URL | Description |
+|----------|-----|-------------|
+| **Vercel** | [my-project-one-lime-24.vercel.app](https://my-project-one-lime-24.vercel.app) | Primary deployment — SSR, API routes, edge functions |
+| **GitHub Pages** | [marktantongco.github.io/mark-ai-creative-portfolio](https://marktantongco.github.io/mark-ai-creative-portfolio) | Static mirror — full static export via GitHub Actions |
 
 ### Six Core Capabilities
 
@@ -55,8 +64,8 @@
 - **Flux AI** — Advanced image generation with LoRA fine-tuning
 
 ### Deployment & Infrastructure
-- **Vercel** — Primary deployment with edge functions
-- **GitHub Pages** — Static mirror with GitHub Actions CI/CD
+- **Vercel** — Primary deployment with edge functions → [Live on Vercel](https://my-project-one-lime-24.vercel.app)
+- **GitHub Pages** — Static mirror with GitHub Actions CI/CD → [Live on GitHub Pages](https://marktantongco.github.io/mark-ai-creative-portfolio)
 - **Cloudflare Workers** — Edge deployment for single-file projects
 
 ---
@@ -97,16 +106,16 @@ mark-ai-creative-portfolio/
 
 ## Interactive Demos
 
-Each of the six core capabilities features a click-to-open interactive demo:
+Each of the six core capabilities features a click-to-open interactive demo — [try them live](https://my-project-one-lime-24.vercel.app):
 
-| Demo | Description |
-|------|-------------|
-| **Prompt Engineering** | Role selector + strategy picker + temperature slider + live JSON output generator |
-| **Brand Systems** | Live design token editor with color, spacing, and preview tabs + real-time CSS output |
-| **Production Code** | Canvas particle animation + 3D wireframe cube + GSAP timeline controls |
-| **ComfyUI Pipelines** | Interactive node graph with click-to-inspect parameters + pipeline run simulation |
-| **GEO & SEO** | Schema type selector + GEO citation readiness score + JSON-LD generator |
-| **Brand Mastery** | Insurance policy comparison calculator with age/coverage sliders |
+| Demo | Description | Try It |
+|------|-------------|--------|
+| **Prompt Engineering** | Role selector + strategy picker + temperature slider + live JSON output generator | [Live Demo](https://my-project-one-lime-24.vercel.app) |
+| **Brand Systems** | Live design token editor with color, spacing, and preview tabs + real-time CSS output | [Live Demo](https://my-project-one-lime-24.vercel.app) |
+| **Production Code** | Canvas particle animation + 3D wireframe cube + GSAP timeline controls | [Live Demo](https://my-project-one-lime-24.vercel.app) |
+| **ComfyUI Pipelines** | Interactive node graph with click-to-inspect parameters + pipeline run simulation | [Live Demo](https://my-project-one-lime-24.vercel.app) |
+| **GEO & SEO** | Schema type selector + GEO citation readiness score + JSON-LD generator | [Live Demo](https://my-project-one-lime-24.vercel.app) |
+| **Brand Mastery** | Insurance policy comparison calculator with age/coverage sliders | [Live Demo](https://my-project-one-lime-24.vercel.app) |
 
 ---
 
@@ -192,13 +201,24 @@ AI_GATEWAY_API_KEY=your_key_here
 
 ### Vercel (Primary)
 
+🌐 **Live URL:** [https://my-project-one-lime-24.vercel.app](https://my-project-one-lime-24.vercel.app)
+
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/marktantongco/mark-ai-creative-portfolio)
 
-The project is configured for zero-config Vercel deployment with the standalone output mode.
+The project is configured for zero-config Vercel deployment with the standalone output mode. Every push to `main` triggers an automatic deployment to Vercel with edge function support, server-side rendering, and API routes.
+
+**Features on Vercel:**
+- Full SSR/SSG with Next.js App Router
+- API routes for backend functionality
+- Edge functions for fast global responses
+- Automatic HTTPS and CDN distribution
+- Preview deployments for every pull request
 
 ### GitHub Pages (Static Mirror)
 
-A GitHub Actions workflow automatically builds and deploys the static export to GitHub Pages on every push to `main`.
+📄 **Live URL:** [https://marktantongco.github.io/mark-ai-creative-portfolio](https://marktantongco.github.io/mark-ai-creative-portfolio)
+
+A GitHub Actions workflow automatically builds and deploys the static export to GitHub Pages on every push to `main`. This serves as a fully static mirror of the site — no server-side features, but fully functional for browsing and SEO indexing.
 
 ---
 
@@ -249,10 +269,12 @@ Faith + empowerment visual pillar. ComfyUI pipelines. Flux AI generation. 50+ un
 
 | Platform | Link |
 |----------|------|
-| Instagram | [@markytanky](https://instagram.com/markytanky) |
-| GitHub | [marktantongco](https://github.com/marktantongco) |
-| LinkedIn | [marktantongco1](https://linkedin.com/in/marktantongco1) |
-| YouTube | [@marktantongco](https://youtube.com/@marktantongco) |
+| 🌐 Portfolio | [my-project-one-lime-24.vercel.app](https://my-project-one-lime-24.vercel.app) |
+| 📄 Static Mirror | [marktantongco.github.io](https://marktantongco.github.io/mark-ai-creative-portfolio) |
+| 📸 Instagram | [@markytanky](https://instagram.com/markytanky) |
+| 💻 GitHub | [marktantongco](https://github.com/marktantongco) |
+| 💼 LinkedIn | [marktantongco1](https://linkedin.com/in/marktantongco1) |
+| 🎥 YouTube | [@marktantongco](https://youtube.com/@marktantongco) |
 
 ---
 
