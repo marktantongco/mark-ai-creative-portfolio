@@ -48,7 +48,7 @@ export const metadata: Metadata = {
   authors: [{ name: "Mark Anthony Tantongco", url: "https://github.com/marktantongco" }],
   creator: "Mark Anthony Tantongco",
   publisher: "powerUP",
-  metadataBase: new URL("https://mark-ai-creative-portfolio.vercel.app"),
+  metadataBase: new URL("https://my-project-one-lime-24.vercel.app"),
   alternates: {
     canonical: "/",
   },
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
       "Six core capabilities at the intersection of strategy, design, and code. Prompt Engineering. Brand Systems. Production Code. ComfyUI Pipelines. GEO Strategy. Insurance Tech.",
     type: "website",
     locale: "en_US",
-    url: "https://mark-ai-creative-portfolio.vercel.app",
+    url: "https://my-project-one-lime-24.vercel.app",
     siteName: "MARK.TECH",
   },
   twitter: {

@@ -9,7 +9,7 @@
     "type": "git",
     "url": "https://github.com/marktantongco/mark-ai-creative-portfolio.git"
   },
-  "homepage": "https://mark-ai-creative-portfolio.vercel.app",
+  "homepage": "https://my-project-one-lime-24.vercel.app",
   "scripts": {
     "dev": "next dev -p 3000 2>&1 | tee dev.log",
     "build": "next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/",
