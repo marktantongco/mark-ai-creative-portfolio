@@ -18,6 +18,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { assetPath } from '@/lib/utils'
 // accordion removed — unused
 import ResearchReportView from '@/components/views/ResearchReportView'
 import AuditView from '@/components/views/AuditView'
@@ -80,7 +81,7 @@ const SERVICES = [
     color: COLORS.primary,
     description: 'Build advanced prompt architectures. Claude API integration. Meta-frameworks for self-improving systems. Structured outputs. Critique loops that refine themselves.',
     tags: ['Claude API', 'Prompt Design', 'Structured Output'],
-    thumbnail: '/thumbnails/prompt-engineering.png',
+    thumbnail: assetPath('/thumbnails/prompt-engineering.png'),
     repos: [
       { name: 'anthropics/prompt-eng-interactive-tutorial', url: 'https://github.com/anthropics/prompt-eng-interactive-tutorial', stars: '36.3K', description: 'Official Anthropic interactive prompt engineering tutorial — comprehensive course covering prompt structure, failure modes, and advanced techniques for Claude' },
       { name: 'langgptai/awesome-claude-prompts', url: 'https://github.com/langgptai/awesome-claude-prompts', stars: '5.2K', description: 'Community-curated collection of Claude prompt examples and structured output techniques' },
@@ -95,7 +96,7 @@ const SERVICES = [
     color: COLORS.cyan,
     description: 'Living design systems. Token-driven architecture. Neo-brutalist aesthetics. Brand runtimes that survive AI generation. Design as code.',
     tags: ['Design Tokens', 'CSS Variables', 'Type System'],
-    thumbnail: '/thumbnails/brand-systems.png',
+    thumbnail: assetPath('/thumbnails/brand-systems.png'),
     repos: [
       { name: 'style-dictionary/style-dictionary', url: 'https://github.com/style-dictionary/style-dictionary', stars: '4K', description: 'Amazon-built industry standard design token build system — define styles once in JSON, export to CSS Custom Properties, SCSS, JS, and more' },
       { name: 'amzn/style-dictionary', url: 'https://github.com/amzn/style-dictionary', stars: '4K', description: 'Original Amazon design token system — powers design systems at Amazon, Salesforce, and many others' },
@@ -109,7 +110,7 @@ const SERVICES = [
     color: COLORS.amber,
     description: 'React/Next.js/Vite applications. GSAP cinematic animations. Three.js WebGL. WebGPU shaders. Single-file deployments. Performance-first.',
     tags: ['React/Next.js', 'GSAP', 'WebGL/WebGPU'],
-    thumbnail: '/thumbnails/production-code.png',
+    thumbnail: assetPath('/thumbnails/production-code.png'),
     repos: [
       { name: 'vercel/next.js', url: 'https://github.com/vercel/next.js', stars: '140K', description: 'The React Framework — full-stack web applications with SSR, SSG, API routes, and App Router' },
       { name: 'mrdoob/three.js', url: 'https://github.com/mrdoob/three.js', stars: '113K', description: 'JavaScript 3D Library — cross-browser WebGL/WebGPU for animated 3D computer graphics' },
@@ -124,7 +125,7 @@ const SERVICES = [
     color: COLORS.violet,
     description: 'ComfyUI node architecture. ACES color science. Flux & Gemini Imagen prompts. Photography AI. Lightroom automation. Systems that run 24/7.',
     tags: ['ComfyUI', 'ACES Color', 'Photography AI'],
-    thumbnail: '/thumbnails/comfyui-pipelines.png',
+    thumbnail: assetPath('/thumbnails/comfyui-pipelines.png'),
     repos: [
       { name: 'comfyanonymous/ComfyUI', url: 'https://github.com/comfyanonymous/ComfyUI', stars: '80K', description: 'The most powerful and modular diffusion model GUI/backend with graph/nodes interface — top 100 GitHub repos of all time' },
       { name: 'comfyanonymous/ComfyUI_examples', url: 'https://github.com/comfyanonymous/ComfyUI_examples', stars: '4.3K', description: 'Official ComfyUI workflow examples — all images contain metadata that can be loaded directly into ComfyUI' },
@@ -139,7 +140,7 @@ const SERVICES = [
     color: COLORS.emerald,
     description: 'AI citation architecture (GEO). Structured data for AI engines. JSON-LD strategies. Content designed to be cited by Claude, ChatGPT, Perplexity.',
     tags: ['GEO Strategy', 'JSON-LD', 'SEO Architecture'],
-    thumbnail: '/thumbnails/geo-seo-strategy.png',
+    thumbnail: assetPath('/thumbnails/geo-seo-strategy.png'),
     repos: [
       { name: 'google/schema-dts', url: 'https://github.com/google/schema-dts', stars: '1.2K', description: 'Google official TypeScript definitions for Schema.org vocabulary in JSON-LD format — complete discriminated type unions' },
       { name: 'amplifying-ai/awesome-generative-engine-optimization', url: 'https://github.com/amplifying-ai/awesome-generative-engine-optimization', stars: '200+', description: 'Curated guide to GEO — resources, guides, tools & research to boost visibility in AI-powered search engines' },
@@ -153,7 +154,7 @@ const SERVICES = [
     color: COLORS.rose,
     description: 'Licensed insurance agent (Pacific Cross). Blue Royale (lifetime coverage). FlexiShield (HEV enhancer). Combining technical expertise with financial literacy.',
     tags: ['Pacific Cross', 'Blue Royale', 'FlexiShield'],
-    thumbnail: '/thumbnails/brand-mastery.png',
+    thumbnail: assetPath('/thumbnails/brand-mastery.png'),
     repos: [
       { name: 'aposin/openinsuranceplatform', url: 'https://github.com/aposin/openinsuranceplatform', stars: '87', description: 'Comprehensive core insurance platform — full scope of business capabilities for the insurance industry across all lines of business' },
       { name: 'CMSgov/QHP-provider-formulary-APIs', url: 'https://github.com/CMSgov/QHP-provider-formulary-APIs', stars: '44', description: 'US Government CMS official API — schemas describing health insurance plan providers and drug formularies' },
@@ -1255,7 +1256,7 @@ const DESIGN_APPROACHES = [
     title: 'Brutalist Industrial',
     subtitle: 'Raw. Honest. Unapologetic.',
     description: 'Hard edges, monospace grids, exposed structure. No decoration — only function. Like a construction site blueprint brought to life.',
-    image: '/images/brutalist-thumb.png',
+    image: assetPath('/images/brutalist-thumb.png'),
     accent: '#FFD600',
     tags: ['GSAP', 'ScrollTrigger', 'Monospace'],
   },
@@ -1264,7 +1265,7 @@ const DESIGN_APPROACHES = [
     title: 'Organic Minimalism',
     subtitle: 'Calm. Breathing. Tactile.',
     description: 'Soft curves, earth tones, spring physics. Interfaces that feel like linen and handmade ceramics. Generous whitespace as a design choice.',
-    image: '/images/organic-thumb.png',
+    image: assetPath('/images/organic-thumb.png'),
     accent: '#8B9E7E',
     tags: ['Framer Motion', 'Spring Physics', 'Sage & Clay'],
   },
@@ -1273,7 +1274,7 @@ const DESIGN_APPROACHES = [
     title: 'Cyberpunk Neon',
     subtitle: 'Intense. Futuristic. Alive.',
     description: 'Neon glow, 3D wireframes, HUD dashboards, data streams. A hacker control center aesthetic powered by Three.js and GSAP.',
-    image: '/images/cyberpunk-thumb.png',
+    image: assetPath('/images/cyberpunk-thumb.png'),
     accent: '#00FFD4',
     tags: ['Three.js', 'R3F', 'GSAP', 'Neon FX'],
   },

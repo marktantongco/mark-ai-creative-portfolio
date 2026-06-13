@@ -2,6 +2,8 @@
 // SHARED DATA FOR SUBPAGES
 // =============================================================
 
+import { assetPath } from './utils'
+
 export type ViewKey = 'home' | 'error-handler' | 'brutalist' | 'organic' | 'cyberpunk' | 'research' | 'audit' | 'frontend-design' | 'proxy-discussion'
 
 export interface ProjectFile {
@@ -18,42 +20,42 @@ export const RESEARCH_FILES: ProjectFile[] = [
     name: 'design_approaches.png',
     type: 'image',
     size: 178395,
-    path: '/images/design_approaches.png',
+    path: assetPath('/images/design_approaches.png'),
     description: 'Three wildly different design approaches: Brutalist Industrial, Organic Minimalism, Cyberpunk Dashboard',
   },
   {
     name: 'decision_tree.png',
     type: 'image',
     size: 169654,
-    path: '/images/decision_tree.png',
+    path: assetPath('/images/decision_tree.png'),
     description: 'Decision tree for choosing the right proxy architecture and design approach',
   },
   {
     name: 'architecture_diagram.png',
     type: 'image',
     size: 270760,
-    path: '/images/architecture_diagram.png',
+    path: assetPath('/images/architecture_diagram.png'),
     description: 'System architecture diagram showing the three-tier error defense system',
   },
   {
     name: 'perspectives-tab.png',
     type: 'image',
     size: 63867,
-    path: '/images/perspectives-tab.png',
+    path: assetPath('/images/perspectives-tab.png'),
     description: 'Five animal-metaphor perspectives on error handling and resilience',
   },
   {
     name: 'error-handler-tab.png',
     type: 'image',
     size: 84897,
-    path: '/images/error-handler-tab.png',
+    path: assetPath('/images/error-handler-tab.png'),
     description: 'Pre-flight deployment checker and error handler interface design',
   },
   {
     name: 'proxy-topics-page.png',
     type: 'image',
     size: 81708,
-    path: '/images/proxy-topics-page.png',
+    path: assetPath('/images/proxy-topics-page.png'),
     description: 'Proxy types comparison and discussion page visualization',
   },
   {

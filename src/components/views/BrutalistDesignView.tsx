@@ -9,6 +9,7 @@ import {
   Paintbrush, Ruler, Box, Hammer, Eye,
   ChevronRight, ExternalLink,
 } from 'lucide-react'
+import { assetPath } from '@/lib/utils'
 
 // =============================================================
 // BRUTALIST INDUSTRIAL — COLOR SYSTEM
@@ -95,7 +96,7 @@ const PROJECTS = [
       'A brutalist CSS framework. No abstractions, no magic. Every class does exactly one thing. Zero runtime. Pure declarations. 4KB gzipped.',
     tags: ['CSS', 'DESIGN TOKENS', 'FRAMEWORK'],
     color: BRUTAL.yellow,
-    image: '/images/brutalist/project-1.png',
+    image: assetPath('/images/brutalist/project-1.png'),
   },
   {
     id: '02',
@@ -106,7 +107,7 @@ const PROJECTS = [
       'Real-time construction site dashboard. Steel beam stress visualization. Live sensor data. No pretty charts — raw numbers on raw grids.',
     tags: ['REACT', 'WEBSOCKETS', 'DATA VIZ'],
     color: BRUTAL.red,
-    image: '/images/brutalist/project-2.png',
+    image: assetPath('/images/brutalist/project-2.png'),
   },
   {
     id: '03',
@@ -117,7 +118,7 @@ const PROJECTS = [
       'Monospace typeface designed for industrial interfaces. Every character fits the grid. No kerning pairs. No optical adjustments. Pure geometry.',
     tags: ['TYPOGRAPHY', 'OPENTYPE', 'GRID'],
     color: BRUTAL.concrete,
-    image: '/images/brutalist/project-3.png',
+    image: assetPath('/images/brutalist/project-3.png'),
   },
 ]
 
