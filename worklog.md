@@ -187,3 +187,31 @@ Stage Summary:
 - Z-index layering fixed: noise(40) < modal(60) 
 - All Image components have proper sizes prop
 - Build compiles cleanly
+
+---
+Task ID: 3
+Agent: Main Agent
+Task: Create GitHub repo, comprehensive README, deploy to GitHub Pages and Vercel
+
+Work Log:
+- Created SEO/GEO-optimized README.md with full project documentation
+- Created GitHub repo: marktantongco/mark-ai-creative-portfolio via API
+- Configured dual-deployment next.config.ts (standalone for Vercel, export for GitHub Pages)
+- Added build:static script with NEXT_STATIC_EXPORT env var
+- Created GitHub Actions workflow (.github/workflows/deploy.yml) for GitHub Pages
+- Updated layout.tsx with comprehensive SEO metadata (25+ keywords, OG, Twitter, robots)
+- Updated package.json with SEO-optimized name, description, author, repository
+- Cleaned git history with filter-branch to remove sensitive files (tool-results, .env)
+- Pushed code to GitHub with clean history
+- Enabled GitHub Pages with GitHub Actions as source
+- Fixed workflow build: used bunx instead of bare next command
+- GitHub Pages deployment successful: https://marktantongco.github.io/mark-ai-creative-portfolio/
+- Deployed to Vercel: https://my-project-one-lime-24.vercel.app
+- Added AI_GATEWAY_API_KEY env var to Vercel project
+- Connected GitHub repo to Vercel for auto-deployments
+
+Stage Summary:
+- GitHub repo: https://github.com/marktantongco/mark-ai-creative-portfolio
+- GitHub Pages: https://marktantongco.github.io/mark-ai-creative-portfolio/ (200 OK)
+- Vercel: https://my-project-one-lime-24.vercel.app (200 OK)
+- README includes: tech stack, project structure, 6 capabilities, interactive demos, design philosophy, reference repos (430K+ stars), case studies, SEO/GEO architecture, deployment guides
