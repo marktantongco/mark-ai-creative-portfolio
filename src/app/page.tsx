@@ -1014,13 +1014,13 @@ function Footer() {
                 <span className="w-8 h-8 rounded-md flex items-center justify-center border border-amber-500/20 bg-amber-500/10">
                   <Mail className="w-3.5 h-3.5 text-amber-400" />
                 </span>
-                <span className="text-xs text-muted-foreground/60">hello@mark.tech</span>
+                <span className="text-xs text-muted-foreground/60">mark.tantongco@gmail.com</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-8 h-8 rounded-md flex items-center justify-center border border-amber-500/20 bg-amber-500/10">
                   <Phone className="w-3.5 h-3.5 text-amber-400" />
                 </span>
-                <span className="text-xs text-muted-foreground/60">+63 917 123 4567</span>
+                <span className="text-xs text-muted-foreground/60">+63 994 894 7448</span>
               </div>
             </div>
           </div>
