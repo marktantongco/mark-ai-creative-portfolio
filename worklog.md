@@ -215,3 +215,54 @@ Stage Summary:
 - GitHub Pages: https://marktantongco.github.io/mark-ai-creative-portfolio/ (200 OK)
 - Vercel: https://my-project-one-lime-24.vercel.app (200 OK)
 - README includes: tech stack, project structure, 6 capabilities, interactive demos, design philosophy, reference repos (430K+ stars), case studies, SEO/GEO architecture, deployment guides
+
+---
+Task ID: 4
+Agent: Super Z (Main)
+Task: Comprehensive upgrade — wire analytics to DATA_ENGINEER_METRICS, generate RESEARCH_FILES at build time, A/B test Safari fallback timer, move tour position to URL params
+
+Work Log:
+- Created src/lib/analytics.ts — zero-dependency telemetry module
+  - 12 typed emit helpers (one per DATA_ENGINEER_METRIC) + track() core
+  - localStorage-backed event queue with MAX_QUEUE=200 cap
+  - Drain via navigator.sendBeacon when NEXT_PUBLIC_ANALYTICS_ENDPOINT set; otherwise stays local
+  - Random visitor_id (no cookies, no PII, no cross-site tracking)
+  - A/B framework: getABVariant() with sticky per-visitor assignment + trackABOutcome()
+  - bootAnalytics() installs global img/iframe error listener for asset_path_404 metric
+  - getMetricStats() read API for the Audit dashboard
+- Task A (analytics wiring):
+  - page.tsx: boots analytics on mount + emits cross_view_navigation on view switch
+  - ResearchReportView.tsx: emits artifact_load_count (on modal open), artifact_load_latency_ms (from fetchStart ref), artifact_load_failure (with status code), tour_completion_rate (per chapter reached), tour_vs_browse_ratio (on tour start vs free browse), download_after_preview (download click), copy_to_clipboard_count (modal + card), search_query_empty_results (zero matches), filter_type_distribution (filter change), modal_dwell_time_ms (on modal close), asset_path_404 (via global listener + fetch 404)
+  - AuditView.tsx: LiveMetricsDashboard component with refresh + clear buttons; per-metric live count badge + last-emitted timestamp
+- Task B (build-time RESEARCH_FILES):
+  - Created scripts/file-descriptions.json sidecar (19 entries)
+  - Created scripts/generate-research-files.js — walks /public/files/ + /public/images/, dedupes by basename (prefers /images/), emits src/lib/research-files.generated.ts
+  - Updated subpage-data.ts to prefer RESEARCH_FILES_GENERATED, fall back to FALLBACK_RESEARCH_FILES on fresh checkout
+  - Updated package.json prebuild/build/build:static to chain sync-files.js && generate-research-files.js
+  - Marked blind spot #3 (Search index freshness) as ✅ FIXED in BLIND_SPOTS
+- Task C (A/B test Safari fallback timer):
+  - Replaced hardcoded 3000ms with getABVariant('safari_pdf_fallback_timer', ['2000','3000','5000'])
+  - Added iframe onLoad handler (handlePdfLoad) — cancels fallback if PDF actually loaded
+  - Tracks 3 outcomes: pdf_loaded (success), fallback_shown (timer fired), fallback_then_download (fallback helpful)
+  - Added "Active Experiments" card to AuditView showing variant assignment + hypothesis
+  - Marked blind spot #4 (PDF rendering on Safari) as ✅ A/B TEST RUNNING
+- Task D (tour position via URL params):
+  - Added readChapterFromUrl/writeChapterToUrl helpers (?chapter=N, 1-indexed for shareability)
+  - Kept localStorage mirror as fallback for tab-close-and-reopen scenarios
+  - popstate listener so browser back/forward updates tour position
+  - handleJumpTour uses pushState (back button returns to previous chapter); handleNavigateTour uses replaceState (no spam)
+  - Added "Share this chapter" button in GuidedTourLauncher — copies shareUrl to clipboard
+  - Initial load: URL param wins > localStorage > 0; auto-opens chapter if URL param present (shared link)
+- Updated BLIND_SPOTS #3 (FIXED) and #4 (A/B RUNNING) and #5 (offline support mentions URL param persistence)
+- Updated SUB_AGENT_DECOMPOSITION: tour-agent successCriteria updated for URL params; analytics-agent owns now lists concrete files; verify-agent owns generate-research-files.js
+- Both builds verified: bun run build (SSR/Vercel) ✓ and bun run build:static (GitHub Pages) ✓
+- Dev server starts cleanly, page returns HTTP 200, contains "MARK.TECH" + "Research"
+- Lint: 5 pre-existing errors remain (CommonJS require in scripts/*.js by design; JSX comment in CapabilityDemos.tsx); zero new errors introduced
+
+Stage Summary:
+- 12-metric analytics pipeline fully wired and visible in Audit view dashboard (refreshes every 5s)
+- RESEARCH_FILES now auto-discovers new artifacts — drop file in /download/, commit, push, done. Hardcoded array kept as fallback for fresh checkouts
+- Safari PDF fallback timer A/B test running with 3 variants (2s/3s/5s) and 3 outcome types — winner TBD after data collection
+- Tour position shareable via URL (?chapter=N); "Share this chapter" button in Guided Tour launcher
+- Both deployments (Vercel SSR + GitHub Pages static) verified to build successfully
+- Zero new lint errors; all 4 tasks integrated cleanly with existing audit/analysis documentation

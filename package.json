@@ -13,9 +13,10 @@
   "scripts": {
     "dev": "next dev -p 3000 2>&1 | tee dev.log",
     "sync-files": "node scripts/sync-files.js",
-    "prebuild": "node scripts/sync-files.js",
-    "build": "node scripts/sync-files.js && next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/",
-    "build:static": "node scripts/sync-files.js && mv src/app/api/files _api_files_tmp && NEXT_STATIC_EXPORT=true next build; mv _api_files_tmp src/app/api/files",
+    "gen-research": "node scripts/generate-research-files.js",
+    "prebuild": "node scripts/sync-files.js && node scripts/generate-research-files.js",
+    "build": "node scripts/sync-files.js && node scripts/generate-research-files.js && next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/",
+    "build:static": "node scripts/sync-files.js && node scripts/generate-research-files.js && mv src/app/api/files _api_files_tmp && NEXT_STATIC_EXPORT=true next build; mv _api_files_tmp src/app/api/files",
     "start": "NODE_ENV=production bun .next/standalone/server.js 2>&1 | tee server.log",
     "lint": "eslint .",
     "db:push": "prisma db push",

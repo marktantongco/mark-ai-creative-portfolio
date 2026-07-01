@@ -1,0 +1,26 @@
+{
+  "_meta": {
+    "_comment": "Sidecar descriptions for research files. The build-time script (scripts/generate-research-files.js) walks /public/files/ and /public/images/ and matches each file against entries here for its description. Files not listed get a generic auto-generated description. Paths are relative to /public/.",
+    "_format": "key = relative path (without leading slash), value = human-readable description"
+  },
+  "images/design_approaches.png": "Three wildly different design approaches: Brutalist Industrial, Organic Minimalism, Cyberpunk Dashboard",
+  "images/decision_tree.png": "Decision tree for choosing the right proxy architecture and design approach",
+  "images/architecture_diagram.png": "System architecture diagram showing the three-tier error defense system",
+  "images/perspectives-tab.png": "Five animal-metaphor perspectives on error handling and resilience",
+  "images/error-handler-tab.png": "Pre-flight deployment checker and error handler interface design",
+  "images/proxy-topics-page.png": "Proxy types comparison and discussion page visualization",
+
+  "files/Impeccable_Error_Fix_Handler_Audit.pdf": "Comprehensive audit report with 5 animal-metaphor perspectives (Owl, Eagle, Beaver, Dolphin, Elephant)",
+  "files/Portfolio_Website_Recreation_SOP_final.pdf": "33-page SOP for recreating the portfolio with 3 design approaches, confidence scoring, decision trees, YC/staff-engineer reviews",
+  "files/Portfolio_Website_Recreation_SOP.pdf": "Earlier draft of the SOP — included for version comparison and historical reference",
+  "files/cover_portfolio_sop.pdf": "Standalone cover page for the Portfolio Website Recreation SOP document",
+  "files/cover_portfolio_sop.html": "HTML version of the SOP cover page — viewable inline in the browser",
+  "files/generate_portfolio_sop.py": "Python script generating the SOP PDF with custom ReportLab styles, flowables, and table builders",
+  "files/generate_audit.py": "Python script generating the Error Fix Handler Audit PDF with cascade palette",
+  "files/gen_architecture.py": "Python script generating the system architecture diagram visualization",
+  "files/generate_decision_tree.py": "Python script generating the decision tree visualization for proxy and design approach selection",
+  "files/README.md": "Project README — live deployment links, tech stack, project structure, design philosophy",
+  "files/impeccable-error-handler/README.md": "Documentation for the three-tier error defense system: Prevention, Detection, Recovery",
+  "files/impeccable-error-handler/deploy.sh": "Main deployment script with pre-flight checks, session checkpointing, and failover logic",
+  "files/impeccable-error-handler/git-recovery.sh": "Git state recovery script for handling rebase locks, merge conflicts, and index corruption"
+}

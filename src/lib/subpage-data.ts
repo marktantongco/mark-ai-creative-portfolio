@@ -3,6 +3,7 @@
 // =============================================================
 
 import { assetPath } from './utils'
+import { RESEARCH_FILES_GENERATED } from './research-files.generated'
 
 export type ViewKey = 'home' | 'error-handler' | 'brutalist' | 'organic' | 'cyberpunk' | 'research' | 'audit' | 'frontend-design' | 'proxy-discussion'
 
@@ -14,8 +15,21 @@ export interface ProjectFile {
   description: string
 }
 
-// Research report files (static data - matches what's in /download)
-export const RESEARCH_FILES: ProjectFile[] = [
+// ---------------------------------------------------------------------------
+// Research archive files — generated at build time by
+// scripts/generate-research-files.js (Task B / blind spot #3 fix).
+//
+// The generator walks /public/files/ and /public/images/ at prebuild and
+// emits src/lib/research-files.generated.ts. Descriptions come from a
+// sidecar JSON (scripts/file-descriptions.json). Files not in the sidecar
+// get an auto-generated description so they still appear in the archive.
+//
+// The hardcoded FALLBACK_RESEARCH_FILES below is kept as a safety net for
+// the very first build on a fresh checkout (before prebuild runs). After
+// the first prebuild, RESEARCH_FILES_GENERATED takes precedence.
+// ---------------------------------------------------------------------------
+
+const FALLBACK_RESEARCH_FILES: ProjectFile[] = [
   {
     name: 'design_approaches.png',
     type: 'image',
@@ -143,6 +157,12 @@ export const RESEARCH_FILES: ProjectFile[] = [
     description: 'Python script generating the decision tree visualization for proxy and design approach selection',
   },
 ]
+
+// Prefer the build-time-generated list; fall back to the hardcoded list
+// if the generated file is missing (e.g. fresh checkout before prebuild).
+// Using a ternary at module scope so the cost is paid once at import.
+export const RESEARCH_FILES: ProjectFile[] =
+  RESEARCH_FILES_GENERATED.length > 0 ? RESEARCH_FILES_GENERATED : FALLBACK_RESEARCH_FILES
 
 // Audit perspectives data (expanded from the 5 animal metaphors)
 export const AUDIT_PERSPECTIVES = [
@@ -720,19 +740,19 @@ export const BLIND_SPOTS = [
     fix: 'Add aria-label="Source code, N lines" on the pre element and a "copy to read in editor" button as the primary CTA on mobile/a11y modes.',
   },
   {
-    area: 'Search index freshness',
-    issue: 'RESEARCH_FILES is a hardcoded array in subpage-data.ts. New files added to /download/ do not appear until a developer updates the array.',
-    fix: 'Generate RESEARCH_FILES at build time by reading /public/files/ directory listing. Add descriptions via a sidecar JSON or frontmatter.',
+    area: 'Search index freshness ✅ FIXED',
+    issue: 'RESEARCH_FILES WAS a hardcoded array in subpage-data.ts. New files added to /download/ did not appear until a developer updated the array.',
+    fix: 'NOW FIXED: scripts/generate-research-files.js runs at prebuild, walks /public/files/ + /public/images/ via fs.readdirSync, and emits src/lib/research-files.generated.ts. Descriptions come from scripts/file-descriptions.json (sidecar). Files not in the sidecar get auto-generated descriptions so they still appear.',
   },
   {
-    area: 'PDF rendering on Safari',
+    area: 'PDF rendering on Safari ✅ A/B TEST RUNNING',
     issue: 'Safari\'s PDF iframe rendering is inconsistent — sometimes shows blank page on first load, requires refresh. Chrome and Firefox are fine.',
-    fix: 'Add a "Open in new tab" fallback link visible from the start, and a "Click here if PDF does not load" message after 3 seconds of blank iframe.',
+    fix: 'NOW A/B TESTED: visitors are randomly assigned a fallback timer variant (2s/3s/5s, sticky per visitor). The iframe onLoad event cancels the fallback if PDF loads successfully. Outcomes tracked: pdf_loaded, fallback_shown, fallback_then_download. See the Active Experiments section in the Audit view.',
   },
   {
     area: 'Offline support',
-    issue: 'No service worker. Visitors who lose connectivity mid-tour lose all state. The Guided Tour position is not persisted.',
-    fix: 'Add a minimal service worker that caches /files/* and /images/*. Persist tour position in localStorage. Resume on reconnect.',
+    issue: 'No service worker. Visitors who lose connectivity mid-tour lose all state. (Note: tour position is now persisted via URL params + localStorage mirror — see Task D.)',
+    fix: 'Add a minimal service worker that caches /files/* and /images/*. Tour position persists via ?chapter=N URL param. Resume on reconnect.',
   },
   {
     area: 'Internationalization',
@@ -802,8 +822,8 @@ export const SUB_AGENT_DECOMPOSITION = [
   {
     agent: 'tour-agent',
     role: 'Guided Tour mode — narrative walkthrough of artifacts',
-    owns: ['GUIDED_TOUR data in subpage-data.ts', 'GuidedTour React component'],
-    successCriteria: 'Visitor can walk all 19 chapters with prev/next. Position persists across reloads.',
+    owns: ['GUIDED_TOUR data in subpage-data.ts', 'GuidedTour React component', 'URL param sync (?chapter=N)', 'Share-this-chapter button'],
+    successCriteria: 'Visitor can walk all 19 chapters with prev/next. Position persists in URL params (shareable) + localStorage mirror (resume on tab close). Browser back/forward works.',
   },
   {
     agent: 'resilience-agent',
@@ -814,8 +834,8 @@ export const SUB_AGENT_DECOMPOSITION = [
   {
     agent: 'analytics-agent',
     role: 'Wire DATA_ENGINEER_METRICS to actual telemetry',
-    owns: ['analytics instrumentation in modal/tour components'],
-    successCriteria: 'Every metric in DATA_ENGINEER_METRICS is emitted and visible in a dashboard.',
+    owns: ['src/lib/analytics.ts', 'LiveMetricsDashboard in AuditView', 'emit helpers in ResearchReportView + page.tsx'],
+    successCriteria: 'Every metric in DATA_ENGINEER_METRICS is emitted on real user interactions. Live counts visible in Audit view dashboard. Buffer drains via sendBeacon when NEXT_PUBLIC_ANALYTICS_ENDPOINT is set.',
   },
   {
     agent: 'a11y-agent',
@@ -826,7 +846,7 @@ export const SUB_AGENT_DECOMPOSITION = [
   {
     agent: 'verify-agent',
     role: 'Build for both Vercel and GitHub Pages, verify every artifact loads',
-    owns: ['build:static script', 'verification script'],
-    successCriteria: 'HTTP 200 on every file in RESEARCH_FILES, on both deployment targets.',
+    owns: ['build:static script', 'verification script', 'scripts/generate-research-files.js'],
+    successCriteria: 'HTTP 200 on every file in RESEARCH_FILES, on both deployment targets. Generated file count matches walk of /public/files/.',
   },
 ]

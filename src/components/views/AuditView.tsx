@@ -1,11 +1,12 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search, Target, Hammer, Sparkles, Lightbulb,
   ChevronDown, Shield, Eye, ArrowRight, BookOpen,
   AlertTriangle, TrendingUp, Database, Layers, Scissors, Users, Gauge,
+  Activity, Trash2, CheckCircle2, FlaskConical, Link2,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -14,6 +15,10 @@ import {
   DATA_ENGINEER_METRICS, BLIND_SPOTS, EIGHTY_TWENTY, SUB_AGENT_DECOMPOSITION,
   type ViewKey,
 } from '@/lib/subpage-data'
+import {
+  getMetricStats, clearAnalytics, isAnalyticsEndpointConfigured,
+  type MetricStats,
+} from '@/lib/analytics'
 
 // =============================================================
 // ICON MAP
@@ -160,7 +165,113 @@ function PerspectiveCard({ perspective, index }: { perspective: typeof AUDIT_PER
 // AUDIT VIEW
 // =============================================================
 
+// ---------------------------------------------------------------------------
+// LiveMetricsDashboard — surfaces what's actually been collected (Task A)
+// ---------------------------------------------------------------------------
+function LiveMetricsDashboard() {
+  const [stats, setStats] = useState<MetricStats[]>([])
+  const [endpointConfigured, setEndpointConfigured] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setStats(getMetricStats())
+    setEndpointConfigured(isAnalyticsEndpointConfigured())
+  }, [refreshKey])
+
+  const totalEvents = stats.reduce((sum, s) => sum + s.count, 0)
+  const activeMetrics = stats.filter(s => s.count > 0).length
+
+  const handleClear = useCallback(() => {
+    if (typeof window === 'undefined') return
+    if (window.confirm('Clear all locally-buffered analytics events? This cannot be undone.')) {
+      clearAnalytics()
+      setRefreshKey(k => k + 1)
+    }
+  }, [])
+
+  return (
+    <div className="rounded-lg border border-emerald-600/30 bg-emerald-500/5 p-4 mb-4">
+      <div className="flex items-start justify-between gap-4 mb-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <Activity className="w-4 h-4 text-emerald-400" />
+            <span className="text-sm font-semibold text-emerald-200">Local Telemetry Buffer</span>
+            <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-300 border-emerald-600/30">
+              {totalEvents.toLocaleString()} events
+            </Badge>
+            <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-300 border-emerald-600/30">
+              {activeMetrics}/{stats.length} metrics active
+            </Badge>
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Events are buffered locally in <code className="text-[10px] bg-muted/40 px-1 rounded">localStorage</code> under{' '}
+            <code className="text-[10px] bg-muted/40 px-1 rounded">mark-tech-analytics-queue</code>.
+            {endpointConfigured
+              ? ' An endpoint is configured — events drain via sendBeacon on idle.'
+              : ' No endpoint configured (set NEXT_PUBLIC_ANALYTICS_ENDPOINT) — events stay in this browser for you to inspect.'}
+            {' '}No cookies, no PII, no cross-site tracking. A random visitor ID is generated once per browser.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => setRefreshKey(k => k + 1)}
+            className="text-xs px-2 py-1 rounded border border-border/50 bg-muted/30 hover:bg-muted/50 text-muted-foreground transition-colors"
+            aria-label="Refresh stats"
+            title="Refresh"
+          >
+            <Activity className="w-3 h-3" />
+          </button>
+          {totalEvents > 0 && (
+            <button
+              onClick={handleClear}
+              className="text-xs px-2 py-1 rounded border border-rose-600/40 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 transition-colors flex items-center gap-1"
+              aria-label="Clear analytics buffer"
+              title="Clear local buffer"
+            >
+              <Trash2 className="w-3 h-3" /> Clear
+            </button>
+          )}
+        </div>
+      </div>
+      {totalEvents === 0 && (
+        <p className="text-xs text-muted-foreground italic mt-1">
+          No events yet. Visit the <span className="text-emerald-300">Research Archive</span>, open artifacts, start the Guided Tour — counts will appear here in real time.
+        </p>
+      )}
+    </div>
+  )
+}
+
 export default function AuditView({ onSwitchView }: { onSwitchView: (v: ViewKey) => void }) {
+  // Live stats for the metrics dashboard (Task A)
+  const [liveStats, setLiveStats] = useState<MetricStats[] | null>(null)
+  // A/B test variant assignment for the experiments card (Task C)
+  const [abVariant, setAbVariant] = useState<string>('?')
+
+  useEffect(() => {
+    // Reading from localStorage on mount is the canonical "sync with external system" use case.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLiveStats(getMetricStats())
+    // Read A/B assignment directly from localStorage so AuditView
+    // doesn't trigger an assignment for visitors who haven't seen a PDF yet.
+    try {
+      const raw = localStorage.getItem('mark-tech-ab-assignments')
+      if (raw) {
+        const all = JSON.parse(raw)
+        const assign = all['safari_pdf_fallback_timer']
+        if (assign?.variant) {
+          setAbVariant(`${assign.variant}ms`)
+        }
+      }
+    } catch { /* ignore */ }
+    // Refresh every 5s so the dashboard feels live while user interacts
+    const id = setInterval(() => {
+      setLiveStats(getMetricStats())
+    }, 5000)
+    return () => clearInterval(id)
+  }, [])
+
   return (
     <motion.div
       key="audit"
@@ -429,15 +540,27 @@ export default function AuditView({ onSwitchView }: { onSwitchView: (v: ViewKey)
           <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
             <Database className="w-5 h-5" style={{ color: '#2DD4BF' }} />
             Metrics a Data Engineer Would Add
+            <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-300 border-emerald-600/30">
+              <Activity className="w-3 h-3 mr-1" /> Live
+            </Badge>
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Page views tell you traffic. They do not tell you whether visitors understood the work. These are the metrics that would actually inform iteration.
+            Page views tell you traffic. They do not tell you whether visitors understood the work. These are the metrics that would actually inform iteration. Every metric below is instrumented in this build — counts shown are live, pulled from your own browser's local event queue.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+
+          {/* Live metrics dashboard */}
+          <LiveMetricsDashboard />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-4">
             {DATA_ENGINEER_METRICS.map((m, i) => {
               const typeColor = m.type === 'counter' ? '#49d08c' : m.type === 'histogram' ? '#e040fb' : m.type === 'gauge' ? '#f59e0b' : '#2DD4BF'
+              const liveCount = liveStats?.find(s => s.metric === m.metric)?.count ?? 0
+              const lastEmitted = liveStats?.find(s => s.metric === m.metric)?.lastEmitted
               return (
-                <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-border/40 bg-muted/15">
+                <div
+                  key={i}
+                  className="flex items-start gap-3 p-3 rounded-lg border border-border/40 bg-muted/15 transition-colors hover:border-emerald-600/30"
+                >
                   <div className="w-2 h-2 rounded-full mt-2 shrink-0" style={{ backgroundColor: typeColor }} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
@@ -448,12 +571,70 @@ export default function AuditView({ onSwitchView }: { onSwitchView: (v: ViewKey)
                       >
                         {m.type}
                       </span>
+                      {liveCount > 0 && (
+                        <span className="ml-auto text-[11px] font-mono font-semibold text-emerald-300">
+                          {liveCount.toLocaleString()}
+                        </span>
+                      )}
                     </div>
                     <p className="text-xs text-muted-foreground leading-relaxed">{m.description}</p>
+                    {lastEmitted && (
+                      <p className="text-[10px] text-muted-foreground/70 mt-1">
+                        Last: {new Date(lastEmitted).toLocaleTimeString()}
+                      </p>
+                    )}
                   </div>
                 </div>
               )
             })}
+          </div>
+        </div>
+
+        {/* ============================================================= */}
+        {/* EXPERIMENTS — A/B test status (Task C) */}
+        {/* ============================================================= */}
+        <div className="mt-10 border-t border-border/50 pt-8">
+          <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+            <FlaskConical className="w-5 h-5" style={{ color: '#e040fb' }} />
+            Active Experiments
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            Active A/B tests running on this build. Each visitor is assigned a sticky variant on first visit; outcomes are tracked via the analytics pipeline above.
+          </p>
+          <div className="rounded-lg border border-border/40 bg-muted/15 p-4">
+            <div className="flex items-start justify-between gap-4 mb-3">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <code className="text-xs font-mono text-foreground">safari_pdf_fallback_timer</code>
+                  <Badge variant="outline" className="text-[10px] bg-fuchsia-500/10 text-fuchsia-300 border-fuchsia-600/30">
+                    Running
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Tests whether the Safari PDF fallback overlay should appear after 2s, 3s, or 5s. Hypothesis: 3s is too aggressive for slow connections — visitors see the fallback even when the PDF would have loaded half a second later. Success metric: <code className="text-[10px]">pdf_loaded</code> outcome without prior <code className="text-[10px]">fallback_shown</code>.
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-2 text-xs">
+              <div className="rounded border border-border/40 p-2 bg-card/30">
+                <div className="text-muted-foreground">Variant A</div>
+                <div className="font-mono font-bold text-base">2000ms</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">Aggressive</div>
+              </div>
+              <div className="rounded border border-border/40 p-2 bg-card/30">
+                <div className="text-muted-foreground">Variant B</div>
+                <div className="font-mono font-bold text-base">3000ms</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">Original</div>
+              </div>
+              <div className="rounded border border-border/40 p-2 bg-card/30">
+                <div className="text-muted-foreground">Variant C</div>
+                <div className="font-mono font-bold text-base">5000ms</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">Patient</div>
+              </div>
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-3">
+              Your variant: <code className="font-mono">{abVariant}</code>. Outcome events appear in the <code className="font-mono">modal_dwell_time_ms</code> metric above with <code className="font-mono">_experiment</code> payload.
+            </p>
           </div>
         </div>
 

@@ -6,7 +6,7 @@ import {
   FileText, Image as ImageIcon, Code2, Terminal, BookOpen,
   Download, Eye, ChevronDown, ExternalLink,
   FolderOpen, Search, Filter, X, Loader2, Copy, Check,
-  Map, ChevronLeft, ChevronRight, Compass, AlertTriangle,
+  Map, ChevronLeft, ChevronRight, Compass, AlertTriangle, Link2,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -14,6 +14,13 @@ import CodeBlock from '@/components/CodeBlock'
 import {
   RESEARCH_FILES, GUIDED_TOUR, type ViewKey, type ProjectFile, type TourStop,
 } from '@/lib/subpage-data'
+import {
+  trackArtifactOpened, trackArtifactLatency, trackArtifactFailure,
+  trackTourProgress, trackTourVsBrowse, trackDownloadAfterPreview,
+  trackCopyToClipboard, trackSearchEmpty, trackFilterApplied,
+  trackModalDwell, trackAsset404,
+  getABVariant, trackABOutcome,
+} from '@/lib/analytics'
 
 // =============================================================
 // FILE TYPE CONFIG
@@ -76,6 +83,18 @@ function UniversalPreviewModal({ file, onClose, onNavigateTour, tourIndex }: {
   const [retryCount, setRetryCount] = useState(0)
   const [showSafariFallback, setShowSafariFallback] = useState(false)
   const safariTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const modalOpenTimeRef = useRef<number>(Date.now())
+  const fetchStartRef = useRef<number>(0)
+  const pdfLoadedRef = useRef<boolean>(false)
+
+  // A/B test assignment for Safari fallback timer (Task C)
+  // Variants: 2s, 3s, 5s — sticky per visitor via localStorage.
+  // Outcome tracked when visitor either: PDF loads (success),
+  // fallback shown + download clicked (fallback helpful), or
+  // fallback shown + modal closed without download (fallback wasted).
+  const safariTimerVariant = typeof window !== 'undefined'
+    ? getABVariant('safari_pdf_fallback_timer', ['2000', '3000', '5000'], [1, 1, 1])
+    : '3000'
 
   const isImage = file.type === 'image'
   const isPdf = file.type === 'pdf'
@@ -91,6 +110,8 @@ function UniversalPreviewModal({ file, onClose, onNavigateTour, tourIndex }: {
       setTextContent(cached.content)
       setLoading(false)
       setError(null)
+      // Emit latency for cache hit (from open time)
+      trackArtifactLatency(file, Date.now() - fetchStartRef.current)
       return
     }
 
@@ -98,10 +119,17 @@ function UniversalPreviewModal({ file, onClose, onNavigateTour, tourIndex }: {
     setError(null)
     try {
       const res = await fetch(file.path)
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      if (!res.ok) {
+        // Track failure with status code
+        trackArtifactFailure(file, `HTTP ${res.status}`, res.status)
+        if (res.status === 404) trackAsset404(file.path, 'fetch')
+        throw new Error(`HTTP ${res.status}`)
+      }
       const text = await res.text()
       textCache[file.path] = { content: text, fetchedAt: Date.now() }
       setTextContent(text)
+      // Emit latency for successful fetch
+      trackArtifactLatency(file, Date.now() - fetchStartRef.current)
     } catch (err) {
       // Single retry on network failure (Eagle resilience)
       if (attempt < 1) {
@@ -111,28 +139,46 @@ function UniversalPreviewModal({ file, onClose, onNavigateTour, tourIndex }: {
         }, 800)
         return
       }
-      setError(err instanceof Error ? err.message : 'Failed to load file')
+      const errMsg = err instanceof Error ? err.message : 'Failed to load file'
+      setError(errMsg)
+      trackArtifactFailure(file, errMsg)
     } finally {
       setLoading(false)
     }
-  }, [file.path, isTextLike])
+  }, [file.path, file, isTextLike])
 
   useEffect(() => {
     if (!isTextLike) return
+    fetchStartRef.current = Date.now()
     fetchContent(0)
   }, [fetchContent, isTextLike])
 
-  // Safari PDF fallback timer
+  // Safari PDF fallback timer — A/B tested (Task C)
+  // The timer threshold is the variant assigned to this visitor.
+  // We also detect successful PDF load via the iframe onLoad event
+  // so we can mark the experiment outcome as "success" and skip
+  // showing the fallback overlay.
   useEffect(() => {
     if (!isPdf) return
+    pdfLoadedRef.current = false
     setShowSafariFallback(false)
-    safariTimerRef.current = setTimeout(() => setShowSafariFallback(true), 3000)
+    const ms = parseInt(safariTimerVariant, 10)
+    safariTimerRef.current = setTimeout(() => {
+      if (!pdfLoadedRef.current) {
+        setShowSafariFallback(true)
+        // Track outcome: fallback was shown
+        trackABOutcome('safari_pdf_fallback_timer', safariTimerVariant, 'fallback_shown', {
+          file_name: file.name,
+        })
+      }
+    }, ms)
     return () => {
       if (safariTimerRef.current) clearTimeout(safariTimerRef.current)
     }
-  }, [isPdf, file.path])
+  }, [isPdf, file.path, safariTimerVariant, file.name])
 
   // ESC to close, Arrow keys for tour navigation
+  // Also emits modal_dwell_time_ms when the modal closes.
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
@@ -141,11 +187,15 @@ function UniversalPreviewModal({ file, onClose, onNavigateTour, tourIndex }: {
     }
     window.addEventListener('keydown', handler)
     document.body.style.overflow = 'hidden'
+    modalOpenTimeRef.current = Date.now()
     return () => {
       window.removeEventListener('keydown', handler)
       document.body.style.overflow = ''
+      // Emit dwell time
+      const dwellMs = Date.now() - modalOpenTimeRef.current
+      trackModalDwell(file, dwellMs)
     }
-  }, [onClose, onNavigateTour])
+  }, [onClose, onNavigateTour, file])
 
   const handleCopy = useCallback(async () => {
     if (!textContent) return
@@ -153,8 +203,30 @@ function UniversalPreviewModal({ file, onClose, onNavigateTour, tourIndex }: {
       await navigator.clipboard.writeText(textContent)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
+      trackCopyToClipboard(file, 'modal')
     } catch { /* clipboard blocked */ }
-  }, [textContent])
+  }, [textContent, file])
+
+  // Track download clicks (download_after_preview metric)
+  const handleDownloadClick = useCallback(() => {
+    trackDownloadAfterPreview(file, Date.now() - modalOpenTimeRef.current)
+    // If this was triggered after fallback was shown, mark experiment outcome
+    if (isPdf && showSafariFallback) {
+      trackABOutcome('safari_pdf_fallback_timer', safariTimerVariant, 'fallback_then_download', {
+        file_name: file.name,
+      })
+    }
+  }, [file, isPdf, showSafariFallback, safariTimerVariant])
+
+  // Track successful PDF iframe load (marks A/B outcome as "success")
+  const handlePdfLoad = useCallback(() => {
+    pdfLoadedRef.current = true
+    setShowSafariFallback(false)
+    trackABOutcome('safari_pdf_fallback_timer', safariTimerVariant, 'pdf_loaded', {
+      file_name: file.name,
+      load_ms: Date.now() - modalOpenTimeRef.current,
+    })
+  }, [safariTimerVariant, file.name])
 
   const config = FILE_TYPE_CONFIG[file.type] || FILE_TYPE_CONFIG.other
   const Icon = config.icon
@@ -227,6 +299,7 @@ function UniversalPreviewModal({ file, onClose, onNavigateTour, tourIndex }: {
               target="_blank"
               rel="noopener noreferrer"
               download={file.name.split('/').pop()}
+              onClick={handleDownloadClick}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md bg-muted/50 hover:bg-muted border border-border/50 transition-colors"
             >
               <Download className="w-3 h-3" /> Download
@@ -288,12 +361,23 @@ function UniversalPreviewModal({ file, onClose, onNavigateTour, tourIndex }: {
                 src={file.path}
                 title={file.name}
                 className="w-full h-full border-0"
+                onLoad={handlePdfLoad}
               />
-              {/* Safari fallback overlay */}
+              {/* Safari fallback overlay — shown after A/B-tested delay if PDF hasn't fired onLoad */}
               {showSafariFallback && (
-                <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur px-4 py-2 rounded-lg border border-border/50 text-xs flex items-center gap-3">
-                  <AlertTriangle className="w-4 h-4 text-amber-400" />
-                  <span className="text-muted-foreground">PDF not rendering? Try the download button.</span>
+                <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-black/85 backdrop-blur px-4 py-2.5 rounded-lg border border-amber-500/40 text-xs flex items-center gap-3 shadow-lg">
+                  <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span className="text-muted-foreground">PDF not rendering? Use the download button above.</span>
+                  <a
+                    href={file.path}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download={file.name.split('/').pop()}
+                    onClick={handleDownloadClick}
+                    className="ml-1 px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/30 transition-colors flex items-center gap-1"
+                  >
+                    <Download className="w-3 h-3" /> Download
+                  </a>
                 </div>
               )}
             </div>
@@ -428,8 +512,9 @@ function FileCard({ file, onPreview, tourStop }: {
       await navigator.clipboard.writeText(cached.content)
       setCardCopied(true)
       setTimeout(() => setCardCopied(false), 1500)
+      trackCopyToClipboard(file, 'card')
     } catch { /* clipboard blocked */ }
-  }, [file.path])
+  }, [file.path, file])
 
   return (
     <motion.div
@@ -594,12 +679,24 @@ function FileCard({ file, onPreview, tourStop }: {
 // GUIDED TOUR MODE — narrative walkthrough (Reframe)
 // =============================================================
 
-function GuidedTourLauncher({ onStart, currentChapter, onJump }: {
+function GuidedTourLauncher({ onStart, currentChapter, onJump, shareUrl, onCopyShare }: {
   onStart: () => void
   currentChapter: number
   onJump: (index: number) => void
+  shareUrl: string
+  onCopyShare: () => void
 }) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      setCopied(true)
+      onCopyShare()
+      setTimeout(() => setCopied(false), 2000)
+    } catch { /* clipboard blocked */ }
+  }
 
   return (
     <Card className="bg-gradient-to-br from-amber-500/8 via-amber-600/5 to-transparent border-amber-600/30 mb-8 overflow-hidden">
@@ -614,10 +711,14 @@ function GuidedTourLauncher({ onStart, currentChapter, onJump }: {
               <Badge variant="outline" className="text-[10px] bg-amber-500/10 text-amber-300 border-amber-600/30">
                 19 chapters
               </Badge>
+              <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-300 border-emerald-600/30">
+                Shareable
+              </Badge>
             </h3>
             <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
               Each artifact becomes a chapter in the Impeccable Error Handler story. Walk through the files
               in narrative order — architecture diagram → audit → recovery scripts → SOP — with context for why each matters.
+              Your chapter is in the URL, so you can bookmark or share a specific stop.
             </p>
 
             <div className="flex flex-wrap items-center gap-2 mt-4">
@@ -635,6 +736,16 @@ function GuidedTourLauncher({ onStart, currentChapter, onJump }: {
                 <ChevronDown className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                 Chapter Index
               </button>
+              {currentChapter > 0 && (
+                <button
+                  onClick={handleCopy}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-600/30 text-emerald-200 text-sm transition-all"
+                  title={shareUrl}
+                >
+                  {copied ? <Check className="w-3 h-3" /> : <Link2 className="w-3 h-3" />}
+                  {copied ? 'Copied!' : 'Share this chapter'}
+                </button>
+              )}
             </div>
 
             {/* Chapter index dropdown */}
@@ -682,6 +793,62 @@ function GuidedTourLauncher({ onStart, currentChapter, onJump }: {
 // RESEARCH REPORT VIEW
 // =============================================================
 
+// ---------------------------------------------------------------------------
+// URL helpers for tour position (Task D)
+// Tour position is stored in the URL as ?chapter=N (1-indexed) so visitors
+// can bookmark, share, and use the browser back/forward buttons to navigate
+// between chapters. We keep a localStorage mirror as a fallback so a visitor
+// who closes the tab without bookmarking can still resume.
+// ---------------------------------------------------------------------------
+
+const TOUR_PARAM = 'chapter'
+const TOUR_STORAGE_KEY = 'research-tour-position'
+
+function readChapterFromUrl(): number | null {
+  if (typeof window === 'undefined') return null
+  const params = new URLSearchParams(window.location.search)
+  const raw = params.get(TOUR_PARAM)
+  if (!raw) return null
+  const n = parseInt(raw, 10)
+  if (isNaN(n) || n < 1 || n > GUIDED_TOUR.length) return null
+  return n - 1 // 1-indexed in URL, 0-indexed in code
+}
+
+function writeChapterToUrl(index: number, replace = true): void {
+  if (typeof window === 'undefined') return
+  const url = new URL(window.location.href)
+  if (index > 0) {
+    url.searchParams.set(TOUR_PARAM, String(index + 1))
+  } else {
+    url.searchParams.delete(TOUR_PARAM)
+  }
+  // replace=true → no back-button spam (programmatic navigation)
+  // replace=false → pushState, so back button returns to previous chapter (user jump)
+  if (replace) {
+    window.history.replaceState({}, '', url.toString())
+  } else {
+    window.history.pushState({}, '', url.toString())
+  }
+}
+
+function readChapterFromStorage(): number | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const saved = localStorage.getItem(TOUR_STORAGE_KEY)
+    if (!saved) return null
+    const idx = parseInt(saved, 10)
+    if (isNaN(idx) || idx < 0 || idx >= GUIDED_TOUR.length) return null
+    return idx
+  } catch { return null }
+}
+
+function writeChapterToStorage(index: number): void {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.setItem(TOUR_STORAGE_KEY, String(index))
+  } catch { /* ignore */ }
+}
+
 export default function ResearchReportView({ onSwitchView }: { onSwitchView: (v: ViewKey) => void }) {
   const [filterType, setFilterType] = useState<string>('all')
   const [previewFile, setPreviewFile] = useState<ProjectFile | null>(null)
@@ -689,21 +856,55 @@ export default function ResearchReportView({ onSwitchView }: { onSwitchView: (v:
   const [tourActive, setTourActive] = useState(false)
   const [tourIndex, setTourIndex] = useState(0)
 
-  // Persist tour position across reloads
+  // ---------------------------------------------------------------------------
+  // Tour position sync — Task D
+  // Priority: URL param (?chapter=N) > localStorage (resume from last visit) > 0.
+  // On change: update URL (replaceState, no back-button spam) + mirror to localStorage.
+  // Listen for popstate so browser back/forward updates the tour.
+  // ---------------------------------------------------------------------------
   useEffect(() => {
-    const saved = typeof window !== 'undefined' ? localStorage.getItem('research-tour-position') : null
-    if (saved) {
-      const idx = parseInt(saved, 10)
-      if (!isNaN(idx) && idx >= 0 && idx < GUIDED_TOUR.length) {
-        setTourIndex(idx)
+    const fromUrl = readChapterFromUrl()
+    const fromStorage = readChapterFromStorage()
+    const initial = fromUrl ?? fromStorage ?? 0
+    if (initial > 0) {
+      // Initial sync from URL/localStorage — runs once on mount.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setTourIndex(initial)
+      // If they came in via URL param, auto-open the chapter (shared link)
+      if (fromUrl !== null) {
+        setTourActive(true)
+        const stop = GUIDED_TOUR[initial]
+        const file = RESEARCH_FILES.find(f => f.name === stop.fileName)
+        if (file) {
+          setPreviewFile(file)
+        }
+        trackTourVsBrowse('tour')
+        trackTourProgress(initial + 1, GUIDED_TOUR.length, stop.fileName)
       }
     }
   }, [])
 
+  // Mirror tour index to URL + storage
   useEffect(() => {
-    if (tourActive) {
-      localStorage.setItem('research-tour-position', String(tourIndex))
+    writeChapterToUrl(tourIndex, true)
+    writeChapterToStorage(tourIndex)
+  }, [tourIndex])
+
+  // Listen for browser back/forward to update tour position
+  useEffect(() => {
+    const onPopState = () => {
+      const fromUrl = readChapterFromUrl()
+      if (fromUrl !== null && fromUrl !== tourIndex) {
+        setTourIndex(fromUrl)
+        if (tourActive) {
+          const stop = GUIDED_TOUR[fromUrl]
+          const file = RESEARCH_FILES.find(f => f.name === stop.fileName)
+          if (file) setPreviewFile(file)
+        }
+      }
     }
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
   }, [tourIndex, tourActive])
 
   const filteredFiles = RESEARCH_FILES.filter((f) => {
@@ -712,25 +913,38 @@ export default function ResearchReportView({ onSwitchView }: { onSwitchView: (v:
     return matchesType && matchesSearch
   })
 
+  // Track search empty results (Task A — search_query_empty_results metric)
+  useEffect(() => {
+    if (searchQuery.trim().length > 0 && filteredFiles.length === 0) {
+      trackSearchEmpty(searchQuery)
+    }
+  }, [searchQuery, filteredFiles])
+
   const typeCounts = RESEARCH_FILES.reduce((acc, f) => {
     acc[f.type] = (acc[f.type] || 0) + 1
     return acc
   }, {} as Record<string, number>)
 
-  // Tour navigation
+  // Tour navigation — track tour_vs_browse + tour_completion_rate
   const handleStartTour = useCallback(() => {
     setTourActive(true)
+    trackTourVsBrowse('tour')
     const stop = GUIDED_TOUR[tourIndex]
     const file = RESEARCH_FILES.find(f => f.name === stop.fileName)
     if (file) setPreviewFile(file)
+    trackTourProgress(tourIndex + 1, GUIDED_TOUR.length, stop.fileName)
   }, [tourIndex])
 
   const handleJumpTour = useCallback((index: number) => {
     setTourIndex(index)
     setTourActive(true)
+    // Push state (not replace) so back button returns to previous chapter
+    writeChapterToUrl(index, false)
+    writeChapterToStorage(index)
     const stop = GUIDED_TOUR[index]
     const file = RESEARCH_FILES.find(f => f.name === stop.fileName)
     if (file) setPreviewFile(file)
+    trackTourProgress(index + 1, GUIDED_TOUR.length, stop.fileName)
   }, [])
 
   const handleNavigateTour = useCallback((direction: 'prev' | 'next') => {
@@ -741,6 +955,7 @@ export default function ResearchReportView({ onSwitchView }: { onSwitchView: (v:
       const stop = GUIDED_TOUR[next]
       const file = RESEARCH_FILES.find(f => f.name === stop.fileName)
       if (file) setPreviewFile(file)
+      trackTourProgress(next + 1, GUIDED_TOUR.length, stop.fileName)
       return next
     })
   }, [])
@@ -748,6 +963,36 @@ export default function ResearchReportView({ onSwitchView }: { onSwitchView: (v:
   const handleClosePreview = useCallback(() => {
     setPreviewFile(null)
     setTourActive(false)
+  }, [])
+
+  // Track artifact open when previewFile changes (Task A — artifact_load_count)
+  useEffect(() => {
+    if (previewFile) {
+      trackArtifactOpened(previewFile)
+      // If tour wasn't active, this is a free browse
+      if (!tourActive) {
+        trackTourVsBrowse('browse')
+      }
+    }
+  }, [previewFile, tourActive])
+
+  // Track filter applied (Task A — filter_type_distribution metric)
+  const handleFilterChange = useCallback((newFilter: string) => {
+    setFilterType(newFilter)
+    const matchCount = newFilter === 'all'
+      ? RESEARCH_FILES.length
+      : RESEARCH_FILES.filter(f => f.type === newFilter).length
+    trackFilterApplied(newFilter, matchCount)
+  }, [])
+
+  // Share link helper (Task D)
+  const buildShareUrl = useCallback((index: number) => {
+    if (typeof window === 'undefined') return ''
+    const url = new URL(window.location.href)
+    url.search = ''
+    url.hash = ''
+    if (index > 0) url.searchParams.set(TOUR_PARAM, String(index + 1))
+    return url.toString()
   }, [])
 
   // Map file name to tour stop for badge display
@@ -786,6 +1031,8 @@ export default function ResearchReportView({ onSwitchView }: { onSwitchView: (v:
           onStart={handleStartTour}
           currentChapter={tourIndex}
           onJump={handleJumpTour}
+          shareUrl={buildShareUrl(tourIndex)}
+          onCopyShare={() => {/* future: emit share event */}}
         />
 
         {/* Stats bar */}
@@ -797,7 +1044,7 @@ export default function ResearchReportView({ onSwitchView }: { onSwitchView: (v:
             return (
               <button
                 key={type}
-                onClick={() => setFilterType(filterType === type ? 'all' : type)}
+                onClick={() => handleFilterChange(filterType === type ? 'all' : type)}
                 className={`flex items-center gap-2 p-3 rounded-lg border transition-all text-left ${
                   filterType === type
                     ? 'border-amber-600/40 bg-amber-500/8 shadow-sm'
@@ -830,7 +1077,7 @@ export default function ResearchReportView({ onSwitchView }: { onSwitchView: (v:
         <div className="flex items-center gap-2 mb-6 flex-wrap">
           <Filter className="w-4 h-4 text-muted-foreground" />
           <button
-            onClick={() => setFilterType('all')}
+            onClick={() => handleFilterChange('all')}
             className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
               filterType === 'all' ? 'bg-amber-500/12 text-amber-300 border border-amber-600/25' : 'bg-muted/30 text-muted-foreground border border-transparent hover:bg-muted/50'
             }`}
@@ -843,7 +1090,7 @@ export default function ResearchReportView({ onSwitchView }: { onSwitchView: (v:
             return (
               <button
                 key={type}
-                onClick={() => setFilterType(filterType === type ? 'all' : type)}
+                onClick={() => handleFilterChange(filterType === type ? 'all' : type)}
                 className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                   filterType === type ? `border` : 'bg-muted/30 text-muted-foreground border border-transparent hover:bg-muted/50'
                 }`}

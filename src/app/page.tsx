@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { assetPath } from '@/lib/utils'
+import { bootAnalytics, trackCrossViewNavigation } from '@/lib/analytics'
 // accordion removed — unused
 import ResearchReportView from '@/components/views/ResearchReportView'
 import AuditView from '@/components/views/AuditView'
@@ -1394,8 +1395,19 @@ function HomeView({ onNavigate }: { onNavigate: (v: ViewKey) => void }) {
 export default function PortfolioPage() {
   const [currentView, setCurrentView] = useState<ViewKey>('home')
 
+  // Boot analytics on first client mount — installs global asset-404
+  // listener and queues any buffered events for drain.
+  useEffect(() => {
+    bootAnalytics()
+  }, [])
+
   const handleNavigate = useCallback((view: ViewKey) => {
-    setCurrentView(view)
+    setCurrentView((prev) => {
+      if (prev !== view) {
+        trackCrossViewNavigation(prev, view)
+      }
+      return view
+    })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
 
