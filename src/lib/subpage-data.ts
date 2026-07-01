@@ -435,3 +435,398 @@ export const PROXY_DISCUSSION = [
     eagleStrategy: 'Strategic view: The resilience proxy is the highest-ROI investment for portfolio and small-team projects. It provides 90% of the reliability of a service mesh at 10% of the complexity. The strategic play is to start here and only add complexity when the resilience proxy proves insufficient. Most projects never need more than this.',
   },
 ]
+
+// =============================================================
+// GUIDED TOUR — narrative walkthrough of the Error Handler story
+// =============================================================
+// Each artifact becomes a chapter in the Impeccable Error Handler story.
+// Transforms a file browser into a portfolio piece.
+export interface TourStop {
+  fileName: string
+  chapter: string
+  narrative: string
+  why: string
+}
+
+export const GUIDED_TOUR: TourStop[] = [
+  {
+    fileName: 'architecture_diagram.png',
+    chapter: 'Chapter 1 — The Vision',
+    narrative: 'Before writing a single line of recovery code, we draw the system. This diagram shows the three-tier defense: Prevention (pre-flight checks), Detection (real-time monitoring), Recovery (auto-clean + checkpoint restore).',
+    why: 'Architecture-first design forces you to name every failure path before you encounter it. Recovery code written without a diagram is just fire-fighting with extra steps.',
+  },
+  {
+    fileName: 'impeccable-error-handler/README.md',
+    chapter: 'Chapter 2 — The Design',
+    narrative: 'The README documents the three-tier system in plain prose. It is the contract between the code and the operator. Every behavior the system promises lives here first.',
+    why: 'A README is a stress test for clarity. If you cannot explain the system in three paragraphs, you have not designed it — you have only coded it.',
+  },
+  {
+    fileName: 'impeccable-error-handler/deploy.sh',
+    chapter: 'Chapter 3 — The Implementation',
+    narrative: 'The main deployment script: pre-flight checks, session checkpointing, and failover logic. Every line is a defense against a specific failure mode observed in production.',
+    why: 'Shell scripts are honest — they cannot hide complexity behind abstractions. Reading deploy.sh end-to-end is the fastest way to understand what the system actually does.',
+  },
+  {
+    fileName: 'impeccable-error-handler/git-recovery.sh',
+    chapter: 'Chapter 4 — The Recovery',
+    narrative: 'When git state corrupts (rebase locks, merge conflicts, index corruption), this script restores from checkpoint. It is the system\'s immune response — automatic, fast, and predictable.',
+    why: 'Recovery code is more important than happy-path code. Users forgive a system that fails gracefully; they abandon one that fails and stays failed.',
+  },
+  {
+    fileName: 'Impeccable_Error_Fix_Handler_Audit.pdf',
+    chapter: 'Chapter 5 — The Audit',
+    narrative: 'Five animal-metaphor perspectives (Owl, Eagle, Beaver, Dolphin, Elephant) examine the system for hidden factors. Each finds what the others miss.',
+    why: 'Single-perspective audits are blind to their own assumptions. Multi-perspective audits surface contradictions that point to the deepest truths about a system.',
+  },
+  {
+    fileName: 'generate_audit.py',
+    chapter: 'Chapter 6 — The Audit Generator',
+    narrative: 'The Python script that generates the audit PDF using ReportLab. Reading it reveals how the audit\'s structure itself encodes the analytical framework — every flowable is a perspective.',
+    why: 'The generator is documentation that runs itself. When the audit changes, the script makes the change visible — unlike a static PDF, it shows its own construction.',
+  },
+  {
+    fileName: 'Portfolio_Website_Recreation_SOP_final.pdf',
+    chapter: 'Chapter 7 — The Full Story',
+    narrative: 'The 33-page Standard Operating Procedure: 3 design approaches, confidence scoring, decision trees, YC-partner and staff-engineer reviews. This is the canonical document for recreating the entire portfolio.',
+    why: 'A SOP is the highest leverage artifact a developer can produce. It converts tacit knowledge into reproducible process — the difference between a project and a practice.',
+  },
+  {
+    fileName: 'cover_portfolio_sop.html',
+    chapter: 'Chapter 8 — The Cover',
+    narrative: 'The HTML cover for the SOP. Inline-viewable in any browser, no PDF reader required. A small kindness for mobile readers who hate downloading PDFs.',
+    why: 'Format choice is accessibility. The same content in HTML, PDF, and PNG reaches three audiences: the impatient, the archivist, and the visual learner.',
+  },
+  {
+    fileName: 'generate_portfolio_sop.py',
+    chapter: 'Chapter 9 — The SOP Generator',
+    narrative: 'The script that generates the SOP PDF. Custom ReportLab styles, flowables, and table builders. Reading it teaches you how to programmatically produce a 33-page document with consistent typography.',
+    why: 'Programmatic document generation is a superpower. Every resume, every report, every proposal can be regenerated from data — never out of date, never inconsistent.',
+  },
+  {
+    fileName: 'gen_architecture.py',
+    chapter: 'Chapter 10 — The Architecture Generator',
+    narrative: 'Generates the architecture diagram (Chapter 1) programmatically. The diagram is not a static artifact — it is code, versionable and reproducible.',
+    why: 'Diagrams as code is the only sustainable architecture documentation practice. Whiteboard photos rot, Visio files rot, but Python that draws the same picture every commit does not.',
+  },
+  {
+    fileName: 'generate_decision_tree.py',
+    chapter: 'Chapter 11 — The Decision Tree Generator',
+    narrative: 'Generates the decision tree that helps choose between proxy architectures and design approaches. Encodes the same trade-offs the SOP discusses — but as a visual query.',
+    why: 'A decision tree is a conversation with your future self. When you forget why you chose X over Y, the tree reminds you — and shows what would have to change to flip the decision.',
+  },
+  {
+    fileName: 'decision_tree.png',
+    chapter: 'Chapter 12 — The Decision Tree',
+    narrative: 'The rendered decision tree. Start at the root, follow your constraints, arrive at a recommended architecture. Three branches: portfolio, microservices, enterprise.',
+    why: 'Visual decisions are auditable decisions. Stakeholders can point to a node and say "this is wrong" — a conversation that is impossible with prose rationales.',
+  },
+  {
+    fileName: 'design_approaches.png',
+    chapter: 'Chapter 13 — Three Design Approaches',
+    narrative: 'Brutalist Industrial, Organic Minimalism, Cyberpunk Dashboard. Same content, three wildly different presentations. The point: design is not about what to say, but how to say it.',
+    why: 'Generating the same artifact in three styles is the cheapest way to surface your actual design preferences. The approach you reject tells you more than the one you choose.',
+  },
+  {
+    fileName: 'error-handler-tab.png',
+    chapter: 'Chapter 14 — The Error Handler UI',
+    narrative: 'The pre-flight deployment checker and error handler interface. Visible resilience — users see the checks running, not just their outcome.',
+    why: 'Visible resilience builds trust. Hidden resilience builds suspicion. Users who never see the system work assume it does not work — even when it does.',
+  },
+  {
+    fileName: 'perspectives-tab.png',
+    chapter: 'Chapter 15 — The Five Perspectives',
+    narrative: 'The five animal-metaphor perspectives rendered as a single comparison view. Owl, Eagle, Beaver, Dolphin, Elephant — each lens adds a dimension the others cannot see.',
+    why: 'A 2D table of 5 perspectives surfaces contradictions that bullet lists hide. The contradictions are where the deepest insights live.',
+  },
+  {
+    fileName: 'proxy-topics-page.png',
+    chapter: 'Chapter 16 — The Proxy Discussion',
+    narrative: 'The proxy types comparison and discussion page. Six proxies, fit-scored against the portfolio use case. Reverse (90%) and Resilience (85%) win; Service Mesh (15%) and Transparent (10%) lose.',
+    why: 'A fit-scored comparison converts "it depends" into "it depends on X, Y, Z — and here are the values". The next person does not have to re-derive your reasoning.',
+  },
+  {
+    fileName: 'Portfolio_Website_Recreation_SOP.pdf',
+    chapter: 'Chapter 17 — The Earlier Draft',
+    narrative: 'The earlier draft of the SOP, kept for version comparison. Comparing draft and final reveals which decisions hardened and which stayed soft.',
+    why: 'Keeping drafts is keeping your own decision history. The delta between draft and final is the most honest record of what you learned during the project.',
+  },
+  {
+    fileName: 'cover_portfolio_sop.pdf',
+    chapter: 'Chapter 18 — The Cover PDF',
+    narrative: 'The standalone cover page as PDF. Useful for embedding in other documents, slide decks, or printing as a title page for a physical binder.',
+    why: 'Artifacts should be composable. A cover that works as HTML, PDF, and print reaches three audiences with zero extra work — the holy grail of format polyglotism.',
+  },
+  {
+    fileName: 'README.md',
+    chapter: 'Chapter 19 — Project Readme',
+    narrative: 'The project README. Live links to both deployments, tech stack, project structure, interactive demos, design philosophy, and case studies. The front door for any new visitor.',
+    why: 'A README is the only document every visitor will read. Optimize it for the visitor who spends 30 seconds and decides whether to stay — then add depth for the one who stays 30 minutes.',
+  },
+]
+
+// =============================================================
+// ENHANCED ANALYSIS — Failure Modes, Contrarian, Second-Order,
+// Metrics, Blind Spots (the questions the user explicitly asked)
+// =============================================================
+
+export const FAILURE_MODES = [
+  {
+    mode: 'Git Lock Cascade',
+    trigger: 'git rebase interrupted + zsh prompt hook fires simultaneously',
+    impact: 'Total session death — no component can recover alone',
+    mitigation: 'Pre-flight lock detection (Tier 1) + checkpoint restore (Tier 3)',
+    detectionTime: '< 500ms',
+    recoveryTime: '2-5s',
+    severity: 'critical',
+  },
+  {
+    mode: 'Shell Hook Deadlock',
+    trigger: 'Framework guard loops waiting for lock release that never comes',
+    impact: 'Interactive shell unusable; developer forced to kill terminal',
+    mitigation: 'Hook timeout (3s) + force-clean on deadlock detection',
+    detectionTime: '3s (timeout)',
+    recoveryTime: '1-2s',
+    severity: 'high',
+  },
+  {
+    mode: 'Framework Guard Loop',
+    trigger: 'Guard re-enters itself when checking state it modified',
+    impact: 'CPU spike, eventual OOM kill, no useful work done',
+    mitigation: 'Guard recursion depth limit (max 2) + circuit breaker',
+    detectionTime: '< 100ms (depth check)',
+    recoveryTime: 'immediate',
+    severity: 'high',
+  },
+  {
+    mode: 'Checkpoint Corruption',
+    trigger: 'Power loss during checkpoint write, or disk full',
+    impact: 'Recovery script cannot restore state; manual intervention required',
+    mitigation: 'Atomic write (temp file + rename) + checksum validation',
+    detectionTime: 'on next read',
+    recoveryTime: 'manual (5-15 min)',
+    severity: 'medium',
+  },
+  {
+    mode: 'Failover Target Unreachable',
+    trigger: 'Both Vercel and GitHub Pages have network issues simultaneously',
+    mitigation: 'Local fallback server (next best-effort) + deferred deploy',
+    detectionTime: '30s (health check interval)',
+    recoveryTime: 'deferred (operator-driven)',
+    severity: 'low',
+    impact: 'Deployment delayed, but no state lost',
+  },
+  {
+    mode: 'Error Log Saturation',
+    trigger: 'Sustained error storm fills the 50-entry rolling log',
+    impact: 'Historical context lost; recurring patterns invisible',
+    mitigation: 'Log rotation + summary entry (top 3 errors + counts)',
+    detectionTime: 'immediate',
+    recoveryTime: 'immediate',
+    severity: 'low',
+  },
+]
+
+export const CONTRARIAN_VIEWS = [
+  {
+    claim: 'The three-tier architecture is over-engineered for a portfolio site',
+    steelman: 'A portfolio site serves static files. Failure modes are: build error (catch in CI), DNS error (Cloudflare handles it), deploy error (git push again). No part of this requires pre-flight checks, session checkpointing, or failover targets. The whole system is theater — a portfolio piece masquerading as production infrastructure.',
+    response: 'True for a portfolio. False for the practice. The system is not justified by the portfolio\'s reliability needs — it is justified by the skill it demonstrates. Hiring managers reading the code see a developer who thinks in systems. That is the actual deliverable.',
+    confidence: 8,
+  },
+  {
+    claim: 'Animal metaphors dilute technical credibility',
+    steelman: 'Senior engineers roll their eyes at "Owl, Eagle, Beaver" framing. It reads like a marketing deck, not a post-mortem. The same analysis in plain English (detection gaps, strategic risks, practical steps) would land harder with technical audiences.',
+    response: 'Half right. For technical audiences, plain English wins. But the portfolio audience is mixed — designers, recruiters, founders. The animal metaphors are an accessibility layer that gets mixed audiences to read the analysis. The detailedAnalysis fields contain the plain-English version for those who want it.',
+    confidence: 7,
+  },
+  {
+    claim: 'Inlining all artifacts is a UX regression — links are better',
+    steelman: 'Modal viewers force one-file-at-a-time consumption. The original design (download + open externally) let visitors keep files open in tabs, compare side-by-side, and use their preferred tools. Modals are a marketing decision, not an ergonomics decision.',
+    response: 'True for power users. False for the 80% who never download. Modals convert "this file exists" into "this file is interesting" — they lower the activation energy to engage. The download button is still there for power users. Win-win.',
+    confidence: 9,
+  },
+  {
+    claim: 'The prebuild sync script is unnecessary — just commit /public/files/',
+    steelman: 'A prebuild script adds a build step that can fail in CI. Committing /public/files/ directly is simpler, requires zero Node code, and is the standard Next.js pattern for static assets.',
+    response: 'True if you trust yourself to never forget. False the moment you add a new PDF to /download/ and forget to copy it to /public/files/. The sync script costs 30 lines of code and eliminates an entire class of "why is this 404" debugging. Worth it.',
+    confidence: 9,
+  },
+  {
+    claim: 'Fit scores for proxies are arbitrary numbers',
+    steelman: 'Assigning "85" to the Resilience Proxy implies a precision the analysis does not have. The scoring invites readers to treat it as data when it is opinion. A qualitative "high/medium/low" would be more honest.',
+    response: 'Fair. The numbers are anchors for discussion, not measurements. The fix is not to remove them — it is to label them as anchors. We should add "Methodology: fit score = weighted average of complexity (40%), reliability gain (40%), operational overhead (20%), judged by author." Honest about subjectivity.',
+    confidence: 8,
+  },
+]
+
+export const SECOND_ORDER_EFFECTS = [
+  {
+    decision: 'Move from /api/files (SSR) to /public/files (static)',
+    firstOrder: 'Files work on both Vercel and GitHub Pages without code changes',
+    secondOrder: 'Removes SSR dependency entirely → portfolio can be deployed to any static host (Cloudflare Pages, Netlify, S3) without re-architecture',
+    thirdOrder: 'Hiring conversation shifts from "we use Vercel" to "we deploy anywhere" — broader appeal to engineering cultures that avoid vendor lock-in',
+  },
+  {
+    decision: 'Inline preview modal for all file types',
+    firstOrder: 'Visitors engage with artifacts without leaving the page',
+    secondOrder: 'Average session duration increases → SEO signals improve → portfolio ranks higher for "AI creative technologist" queries',
+    thirdOrder: 'Inbound recruiter traffic qualitatively shifts — recruiters who saw the modal contact with specific questions about specific files, not generic "are you available" pings',
+  },
+  {
+    decision: 'Add syntax highlighting to code viewer',
+    firstOrder: 'Python and bash files become readable instead of monospace blobs',
+    secondOrder: 'Visitors actually read the scripts → understand the system depth → perceive the portfolio as senior-level work, not junior-level',
+    thirdOrder: 'Salary expectations calibrated upward because the visitor\'s mental model of "what this person can do" includes "writes production deployment scripts"',
+  },
+  {
+    decision: 'Guided Tour mode in research archive',
+    firstOrder: 'Visitors walk through the story in narrative order instead of browsing randomly',
+    secondOrder: 'Time-on-page for the research archive doubles — visitors reach the audit PDF (chapter 5) instead of bouncing at chapter 1',
+    thirdOrder: 'The audit PDF\'s animal-metaphor framing becomes the dominant lens through which visitors describe the portfolio — "the owl/eagle/beaver thing" becomes a brand identifier',
+  },
+  {
+    decision: 'Prebuild sync script',
+    firstOrder: 'New artifacts in /download/ automatically appear in /public/files/',
+    secondOrder: 'Artifact drift becomes impossible → trust in the research archive increases → visitors stop second-guessing whether they\'re seeing the latest version',
+    thirdOrder: 'The portfolio becomes a living document — adding a new case study is "drop PDF in /download/, commit, push" with zero manual publishing steps',
+  },
+]
+
+export const DATA_ENGINEER_METRICS = [
+  { metric: 'artifact_load_count', type: 'counter', description: 'Number of times any artifact is opened in the modal viewer' },
+  { metric: 'artifact_load_latency_ms', type: 'histogram', description: 'Time from click to content rendered, by file type (image/pdf/script/shell/doc)' },
+  { metric: 'artifact_load_failure', type: 'counter', description: 'Failed fetches (network 4xx/5xx), labeled by file path and status code' },
+  { metric: 'tour_completion_rate', type: 'funnel', description: 'Of visitors who start the Guided Tour, % reaching each chapter (drop-off per chapter)' },
+  { metric: 'tour_vs_browse_ratio', type: 'gauge', description: 'Of research archive visitors, % using Guided Tour vs free browse' },
+  { metric: 'download_after_preview', type: 'counter', description: 'Downloads triggered after inline preview — measures whether preview satisfies or whets appetite' },
+  { metric: 'copy_to_clipboard_count', type: 'counter', description: 'Script/shell copies — proxy for "this person wants to use this code"' },
+  { metric: 'search_query_empty_results', type: 'counter', description: 'Searches that returned zero files — surfaces missing artifacts visitors expect to find' },
+  { metric: 'filter_type_distribution', type: 'gauge', description: 'Most-applied filter (image/pdf/script/etc) — tells you which artifact type visitors come for' },
+  { metric: 'modal_dwell_time_ms', type: 'histogram', description: 'Time modal stays open per file — long dwell = engaging content; short = wrong file or poor preview' },
+  { metric: 'cross_view_navigation', type: 'counter', description: 'Transitions between subpages (research → audit → proxy) — measures whether the story connects' },
+  { metric: 'asset_path_404', type: 'counter', description: '404s on /files/* or /images/* paths — catches basePath misconfiguration on new deployments' },
+]
+
+export const BLIND_SPOTS = [
+  {
+    area: 'Mobile modal UX',
+    issue: 'The preview modal is optimized for desktop (max-w-5xl). On mobile, code files become horizontally scrollable walls of text. PDFs are barely readable.',
+    fix: 'Add a mobile-specific modal layout: full-screen, swipe-to-dismiss, with a "download for offline reading" CTA taking precedence over inline preview.',
+  },
+  {
+    area: 'Accessibility of syntax highlighter',
+    issue: 'react-syntax-highlighter renders colored spans. Screen readers may read each token separately, destroying code comprehension for visually impaired visitors.',
+    fix: 'Add aria-label="Source code, N lines" on the pre element and a "copy to read in editor" button as the primary CTA on mobile/a11y modes.',
+  },
+  {
+    area: 'Search index freshness',
+    issue: 'RESEARCH_FILES is a hardcoded array in subpage-data.ts. New files added to /download/ do not appear until a developer updates the array.',
+    fix: 'Generate RESEARCH_FILES at build time by reading /public/files/ directory listing. Add descriptions via a sidecar JSON or frontmatter.',
+  },
+  {
+    area: 'PDF rendering on Safari',
+    issue: 'Safari\'s PDF iframe rendering is inconsistent — sometimes shows blank page on first load, requires refresh. Chrome and Firefox are fine.',
+    fix: 'Add a "Open in new tab" fallback link visible from the start, and a "Click here if PDF does not load" message after 3 seconds of blank iframe.',
+  },
+  {
+    area: 'Offline support',
+    issue: 'No service worker. Visitors who lose connectivity mid-tour lose all state. The Guided Tour position is not persisted.',
+    fix: 'Add a minimal service worker that caches /files/* and /images/*. Persist tour position in localStorage. Resume on reconnect.',
+  },
+  {
+    area: 'Internationalization',
+    issue: 'All file descriptions are English. The portfolio targets Filipino and international audiences — non-English speakers get no artifact context.',
+    fix: 'Add a translations sidecar (en.json, fil.json) and use next-intl for artifact descriptions. This is the single biggest accessibility win for the local audience.',
+  },
+  {
+    area: 'Versioning of artifacts',
+    issue: 'When a PDF is regenerated (e.g., audit.pdf), the old version is overwritten. Visitors cannot compare versions or see what changed.',
+    fix: 'Versioned filenames (audit_v3.pdf) with a "current" symlink. Add a "What changed" diff view in the modal for repeat visitors.',
+  },
+  {
+    area: 'Analytics blind to value',
+    issue: 'Page views tell you traffic. They do not tell you whether visitors understood the work. A visitor who opens audit.pdf and bounces in 3 seconds looks identical to one who reads it for 5 minutes.',
+    fix: 'Add modal_dwell_time_ms (above) and segment by "engaged" (>30s) vs "bounce" (<5s). Optimize content for the engaged segment, not the bounce segment.',
+  },
+]
+
+// 80/20 version — the smallest useful subset of the system
+export const EIGHTY_TWENTY = {
+  principle: '20% of the features deliver 80% of the value. Identify them, ship them, defer the rest.',
+  ship: [
+    'Pre-flight checks (lock detection, working tree clean) — prevents 70% of failures',
+    'Session checkpointing before risky operations — enables 90% of recoveries',
+    'Rolling 50-entry error log — surfaces recurring patterns',
+    'Static /public/files/ serving with assetPath() prefix — works on every host',
+    'Universal modal with image/PDF/text/code handlers — every artifact accessible',
+    'Copy-to-clipboard on code files — visitors can grab the code',
+    'Search + type filter — visitors find what they need',
+  ],
+  defer: [
+    'Guided Tour mode (nice-to-have, not blocking)',
+    'Cross-view navigation analytics (instrumentation can come later)',
+    'Mobile-specific modal layout (current responsive works acceptably)',
+    'Service worker for offline (only matters if connectivity is a real issue)',
+    'Versioned artifacts with diff view (only matters when revisions are frequent)',
+    'Internationalization (only matters when non-English audience grows)',
+    'AI-powered "ask the audit" chatbot (premature; the static audit is enough)',
+  ],
+  kill: [
+    'The /api/files SSR route (replaced by /public/files/ static serving)',
+    'Forced PDF rendering on Safari without fallback (just show download link)',
+    'Over-engineered service mesh analogies for a portfolio site (the contrarian is right here)',
+  ],
+}
+
+// Sub-agent decomposition — what each agent would own
+export const SUB_AGENT_DECOMPOSITION = [
+  {
+    agent: 'sync-agent',
+    role: 'Mirror /download/* → /public/files/ before every build',
+    owns: ['scripts/sync-files.js', 'package.json prebuild hook'],
+    successCriteria: 'Synced file count matches source count. Build fails fast on mismatch.',
+  },
+  {
+    agent: 'asset-path-agent',
+    role: 'Guarantee every static path uses assetPath()',
+    owns: ['src/lib/utils.ts', 'src/lib/subpage-data.ts'],
+    successCriteria: 'No raw "/files/" or "/images/" string literals in source. CI grep enforces.',
+  },
+  {
+    agent: 'modal-agent',
+    role: 'Universal preview modal that handles every file type',
+    owns: ['src/components/views/ResearchReportView.tsx (modal section)'],
+    successCriteria: 'PDF, PNG, PY, SH, HTML, MD all render correctly on Vercel AND GitHub Pages.',
+  },
+  {
+    agent: 'tour-agent',
+    role: 'Guided Tour mode — narrative walkthrough of artifacts',
+    owns: ['GUIDED_TOUR data in subpage-data.ts', 'GuidedTour React component'],
+    successCriteria: 'Visitor can walk all 19 chapters with prev/next. Position persists across reloads.',
+  },
+  {
+    agent: 'resilience-agent',
+    role: 'Fetch + fallback + retry for text content in modal',
+    owns: ['UniversalPreviewModal fetch logic'],
+    successCriteria: 'Network failure → graceful error with download link, no broken UI.',
+  },
+  {
+    agent: 'analytics-agent',
+    role: 'Wire DATA_ENGINEER_METRICS to actual telemetry',
+    owns: ['analytics instrumentation in modal/tour components'],
+    successCriteria: 'Every metric in DATA_ENGINEER_METRICS is emitted and visible in a dashboard.',
+  },
+  {
+    agent: 'a11y-agent',
+    role: 'Audit and fix accessibility gaps (mobile, screen reader, keyboard)',
+    owns: ['BLIND_SPOTS fixes #1, #2, #4'],
+    successCriteria: 'Lighthouse a11y score ≥ 95. Modal fully keyboard-navigable. Screen reader test passes.',
+  },
+  {
+    agent: 'verify-agent',
+    role: 'Build for both Vercel and GitHub Pages, verify every artifact loads',
+    owns: ['build:static script', 'verification script'],
+    successCriteria: 'HTTP 200 on every file in RESEARCH_FILES, on both deployment targets.',
+  },
+]

@@ -5,10 +5,15 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search, Target, Hammer, Sparkles, Lightbulb,
   ChevronDown, Shield, Eye, ArrowRight, BookOpen,
+  AlertTriangle, TrendingUp, Database, Layers, Scissors, Users, Gauge,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { AUDIT_PERSPECTIVES, type ViewKey } from '@/lib/subpage-data'
+import {
+  AUDIT_PERSPECTIVES, FAILURE_MODES, CONTRARIAN_VIEWS, SECOND_ORDER_EFFECTS,
+  DATA_ENGINEER_METRICS, BLIND_SPOTS, EIGHTY_TWENTY, SUB_AGENT_DECOMPOSITION,
+  type ViewKey,
+} from '@/lib/subpage-data'
 
 // =============================================================
 // ICON MAP
@@ -285,6 +290,294 @@ export default function AuditView({ onSwitchView }: { onSwitchView: (v: ViewKey)
                 The Beaver&apos;s practicality and the Eagle&apos;s strategic view align: the resilience proxy provides 90% of the value at 10% of the complexity. Start with lock detection and pre-flight checks. Add complexity only when proven necessary.
               </p>
             </div>
+          </div>
+        </div>
+
+        {/* ============================================================= */}
+        {/* ENHANCED ANALYSIS — Failure Modes & Handling */}
+        {/* ============================================================= */}
+        <div className="mt-10 border-t border-border/50 pt-8">
+          <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5" style={{ color: '#ef4444' }} />
+            Failure Modes & Handling
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            The six failure modes the system is designed to handle, with detection/recovery times and severity.
+            This is the operational contract — every other design decision flows from these.
+          </p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs border border-border/40 rounded-lg overflow-hidden">
+              <thead className="bg-muted/40">
+                <tr>
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Mode</th>
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Trigger</th>
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Impact</th>
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Mitigation</th>
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Detect</th>
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Recover</th>
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Severity</th>
+                </tr>
+              </thead>
+              <tbody>
+                {FAILURE_MODES.map((fm, i) => {
+                  const sevColor = fm.severity === 'critical' ? '#ef4444' : fm.severity === 'high' ? '#f59e0b' : fm.severity === 'medium' ? '#D4A017' : '#49d08c'
+                  return (
+                    <tr key={i} className="border-t border-border/30 hover:bg-muted/10 transition-colors align-top">
+                      <td className="py-2 px-3 font-medium">{fm.mode}</td>
+                      <td className="py-2 px-3 text-muted-foreground">{fm.trigger}</td>
+                      <td className="py-2 px-3 text-muted-foreground">{fm.impact}</td>
+                      <td className="py-2 px-3 text-muted-foreground">{fm.mitigation}</td>
+                      <td className="py-2 px-3 text-muted-foreground whitespace-nowrap">{fm.detectionTime}</td>
+                      <td className="py-2 px-3 text-muted-foreground whitespace-nowrap">{fm.recoveryTime}</td>
+                      <td className="py-2 px-3">
+                        <span
+                          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium uppercase"
+                          style={{ backgroundColor: `${sevColor}20`, color: sevColor }}
+                        >
+                          {fm.severity}
+                        </span>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* ============================================================= */}
+        {/* ENHANCED ANALYSIS — Contrarian View */}
+        {/* ============================================================= */}
+        <div className="mt-10 border-t border-border/50 pt-8">
+          <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+            <Scissors className="w-5 h-5" style={{ color: '#e040fb' }} />
+            Contrarian View — Steelman the Opposition
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            The strongest arguments <em>against</em> this system, with confidence-rated responses. The point is not to win — it is to surface what the system is actually defending against.
+          </p>
+          <div className="space-y-3">
+            {CONTRARIAN_VIEWS.map((cv, i) => (
+              <div key={i} className="p-4 rounded-lg border border-border/40 bg-muted/15">
+                <div className="flex items-start gap-3 mb-2">
+                  <span className="w-6 h-6 rounded-full bg-rose-500/15 text-rose-400 flex items-center justify-center text-xs font-bold shrink-0">
+                    {i + 1}
+                  </span>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-rose-200">{cv.claim}</p>
+                  </div>
+                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 shrink-0">
+                    Confidence: {cv.confidence}/10
+                  </Badge>
+                </div>
+                <div className="ml-9 space-y-2">
+                  <div className="text-xs">
+                    <span className="font-semibold text-muted-foreground">Steelman: </span>
+                    <span className="text-muted-foreground">{cv.steelman}</span>
+                  </div>
+                  <div className="text-xs">
+                    <span className="font-semibold text-emerald-400">Response: </span>
+                    <span className="text-foreground/90">{cv.response}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ============================================================= */}
+        {/* ENHANCED ANALYSIS — Second-Order Effects */}
+        {/* ============================================================= */}
+        <div className="mt-10 border-t border-border/50 pt-8">
+          <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+            <TrendingUp className="w-5 h-5" style={{ color: '#49d08c' }} />
+            Second-Order Effects
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            Every decision cascades. First-order effects are predictable; second-order effects shape the long-term trajectory; third-order effects reshape the conversation.
+          </p>
+          <div className="space-y-3">
+            {SECOND_ORDER_EFFECTS.map((effect, i) => (
+              <div key={i} className="p-4 rounded-lg border border-border/40 bg-muted/15">
+                <div className="text-sm font-semibold text-amber-300 mb-3 flex items-center gap-2">
+                  <ArrowRight className="w-4 h-4" />
+                  Decision: <span className="text-foreground font-mono text-xs">{effect.decision}</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                  <div className="p-3 rounded-md bg-muted/30 border border-border/30">
+                    <div className="text-[10px] uppercase font-semibold text-muted-foreground mb-1">1st Order</div>
+                    <p className="text-foreground/90 leading-relaxed">{effect.firstOrder}</p>
+                  </div>
+                  <div className="p-3 rounded-md bg-amber-500/5 border border-amber-600/20">
+                    <div className="text-[10px] uppercase font-semibold text-amber-300 mb-1">2nd Order</div>
+                    <p className="text-foreground/90 leading-relaxed">{effect.secondOrder}</p>
+                  </div>
+                  <div className="p-3 rounded-md bg-emerald-500/5 border border-emerald-600/20">
+                    <div className="text-[10px] uppercase font-semibold text-emerald-300 mb-1">3rd Order</div>
+                    <p className="text-foreground/90 leading-relaxed">{effect.thirdOrder}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ============================================================= */}
+        {/* ENHANCED ANALYSIS — Metrics a Data Engineer Would Add */}
+        {/* ============================================================= */}
+        <div className="mt-10 border-t border-border/50 pt-8">
+          <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+            <Database className="w-5 h-5" style={{ color: '#2DD4BF' }} />
+            Metrics a Data Engineer Would Add
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            Page views tell you traffic. They do not tell you whether visitors understood the work. These are the metrics that would actually inform iteration.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {DATA_ENGINEER_METRICS.map((m, i) => {
+              const typeColor = m.type === 'counter' ? '#49d08c' : m.type === 'histogram' ? '#e040fb' : m.type === 'gauge' ? '#f59e0b' : '#2DD4BF'
+              return (
+                <div key={i} className="flex items-start gap-3 p-3 rounded-lg border border-border/40 bg-muted/15">
+                  <div className="w-2 h-2 rounded-full mt-2 shrink-0" style={{ backgroundColor: typeColor }} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <code className="text-xs font-mono text-foreground">{m.metric}</code>
+                      <span
+                        className="text-[10px] px-1.5 py-0 rounded uppercase font-medium"
+                        style={{ backgroundColor: `${typeColor}20`, color: typeColor }}
+                      >
+                        {m.type}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{m.description}</p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* ============================================================= */}
+        {/* ENHANCED ANALYSIS — Blind Spots */}
+        {/* ============================================================= */}
+        <div className="mt-10 border-t border-border/50 pt-8">
+          <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+            <Eye className="w-5 h-5" style={{ color: '#D4A017' }} />
+            What Am I Missing? — Blind Spots
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            The things the author of this audit would not notice because they built the system. Each blind spot comes with a concrete fix.
+          </p>
+          <div className="space-y-2">
+            {BLIND_SPOTS.map((bs, i) => (
+              <details key={i} className="group rounded-lg border border-border/40 bg-muted/15 overflow-hidden">
+                <summary className="flex items-center gap-3 p-3 cursor-pointer hover:bg-muted/25 transition-colors list-none">
+                  <span className="w-6 h-6 rounded-full bg-amber-500/15 text-amber-300 flex items-center justify-center text-xs font-bold shrink-0">
+                    {i + 1}
+                  </span>
+                  <span className="text-sm font-medium flex-1">{bs.area}</span>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground group-open:rotate-180 transition-transform" />
+                </summary>
+                <div className="px-3 pb-3 pt-1 ml-9 space-y-2">
+                  <div className="text-xs">
+                    <span className="font-semibold text-rose-300">Issue: </span>
+                    <span className="text-muted-foreground">{bs.issue}</span>
+                  </div>
+                  <div className="text-xs">
+                    <span className="font-semibold text-emerald-300">Fix: </span>
+                    <span className="text-foreground/90">{bs.fix}</span>
+                  </div>
+                </div>
+              </details>
+            ))}
+          </div>
+        </div>
+
+        {/* ============================================================= */}
+        {/* ENHANCED ANALYSIS — 80/20 Version */}
+        {/* ============================================================= */}
+        <div className="mt-10 border-t border-border/50 pt-8">
+          <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+            <Gauge className="w-5 h-5" style={{ color: '#49d08c' }} />
+            80/20 Version — Ship, Defer, Kill
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4">{EIGHTY_TWENTY.principle}</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 rounded-lg bg-emerald-500/8 border border-emerald-600/20">
+              <h4 className="text-sm font-semibold text-emerald-300 mb-3 flex items-center gap-2">
+                <span className="text-base">🚢</span> Ship Now
+              </h4>
+              <ul className="space-y-1.5">
+                {EIGHTY_TWENTY.ship.map((item, i) => (
+                  <li key={i} className="text-xs text-muted-foreground leading-relaxed flex items-start gap-1.5">
+                    <span className="text-emerald-400 mt-0.5">✓</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="p-4 rounded-lg bg-amber-500/8 border border-amber-600/20">
+              <h4 className="text-sm font-semibold text-amber-300 mb-3 flex items-center gap-2">
+                <span className="text-base">⏸️</span> Defer
+              </h4>
+              <ul className="space-y-1.5">
+                {EIGHTY_TWENTY.defer.map((item, i) => (
+                  <li key={i} className="text-xs text-muted-foreground leading-relaxed flex items-start gap-1.5">
+                    <span className="text-amber-400 mt-0.5">→</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="p-4 rounded-lg bg-rose-500/8 border border-rose-600/20">
+              <h4 className="text-sm font-semibold text-rose-300 mb-3 flex items-center gap-2">
+                <span className="text-base">✗</span> Kill
+              </h4>
+              <ul className="space-y-1.5">
+                {EIGHTY_TWENTY.kill.map((item, i) => (
+                  <li key={i} className="text-xs text-muted-foreground leading-relaxed flex items-start gap-1.5">
+                    <span className="text-rose-400 mt-0.5">✗</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* ============================================================= */}
+        {/* ENHANCED ANALYSIS — Sub-Agent Decomposition */}
+        {/* ============================================================= */}
+        <div className="mt-10 border-t border-border/50 pt-8">
+          <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+            <Users className="w-5 h-5" style={{ color: '#2DD4BF' }} />
+            Sub-Agent Decomposition
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            If this system were built by a team of specialized agents, here is who would own what — and how success would be measured.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {SUB_AGENT_DECOMPOSITION.map((agent, i) => (
+              <div key={i} className="p-4 rounded-lg border border-border/40 bg-muted/15">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="w-7 h-7 rounded-md bg-cyan-500/15 text-cyan-300 flex items-center justify-center text-xs font-bold font-mono">
+                    {i + 1}
+                  </span>
+                  <code className="text-sm font-mono text-cyan-300">{agent.agent}</code>
+                </div>
+                <p className="text-xs text-foreground/90 mb-2 leading-relaxed">{agent.role}</p>
+                <div className="text-xs mb-2">
+                  <span className="text-muted-foreground">Owns: </span>
+                  <span className="text-muted-foreground font-mono text-[10px]">
+                    {agent.owns.join(', ')}
+                  </span>
+                </div>
+                <div className="text-xs p-2 rounded bg-emerald-500/5 border border-emerald-600/15">
+                  <span className="font-semibold text-emerald-300">Success: </span>
+                  <span className="text-muted-foreground">{agent.successCriteria}</span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
