@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Website Recreation SOP — Cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* ── Page & Reset ── */
+  @page {
+    size: 210mm 297mm;
+    margin: 0;
+  }
+
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  :root {
+    /* Base unit: U = 210mm × 0.05 = 10.5mm */
+    --U: 10.5mm;
+
+    /* Palette */
+    --bg:       #f7f7f6;
+    --sidebar:  #5b5237;
+    --accent:   #5632c3;
+    --ink:      #1e1d1b;
+    --muted:    #7d7b74;
+
+    /* Layout ratios */
+    --sidebar-w: calc(var(--U) * 6.3);   /* ~66mm ≈ 31% of 210mm */
+    --main-w:    calc(var(--U) * 13.7);   /* ~144mm ≈ 69% */
+  }
+
+  html, body {
+    width:  210mm;
+    height: 297mm;
+    overflow: hidden;
+    background: var(--bg);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ── Anchor grid (A0.1) ── */
+  .page {
+    position: relative;
+    width:  210mm;
+    height: 297mm;
+    background: var(--bg);
+  }
+
+  /* ── Left sidebar ── */
+  .sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-w);
+    height: 100%;
+    background: var(--sidebar);
+    z-index: 1;
+  }
+
+  /* ── Accent vertical line ── */
+  .accent-line {
+    position: absolute;
+    top: 0;
+    left: var(--sidebar-w);
+    width: 2px;
+    height: 100%;
+    background: var(--accent);
+    z-index: 2;
+  }
+
+  /* ── Main content column ── */
+  .main {
+    position: absolute;
+    top: 0;
+    left: calc(var(--sidebar-w) + 2px);
+    width: calc(var(--main-w) - 2px);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: calc(var(--U) * 2) calc(var(--U) * 2.2);
+    z-index: 3;
+  }
+
+  /* ── Kicker ── */
+  .kicker {
+    font-family: 'Inter', sans-serif;
+    font-size: 16pt;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 3pt;
+    color: var(--muted);
+    opacity: 0.6;
+    margin-bottom: calc(var(--U) * 1.2);
+  }
+
+  /* ── Hero title ── */
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 48pt;
+    font-weight: 800;
+    color: var(--ink);
+    line-height: 1.08;
+    margin-bottom: calc(var(--U) * 1.5);
+    max-width: 90%;
+  }
+
+  /* ── Meta line ── */
+  .meta {
+    font-family: 'Inter', sans-serif;
+    font-size: 14pt;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1.5;
+    margin-bottom: calc(var(--U) * 1.6);
+    padding-bottom: calc(var(--U) * 1.4);
+    border-bottom: 1px solid rgba(29, 29, 27, 0.12);
+  }
+
+  /* ── Summary block ── */
+  .summary {
+    font-family: 'Inter', sans-serif;
+    font-size: 13pt;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1.6;
+    max-width: 92%;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    position: absolute;
+    bottom: calc(var(--U) * 1.6);
+    left: calc(var(--sidebar-w) + 2px + var(--U) * 2.2);
+    font-family: 'Inter', sans-serif;
+    font-size: 12pt;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 3pt;
+    color: var(--muted);
+    opacity: 0.6;
+    z-index: 3;
+  }
+
+  /* ── Decorative sidebar elements ── */
+  .sidebar-mark {
+    position: absolute;
+    bottom: calc(var(--U) * 2);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 24px;
+    border: 2px solid rgba(247, 247, 246, 0.25);
+    border-radius: 50%;
+  }
+
+  .sidebar-line-top {
+    position: absolute;
+    top: calc(var(--U) * 3);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    height: calc(var(--U) * 4);
+    background: rgba(247, 247, 246, 0.18);
+  }
+
+  .sidebar-dot {
+    position: absolute;
+    top: calc(var(--U) * 2);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- Left sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-dot"></div>
+      <div class="sidebar-line-top"></div>
+      <div class="sidebar-mark"></div>
+    </div>
+
+    <!-- Accent line separator -->
+    <div class="accent-line"></div>
+
+    <!-- Main content area -->
+    <div class="main">
+      <p class="kicker">Comprehensive Analytical Document</p>
+      <h1 class="hero-title">Portfolio Website<br>Recreation SOP</h1>
+      <p class="meta">Next.js + GSAP &nbsp;|&nbsp; Multi-Framework Assessment &nbsp;|&nbsp; 3 Design Approaches &nbsp;|&nbsp; Decision Trees &nbsp;|&nbsp; Impact Analysis</p>
+      <p class="summary">A brutally honest, multi-perspective analysis of recreating a personal portfolio website, integrating the Impeccable Error Fix Handler as a subpage, with contrarian views, confidence scoring, second-order effects, steelmanning, YC partner review, staff engineer code review, and impact-ranked recommendations.</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">Z.ai &nbsp;|&nbsp; 2026-06-11 &nbsp;|&nbsp; v1.0</div>
+
+  </div>
+</body>
+</html>

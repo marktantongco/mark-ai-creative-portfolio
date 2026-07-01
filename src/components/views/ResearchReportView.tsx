@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  FileText, Image, Code2, Terminal, BookOpen,
+  FileText, Image as ImageIcon, Code2, Terminal, BookOpen,
   Download, Eye, ChevronDown, ExternalLink,
-  FolderOpen, Search, Filter,
+  FolderOpen, Search, Filter, X, Loader2, Copy, Check,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -16,11 +16,11 @@ import { RESEARCH_FILES, type ViewKey, type ProjectFile } from '@/lib/subpage-da
 // =============================================================
 
 const FILE_TYPE_CONFIG: Record<string, { icon: typeof FileText; color: string; label: string }> = {
-  image: { icon: Image, color: '#e040fb', label: 'Image' },
+  image: { icon: ImageIcon, color: '#e040fb', label: 'Image' },
   pdf: { icon: FileText, color: '#E63946', label: 'PDF' },
-  script: { icon: Code2, color: '#49d08c', label: 'Script' },
+  script: { icon: Code2, color: '#49d08c', label: 'Python' },
   document: { icon: BookOpen, color: '#D4A017', label: 'Document' },
-  shell: { icon: Terminal, color: '#f59e0b', label: 'Shell Script' },
+  shell: { icon: Terminal, color: '#f59e0b', label: 'Shell' },
   other: { icon: FileText, color: '#8C8C8C', label: 'File' },
 }
 
@@ -31,38 +31,161 @@ function formatSize(bytes: number): string {
 }
 
 // =============================================================
-// IMAGE PREVIEW MODAL
+// UNIVERSAL PREVIEW MODAL — handles all file types
 // =============================================================
 
-function ImagePreviewModal({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) {
+function UniversalPreviewModal({ file, onClose }: { file: ProjectFile; onClose: () => void }) {
+  const [textContent, setTextContent] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
+
+  const isImage = file.type === 'image'
+  const isPdf = file.type === 'pdf'
+  const isTextLike = file.type === 'script' || file.type === 'shell' || file.type === 'document' || file.name.endsWith('.md') || file.name.endsWith('.html')
+
+  // Fetch text content for scripts/shell/docs
+  useEffect(() => {
+    if (!isTextLike) return
+    setLoading(true)
+    setError(null)
+    fetch(file.path)
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        const text = await res.text()
+        setTextContent(text)
+      })
+      .catch((err) => setError(err.message || 'Failed to load file'))
+      .finally(() => setLoading(false))
+  }, [file.path, isTextLike])
+
+  // ESC to close
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', handler)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', handler)
+      document.body.style.overflow = ''
+    }
+  }, [onClose])
+
+  const handleCopy = useCallback(async () => {
+    if (!textContent) return
+    try {
+      await navigator.clipboard.writeText(textContent)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch { /* clipboard blocked */ }
+  }, [textContent])
+
+  const config = FILE_TYPE_CONFIG[file.type] || FILE_TYPE_CONFIG.other
+  const Icon = config.icon
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+      className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4"
       onClick={onClose}
     >
       <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
+        initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-        className="relative max-w-4xl max-h-[85vh] w-full"
+        exit={{ scale: 0.95, opacity: 0 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+        className="relative bg-card border border-border/60 rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          onClick={onClose}
-          className="absolute -top-10 right-0 text-white/60 hover:text-white text-sm"
-        >
-          Press ESC or click outside to close
-        </button>
-        <img
-          src={src}
-          alt={alt}
-          className="w-full h-full object-contain rounded-lg shadow-2xl"
-        />
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 rounded-b-lg">
-          <p className="text-white text-sm font-medium">{alt}</p>
+        {/* Header bar */}
+        <div className="flex items-center justify-between gap-3 px-5 py-3 border-b border-border/50 bg-muted/30">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: `${config.color}20` }}>
+              <Icon className="w-4 h-4" style={{ color: config.color }} />
+            </div>
+            <div className="min-w-0">
+              <div className="text-sm font-semibold truncate">{file.name}</div>
+              <div className="text-xs text-muted-foreground truncate">{formatSize(file.size)} · {config.label}</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {isTextLike && textContent && (
+              <button
+                onClick={handleCopy}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md bg-muted/50 hover:bg-muted border border-border/50 transition-colors"
+              >
+                {copied ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
+                {copied ? 'Copied' : 'Copy'}
+              </button>
+            )}
+            <a
+              href={file.path}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md bg-muted/50 hover:bg-muted border border-border/50 transition-colors"
+            >
+              <Download className="w-3 h-3" /> Download
+            </a>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-muted transition-colors"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Description bar */}
+        <div className="px-5 py-2 text-xs text-muted-foreground border-b border-border/40 bg-muted/10">
+          {file.description}
+        </div>
+
+        {/* Content area */}
+        <div className="flex-1 overflow-auto bg-black/20">
+          {isImage && (
+            <div className="min-h-full flex items-center justify-center p-4">
+              <img
+                src={file.path}
+                alt={file.description}
+                className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-lg"
+              />
+            </div>
+          )}
+
+          {isPdf && (
+            <iframe
+              src={file.path}
+              title={file.name}
+              className="w-full h-[75vh] border-0"
+            />
+          )}
+
+          {isTextLike && (
+            <div className="relative">
+              {loading && (
+                <div className="flex items-center justify-center py-20">
+                  <Loader2 className="w-6 h-6 animate-spin text-amber-400" />
+                  <span className="ml-2 text-sm text-muted-foreground">Loading source…</span>
+                </div>
+              )}
+              {error && (
+                <div className="p-6 text-center">
+                  <X className="w-8 h-8 mx-auto mb-2 text-red-400" />
+                  <p className="text-sm text-red-400">Failed to load: {error}</p>
+                  <a href={file.path} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-3 text-xs text-amber-400 hover:underline">
+                    <Download className="w-3 h-3" /> Download instead
+                  </a>
+                </div>
+              )}
+              {textContent && !loading && !error && (
+                <pre className="text-xs leading-relaxed p-5 font-mono text-foreground/90 whitespace-pre-wrap break-words bg-[#0d0d0f]">
+                  <code>{textContent}</code>
+                </pre>
+              )}
+            </div>
+          )}
         </div>
       </motion.div>
     </motion.div>
@@ -78,6 +201,7 @@ function FileCard({ file, onPreview }: { file: ProjectFile; onPreview: (file: Pr
   const Icon = config.icon
   const isImage = file.type === 'image'
   const isPdf = file.type === 'pdf'
+  const isTextLike = file.type === 'script' || file.type === 'shell' || file.type === 'document'
 
   return (
     <motion.div
@@ -88,7 +212,7 @@ function FileCard({ file, onPreview }: { file: ProjectFile; onPreview: (file: Pr
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
     >
       <Card className="h-full bg-card/50 hover:shadow-lg hover:shadow-amber-500/5 hover:border-amber-600/25 transition-all duration-300 overflow-hidden">
-        {/* Image thumbnail for image files */}
+        {/* Image thumbnail */}
         {isImage && (
           <div
             className="relative h-40 bg-muted/30 cursor-pointer overflow-hidden group"
@@ -105,7 +229,7 @@ function FileCard({ file, onPreview }: { file: ProjectFile; onPreview: (file: Pr
           </div>
         )}
 
-        {/* PDF header for PDF files */}
+        {/* PDF header */}
         {isPdf && (
           <div
             className="relative h-32 bg-gradient-to-br from-amber-900/30 to-amber-800/10 flex items-center justify-center cursor-pointer group"
@@ -117,13 +241,46 @@ function FileCard({ file, onPreview }: { file: ProjectFile; onPreview: (file: Pr
                 PDF
               </Badge>
             </div>
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="px-3 py-1.5 rounded-md bg-black/70 text-white text-xs flex items-center gap-1.5">
+                <Eye className="w-3 h-3" /> Preview
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Script/code header for code files */}
+        {/* Script/code header */}
         {(file.type === 'script' || file.type === 'shell') && (
-          <div className="relative h-24 bg-gradient-to-br from-green-900/30 to-emerald-800/10 flex items-center justify-center font-mono text-xs text-green-400/40 p-3 overflow-hidden">
-            <Terminal className="w-12 h-12 text-green-400/30" />
+          <div
+            className="relative h-24 bg-gradient-to-br from-green-900/30 to-emerald-800/10 flex items-center justify-center cursor-pointer group overflow-hidden"
+            onClick={() => onPreview(file)}
+          >
+            <Terminal className="w-12 h-12 text-green-400/40 group-hover:text-green-400/60 transition-colors" />
+            <div className="absolute top-2 right-2">
+              <Badge variant="secondary" className="text-[10px] bg-green-500/15 text-green-300 border-green-500/30">
+                {file.type === 'shell' ? 'SH' : 'PY'}
+              </Badge>
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="px-3 py-1.5 rounded-md bg-black/70 text-white text-xs flex items-center gap-1.5">
+                <Code2 className="w-3 h-3" /> View Source
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Document (html/md) header */}
+        {file.type === 'document' && (
+          <div
+            className="relative h-24 bg-gradient-to-br from-amber-900/20 to-yellow-800/10 flex items-center justify-center cursor-pointer group"
+            onClick={() => onPreview(file)}
+          >
+            <BookOpen className="w-12 h-12 text-amber-400/40 group-hover:text-amber-400/60 transition-colors" />
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="px-3 py-1.5 rounded-md bg-black/70 text-white text-xs flex items-center gap-1.5">
+                <Eye className="w-3 h-3" /> Preview
+              </div>
+            </div>
           </div>
         )}
 
@@ -152,20 +309,13 @@ function FileCard({ file, onPreview }: { file: ProjectFile; onPreview: (file: Pr
               </Badge>
               <span className="text-[10px] text-muted-foreground">{formatSize(file.size)}</span>
             </div>
-            <a
-              href={file.path}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => onPreview(file)}
               className="text-muted-foreground hover:text-foreground transition-colors"
-              onClick={(e) => {
-                if (isImage) {
-                  e.preventDefault()
-                  onPreview(file)
-                }
-              }}
+              aria-label="Preview file"
             >
-              {isImage ? <Eye className="w-4 h-4" /> : <Download className="w-4 h-4" />}
-            </a>
+              <Eye className="w-4 h-4" />
+            </button>
           </div>
         </CardContent>
       </Card>
@@ -213,7 +363,7 @@ export default function ResearchReportView({ onSwitchView }: { onSwitchView: (v:
                 Research <span style={{ color: '#D4A017' }}>Archive</span>
               </h2>
               <p className="text-muted-foreground text-sm">
-                All documentation, visualizations, and artifacts from the project
+                All documentation, visualizations, and artifacts — every file previewable inline
               </p>
             </div>
           </div>
@@ -308,52 +458,81 @@ export default function ResearchReportView({ onSwitchView }: { onSwitchView: (v:
             Quick Access — Key Documents
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <a
-              href="/api/files/download?file=Impeccable_Error_Fix_Handler_Audit.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-start gap-4 p-4 rounded-lg border border-border/50 bg-muted/20 hover:bg-muted/40 hover:border-amber-600/25 transition-all"
+            <button
+              onClick={() => setPreviewFile(RESEARCH_FILES.find(f => f.name === 'Impeccable_Error_Fix_Handler_Audit.pdf') || null)}
+              className="group flex items-start gap-4 p-4 rounded-lg border border-border/50 bg-muted/20 hover:bg-muted/40 hover:border-amber-600/25 transition-all text-left"
             >
               <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-amber-500/10">
                 <FileText className="w-5 h-5 text-amber-400" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-semibold group-hover:text-amber-300 transition-colors flex items-center gap-1">
-                  Error Fix Handler Audit <ExternalLink className="w-3 h-3" />
+                  Error Fix Handler Audit <Eye className="w-3 h-3" />
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   17-page audit with 5 animal-metaphor perspectives on error handling and resilience
                 </p>
               </div>
-            </a>
-            <a
-              href="/api/files/download?file=Portfolio_Website_Recreation_SOP_final.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-start gap-4 p-4 rounded-lg border border-border/50 bg-muted/20 hover:bg-muted/40 hover:border-amber-600/25 transition-all"
+            </button>
+            <button
+              onClick={() => setPreviewFile(RESEARCH_FILES.find(f => f.name === 'Portfolio_Website_Recreation_SOP_final.pdf') || null)}
+              className="group flex items-start gap-4 p-4 rounded-lg border border-border/50 bg-muted/20 hover:bg-muted/40 hover:border-amber-600/25 transition-all text-left"
             >
               <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 bg-amber-500/10">
                 <FileText className="w-5 h-5 text-amber-400" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-semibold group-hover:text-amber-300 transition-colors flex items-center gap-1">
-                  Portfolio Website Recreation SOP <ExternalLink className="w-3 h-3" />
+                  Portfolio Website Recreation SOP <Eye className="w-3 h-3" />
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   33-page SOP with 3 design approaches, confidence scoring, decision trees, YC reviews
                 </p>
               </div>
-            </a>
+            </button>
+          </div>
+        </div>
+
+        {/* Impeccable Error Handler section */}
+        <div className="mt-8 border-t border-border/50 pt-8">
+          <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <Terminal className="w-5 h-5" style={{ color: '#f59e0b' }} />
+            Impeccable Error Fix Handler — Three-Tier Defense System
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            The complete deployment script, recovery script, and documentation. Click any file to view source inline.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {RESEARCH_FILES.filter(f => f.name.startsWith('impeccable-error-handler/')).map(file => {
+              const config = FILE_TYPE_CONFIG[file.type] || FILE_TYPE_CONFIG.other
+              const Icon = config.icon
+              return (
+                <button
+                  key={file.name}
+                  onClick={() => setPreviewFile(file)}
+                  className="group flex items-start gap-3 p-3 rounded-lg border border-border/50 bg-muted/20 hover:bg-muted/40 hover:border-amber-600/25 transition-all text-left"
+                >
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: `${config.color}20` }}>
+                    <Icon className="w-4 h-4" style={{ color: config.color }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold group-hover:text-amber-300 transition-colors flex items-center gap-1 truncate">
+                      {file.name.split('/').pop()} <Eye className="w-3 h-3 shrink-0" />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{file.description}</p>
+                  </div>
+                </button>
+              )
+            })}
           </div>
         </div>
       </div>
 
-      {/* Image preview modal */}
+      {/* Universal preview modal — handles all file types */}
       <AnimatePresence>
-        {previewFile && previewFile.type === 'image' && (
-          <ImagePreviewModal
-            src={previewFile.path}
-            alt={previewFile.description}
+        {previewFile && (
+          <UniversalPreviewModal
+            file={previewFile}
             onClose={() => setPreviewFile(null)}
           />
         )}
