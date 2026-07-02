@@ -20,6 +20,7 @@ import {
   trackCopyToClipboard, trackSearchEmpty, trackFilterApplied,
   trackModalDwell, trackAsset404,
   getABVariant, trackABOutcome,
+  shouldServeVariant,
 } from '@/lib/analytics'
 
 // =============================================================
@@ -92,8 +93,13 @@ function UniversalPreviewModal({ file, onClose, onNavigateTour, tourIndex }: {
   // Outcome tracked when visitor either: PDF loads (success),
   // fallback shown + download clicked (fallback helpful), or
   // fallback shown + modal closed without download (fallback wasted).
+  //
+  // Winner-aware (this round): shouldServeVariant returns the winning
+  // variant once the experiment declares a winner (either hard-coded in
+  // EXPERIMENTS or auto-declared at threshold=100). The losers are
+  // effectively removed from rotation without code changes.
   const safariTimerVariant = typeof window !== 'undefined'
-    ? getABVariant('safari_pdf_fallback_timer', ['2000', '3000', '5000'], [1, 1, 1])
+    ? shouldServeVariant('safari_pdf_fallback_timer', ['2000', '3000', '5000'], [1, 1, 1])
     : '3000'
 
   const isImage = file.type === 'image'

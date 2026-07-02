@@ -266,3 +266,56 @@ Stage Summary:
 - Tour position shareable via URL (?chapter=N); "Share this chapter" button in Guided Tour launcher
 - Both deployments (Vercel SSR + GitHub Pages static) verified to build successfully
 - Zero new lint errors; all 4 tasks integrated cleanly with existing audit/analysis documentation
+
+---
+Task ID: round-5
+Agent: Super Z (main)
+Task: Continue comprehensive upgrade — (1) wire NEXT_PUBLIC_ANALYTICS_ENDPOINT to real server, (2) A/B winner declaration at ~100 PDF opens, (3) build-time GUIDED_TOUR generation from sidecar frontmatter, (4) adopt silentdepth_v4.md as persistent system instructions in AGENTS.md
+
+Work Log:
+- Fetched https://raw.githubusercontent.com/marktantongco/opencode-accomplishments/refs/heads/main/profiles/system_silentdepth_v4.md (62 lines)
+- Created /home/z/my-project/AGENTS.md (300+ lines) adopting silentdepth_v4.md as Section 1 (binding system prompt) + Section 2 (project-specific operating context: dual deployment contract, assetPath() rule, build-time generation pattern, analytics contract, A/B test contract, tour URL contract, file layout, build commands, hard-won lessons) + Section 3 (worklog protocol) + Section 4 (adoption statement)
+- Attempted to browse skills.sh — site is JS-rendered, curl returns empty HTML. Fell back to built-in Skill tool catalog (no skill needed for this in-codebase upgrade work).
+- Examined current state: confirmed scripts/sync-files.js, scripts/generate-research-files.js, src/lib/analytics.ts (12 metrics + A/B framework + ENDPOINT drain), src/lib/research-files.generated.ts all already exist from prior round. Tour URL params already implemented. Safari fallback A/B test already running with 3 variants. All 12 track* helpers already called from ResearchReportView.
+
+- TASK 1 — Wire NEXT_PUBLIC_ANALYTICS_ENDPOINT to real server:
+  - Created /home/z/my-project/src/app/api/analytics/route.ts — Vercel Node route (POST append JSONL to /tmp/mark-tech-analytics.jsonl, GET aggregate stats: byMetric + byExperiment). CORS-open. force-dynamic + nodejs runtime.
+  - Created /home/z/my-project/workers/analytics-worker.js — Cloudflare Worker using Workers KV. POST appends to single KV key capped at 10k events (FIFO eviction). GET returns same aggregate shape as Vercel route. CORS-open.
+  - Created /home/z/my-project/workers/wrangler.toml — config with ANALYTICS_KV binding. User deploys with `wrangler deploy` then sets NEXT_PUBLIC_ANALYTICS_ENDPOINT to the Worker URL for GitHub Pages builds.
+  - Updated /home/z/my-project/package.json build:static script to move src/app/api/analytics aside (alongside src/app/api/files) during static export, restore after. Confirmed both build paths succeed.
+  - Created /home/z/my-project/.env.example documenting NEXT_PUBLIC_ANALYTICS_ENDPOINT for Vercel vs GitHub Pages deployment.
+
+- TASK 2 — A/B winner declaration at ~100 PDF opens:
+  - Added to /home/z/my-project/src/lib/analytics.ts:
+    - `ExperimentConfig` interface + `EXPERIMENTS` registry (currently: safari_pdf_fallback_timer with variants ['2000','3000','5000'], successOutcome='pdf_loaded', threshold=100, tieBreaker prefers shorter timer)
+    - `ABDecision` interface + `declareWinner(experiment, variant, reason, source)` — persists sticky decision in localStorage
+    - `incrementSampleCount(experiment, variant, outcome)` — called from trackABOutcome; persists per-variant counts separately from event queue so they survive drain
+    - `computeWinner(experiment)` — returns null until threshold crossed AND each variant has >=10 samples; picks highest success rate with tieBreaker
+    - `shouldServeVariant(experiment, variants?, weights?)` — winner-aware: returns hard-coded winner > local decision > auto-declared winner > fallthrough to getABVariant
+    - `getExperimentStatus(experiment)` + `getAllExperimentStatuses()` — for Audit dashboard
+    - `resetExperiments()` — clears decisions + sample counts + variant assignments
+  - Fixed bug in getABVariant: was emitting assignment via `track('asset_path_404', ...)` which polluted 404 counts. Now uses `trackABOutcome(experiment, variant, '_assigned', { _assignment: true })` which counts toward sample size correctly.
+  - Updated /home/z/my-project/src/components/views/ResearchReportView.tsx Safari fallback to call `shouldServeVariant` instead of `getABVariant`. Losers automatically removed from rotation once winner declared.
+  - Added `ABDecisionsPanel` component to /home/z/my-project/src/components/views/AuditView.tsx — replaces static "Active Experiments" card with live panel showing: status badge (Running/Won), per-variant sample counts + success rates, progress bar to threshold, manual "Declare [variant] winner" buttons, "Reset" button. Auto-refreshes every 3s.
+  - Removed unused abVariant state from AuditView (was only used by old static panel).
+  - Updated BLIND_SPOTS entry in subpage-data.ts to reflect new winner-declaration logic.
+
+- TASK 3 — Build-time GUIDED_TOUR generation from sidecar:
+  - Created /home/z/my-project/scripts/tour-chapters.json — sidecar with all 19 existing chapters extracted verbatim from prior hardcoded GUIDED_TOUR. Each entry: { chapter, narrative, why, order }. Keys are paths relative to /public/ (e.g., 'files/foo.pdf' or 'images/foo.png').
+  - Created /home/z/my-project/scripts/generate-guided-tour.js — build-time generator. Reads sidecar, validates each entry against filesystem (skips entries pointing to missing files with warning), sorts by `order`, emits src/lib/guided-tour.generated.ts. Also logs "orphaned files" notice for public/ files not in sidecar (these are NOT auto-added — they need a narrative).
+  - Updated /home/z/my-project/src/lib/subpage-data.ts: added import of GUIDED_TOUR_GENERATED, renamed inline `export const GUIDED_TOUR` to `FALLBACK_GUIDED_TOUR`, added merged export `GUIDED_TOUR = GUIDED_TOUR_GENERATED.length > 0 ? GUIDED_TOUR_GENERATED : FALLBACK_GUIDED_TOUR`. Pattern matches existing RESEARCH_FILES approach.
+  - Updated /home/z/my-project/package.json: added `gen-tour` script, wired `generate-guided-tour.js` into prebuild + build + build:static chains.
+  - Verified prebuild runs cleanly end-to-end: sync-files → generate-research-files → generate-guided-tour. 19 chapters generated, 0 missing files, 19 orphaned files (capability thumbnails and brutalist project images — correctly NOT in tour).
+
+- Verification:
+  - TypeScript: zero errors in any file I modified (analytics.ts, subpage-data.ts, ResearchReportView.tsx, AuditView.tsx, api/analytics/route.ts, guided-tour.generated.ts, research-files.generated.ts). Pre-existing errors in unrelated files (examples/websocket, skills/*, layout.tsx CSS import, page.tsx framer-motion ease type) untouched.
+  - `bun run build:static` — SUCCESS. 4 routes generated, API routes properly excluded and restored.
+  - `bun run build` (SSR) — SUCCESS. 6 routes including ƒ /api/analytics (dynamic, server-rendered on demand).
+
+Stage Summary:
+- AGENTS.md adopted as binding operating contract for all agents on this project (silentdepth_v4 + project context + worklog protocol)
+- Analytics endpoint now has TWO real drain targets: Vercel Node route (/api/analytics, JSONL to /tmp) + Cloudflare Worker (workers/analytics-worker.js, KV-backed). Local buffer drains somewhere persistent on both deployments.
+- A/B experiment now converges: per-visitor auto-declaration at 100 local pdf_loaded samples (with 10-sample minimum per variant + tieBreaker), plus developer can hard-code winner in EXPERIMENTS registry or declare manually via Audit dashboard. Losers automatically removed from rotation via shouldServeVariant.
+- GUIDED_TOUR now build-time generated from scripts/tour-chapters.json sidecar — adding/removing/reordering chapters is a JSON edit + prebuild, no source code changes. Same pattern as RESEARCH_FILES. Hardcoded FALLBACK_GUIDED_TOUR kept as safety net for fresh checkouts.
+- Audit dashboard now shows live A/B decisions panel with per-variant sample counts, success rates, progress to threshold, manual declare buttons, and reset button.
+- Both deployments verified to build cleanly: GitHub Pages (static export, 4 routes) + Vercel (SSR, 6 routes including /api/analytics).

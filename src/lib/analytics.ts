@@ -382,8 +382,9 @@ export function getABVariant(
   try {
     localStorage.setItem(AB_KEY, JSON.stringify(all))
   } catch { /* ignore */ }
-  // Emit assignment as an analytics event so we can segment later
-  track('asset_path_404', { _ab_assignment: true, experiment, variant }) // not great; use a separate event
+  // Track assignment via trackABOutcome so it counts toward sample size.
+  // (Previously this used the asset_path_404 metric which polluted 404 counts.)
+  trackABOutcome(experiment, variant, '_assigned', { _assignment: true })
   return variant
 }
 
@@ -403,6 +404,321 @@ export function trackABOutcome(
     _outcome: outcome,
     ...payload,
   })
+  // Increment per-visitor sample count — used by auto-winner-declaration.
+  // (Counts are persisted separately from the event queue so they survive
+  // queue drains to the analytics endpoint.)
+  incrementSampleCount(experiment, variant, outcome)
+}
+
+// ---------------------------------------------------------------------------
+// Experiment registry — declarative metadata + hard-coded winners
+// ---------------------------------------------------------------------------
+//
+// To declare a winner after analyzing aggregate stats:
+//   1. Set `winner`, `winnerDeclaredAt`, and `winnerReason` on the experiment.
+//   2. Ship. All visitors will now receive the winning variant.
+//   3. Optionally: remove the losing variants from the `variants` array
+//      (keeps the config tidy, but not required — shouldServeVariant only
+//      returns the winner once declared).
+//
+// Per-visitor auto-declaration (last-resort, when developer never acts):
+//   Each visitor accumulates a local sample count. When it crosses
+//   `threshold`, the visitor declares a winner for THEMSELVES based on
+//   their own observed success rates. This is biased (single-visitor data)
+//   but ensures the experiment converges even without developer action.
+
+export interface ExperimentConfig {
+  /** Experiment name (matches the value passed to trackABOutcome) */
+  name: string
+  /** All possible variants */
+  variants: string[]
+  /** The outcome that counts as "success" (e.g., 'pdf_loaded') */
+  successOutcome: string
+  /** Sample size at which per-visitor auto-declaration triggers */
+  threshold: number
+  /** Tie-breaker: when multiple variants have equal success rate, pick the one this returns */
+  tieBreaker?: (variants: string[]) => string
+  /** HARD-CODED WINNER — set this after analyzing aggregate stats. Once set, all visitors get this variant. */
+  winner?: string
+  /** ISO timestamp of when the winner was declared (for Audit dashboard display) */
+  winnerDeclaredAt?: string
+  /** Why the winner was declared (for Audit dashboard display) */
+  winnerReason?: string
+}
+
+export const EXPERIMENTS: Record<string, ExperimentConfig> = {
+  safari_pdf_fallback_timer: {
+    name: 'safari_pdf_fallback_timer',
+    variants: ['2000', '3000', '5000'],
+    successOutcome: 'pdf_loaded',
+    threshold: 100,
+    // On tie, prefer shorter timer (faster UX)
+    tieBreaker: (vs) => vs.slice().sort((a, b) => parseInt(a, 10) - parseInt(b, 10))[0],
+  },
+}
+
+// ---------------------------------------------------------------------------
+// A/B decisions — persisted per-visitor in localStorage (survives drain)
+// ---------------------------------------------------------------------------
+
+export interface ABDecision {
+  experiment: string
+  winner: string
+  declaredAt: number
+  reason: string
+  sampleSize: number
+  /** 'manual' = developer called declareWinner; 'auto' = per-visitor threshold reached */
+  source: 'manual' | 'auto'
+}
+
+const DECISIONS_KEY = 'mark-tech-ab-decisions'
+const SAMPLE_COUNTS_KEY = 'mark-tech-ab-sample-counts'
+
+interface VariantCount { success: number; total: number }
+interface SampleCount { byVariant: Record<string, VariantCount> }
+
+function readDecisions(): Record<string, ABDecision> {
+  if (typeof window === 'undefined') return {}
+  try {
+    const raw = localStorage.getItem(DECISIONS_KEY)
+    return raw ? JSON.parse(raw) : {}
+  } catch { return {} }
+}
+
+function writeDecisions(d: Record<string, ABDecision>): void {
+  if (typeof window === 'undefined') return
+  try { localStorage.setItem(DECISIONS_KEY, JSON.stringify(d)) } catch { /* ignore */ }
+}
+
+function readSampleCounts(): Record<string, SampleCount> {
+  if (typeof window === 'undefined') return {}
+  try {
+    const raw = localStorage.getItem(SAMPLE_COUNTS_KEY)
+    return raw ? JSON.parse(raw) : {}
+  } catch { return {} }
+}
+
+function writeSampleCounts(s: Record<string, SampleCount>): void {
+  if (typeof window === 'undefined') return
+  try { localStorage.setItem(SAMPLE_COUNTS_KEY, JSON.stringify(s)) } catch { /* ignore */ }
+}
+
+/**
+ * Increment the per-visitor sample count for an experiment+variant+outcome.
+ * Called automatically from trackABOutcome. Persisted separately from the
+ * event queue so it survives drains to the analytics endpoint.
+ */
+function incrementSampleCount(experiment: string, variant: string, outcome: string): void {
+  if (typeof window === 'undefined') return
+  const config = EXPERIMENTS[experiment]
+  if (!config) return // unknown experiment — don't track counts
+  const all = readSampleCounts()
+  if (!all[experiment]) all[experiment] = { byVariant: {} }
+  if (!all[experiment].byVariant[variant]) all[experiment].byVariant[variant] = { success: 0, total: 0 }
+  all[experiment].byVariant[variant].total += 1
+  if (outcome === config.successOutcome) {
+    all[experiment].byVariant[variant].success += 1
+  }
+  writeSampleCounts(all)
+}
+
+/**
+ * Compute the winning variant from accumulated LOCAL sample counts.
+ * Returns null if total success outcomes haven't crossed the threshold.
+ * Requires at least 10 samples per variant to be considered (avoids
+ * declaring a winner based on a variant with 1/1 = 100% success).
+ */
+function computeWinner(experiment: string): { variant: string; sampleSize: number } | null {
+  const config = EXPERIMENTS[experiment]
+  if (!config) return null
+  const all = readSampleCounts()
+  const data = all[experiment]?.byVariant
+  if (!data) return null
+
+  let totalSuccess = 0
+  for (const v of Object.values(data)) totalSuccess += v.success
+  if (totalSuccess < config.threshold) return null
+
+  let best: { variant: string; rate: number; samples: number } | null = null
+  for (const [variant, counts] of Object.entries(data)) {
+    if (counts.total < 10) continue
+    const rate = counts.success / counts.total
+    if (!best || rate > best.rate) {
+      best = { variant, rate, samples: counts.total }
+    } else if (rate === best.rate && config.tieBreaker) {
+      const tieWinner = config.tieBreaker([best.variant, variant])
+      if (tieWinner === variant) {
+        best = { variant, rate, samples: counts.total }
+      }
+    }
+  }
+  if (!best) return null
+  return { variant: best.variant, sampleSize: totalSuccess }
+}
+
+/**
+ * Persist a winner decision. Once declared, all future shouldServeVariant
+ * calls for this experiment return the winner. Can be called from the
+ * Audit dashboard UI or from developer tools.
+ */
+export function declareWinner(
+  experiment: string,
+  winningVariant: string,
+  reason = 'manually declared',
+  source: 'manual' | 'auto' = 'manual',
+): void {
+  if (typeof window === 'undefined') return
+  const config = EXPERIMENTS[experiment]
+  if (!config) {
+    console.warn(`[analytics] declareWinner: unknown experiment "${experiment}"`)
+    return
+  }
+  if (!config.variants.includes(winningVariant)) {
+    console.warn(`[analytics] declareWinner: variant "${winningVariant}" not in experiment "${experiment}" variants`)
+    return
+  }
+  const all = readDecisions()
+  const sampleSize = computeWinner(experiment)?.sampleSize ?? 0
+  all[experiment] = {
+    experiment,
+    winner: winningVariant,
+    declaredAt: Date.now(),
+    reason,
+    sampleSize,
+    source,
+  }
+  writeDecisions(all)
+  // Track the declaration as an event so the server-side aggregate sees it
+  track('cross_view_navigation', {
+    _ab_decision: true,
+    experiment,
+    winner: winningVariant,
+    reason,
+    source,
+  })
+}
+
+export interface ExperimentStatus {
+  experiment: string
+  status: 'won' | 'running'
+  winner?: string
+  declaredAt?: number
+  reason?: string
+  source?: 'manual' | 'auto'
+  sampleSize: number
+  /** Per-variant breakdown of success/total (local to this visitor) */
+  variantCounts?: Record<string, VariantCount>
+  threshold: number
+}
+
+export function getExperimentStatus(experiment: string): ExperimentStatus {
+  const config = EXPERIMENTS[experiment]
+  if (!config) {
+    return { experiment, status: 'running', sampleSize: 0, threshold: 0 }
+  }
+  // 1. Hard-coded winner in EXPERIMENTS registry (highest precedence)
+  if (config.winner) {
+    return {
+      experiment,
+      status: 'won',
+      winner: config.winner,
+      declaredAt: config.winnerDeclaredAt ? Date.parse(config.winnerDeclaredAt) : undefined,
+      reason: config.winnerReason || 'hard-coded in EXPERIMENTS registry',
+      source: 'manual',
+      sampleSize: -1, // unknown — server-side aggregate
+      threshold: config.threshold,
+    }
+  }
+  // 2. Local decision (from declareWinner or auto-declaration)
+  const decisions = readDecisions()
+  const decision = decisions[experiment]
+  if (decision) {
+    return {
+      experiment,
+      status: 'won',
+      winner: decision.winner,
+      declaredAt: decision.declaredAt,
+      reason: decision.reason,
+      source: decision.source,
+      sampleSize: decision.sampleSize,
+      threshold: config.threshold,
+    }
+  }
+  // 3. Still running — return sample counts
+  const all = readSampleCounts()
+  const data = all[experiment]?.byVariant || {}
+  let totalSuccess = 0
+  for (const v of Object.values(data)) totalSuccess += v.success
+  return {
+    experiment,
+    status: 'running',
+    sampleSize: totalSuccess,
+    variantCounts: data,
+    threshold: config.threshold,
+  }
+}
+
+export function getAllExperimentStatuses(): ExperimentStatus[] {
+  return Object.keys(EXPERIMENTS).map(getExperimentStatus)
+}
+
+/**
+ * Winner-aware variant assignment. Use this instead of getABVariant for
+ * experiments that should converge to a single variant after enough data.
+ *
+ * Precedence:
+ *   1. Hard-coded winner in EXPERIMENTS registry
+ *   2. Persisted local decision (from declareWinner or auto-declaration)
+ *   3. Auto-declaration if per-visitor sample count has crossed threshold
+ *   4. Normal random assignment via getABVariant
+ */
+export function shouldServeVariant(
+  experiment: string,
+  variants?: string[],
+  weights?: number[],
+): string {
+  const config = EXPERIMENTS[experiment]
+  if (typeof window === 'undefined') {
+    return (variants || config?.variants || [''])[0]
+  }
+  const effectiveVariants = variants || config?.variants || ['']
+
+  // 1. Hard-coded winner
+  if (config?.winner && effectiveVariants.includes(config.winner)) {
+    return config.winner
+  }
+
+  // 2. Local decision
+  const decisions = readDecisions()
+  const decision = decisions[experiment]
+  if (decision && effectiveVariants.includes(decision.winner)) {
+    return decision.winner
+  }
+
+  // 3. Auto-declaration (per-visitor threshold reached)
+  const winner = computeWinner(experiment)
+  if (winner && effectiveVariants.includes(winner.variant)) {
+    declareWinner(
+      experiment,
+      winner.variant,
+      `auto-declared at ${winner.sampleSize} local samples (threshold ${config?.threshold})`,
+      'auto',
+    )
+    return winner.variant
+  }
+
+  // 4. Normal assignment
+  return getABVariant(experiment, effectiveVariants, weights)
+}
+
+/** Clear all A/B decisions + sample counts (for Audit dashboard "reset" button) */
+export function resetExperiments(): void {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.removeItem(DECISIONS_KEY)
+    localStorage.removeItem(SAMPLE_COUNTS_KEY)
+    localStorage.removeItem(AB_KEY)
+  } catch { /* ignore */ }
 }
 
 // ---------------------------------------------------------------------------

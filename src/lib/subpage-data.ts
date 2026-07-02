@@ -4,6 +4,7 @@
 
 import { assetPath } from './utils'
 import { RESEARCH_FILES_GENERATED } from './research-files.generated'
+import { GUIDED_TOUR_GENERATED } from './guided-tour.generated'
 
 export type ViewKey = 'home' | 'error-handler' | 'brutalist' | 'organic' | 'cyberpunk' | 'research' | 'audit' | 'frontend-design' | 'proxy-discussion'
 
@@ -468,7 +469,7 @@ export interface TourStop {
   why: string
 }
 
-export const GUIDED_TOUR: TourStop[] = [
+export const FALLBACK_GUIDED_TOUR: TourStop[] = [
   {
     fileName: 'architecture_diagram.png',
     chapter: 'Chapter 1 — The Vision',
@@ -584,6 +585,13 @@ export const GUIDED_TOUR: TourStop[] = [
     why: 'A README is the only document every visitor will read. Optimize it for the visitor who spends 30 seconds and decides whether to stay — then add depth for the one who stays 30 minutes.',
   },
 ]
+
+// Prefer the build-time-generated tour; fall back to the hardcoded tour
+// if the generated file is missing (e.g. fresh checkout before prebuild).
+// Generated file is regenerated from scripts/tour-chapters.json on every
+// prebuild — see scripts/generate-guided-tour.js.
+export const GUIDED_TOUR: TourStop[] =
+  GUIDED_TOUR_GENERATED.length > 0 ? GUIDED_TOUR_GENERATED : FALLBACK_GUIDED_TOUR
 
 // =============================================================
 // ENHANCED ANALYSIS — Failure Modes, Contrarian, Second-Order,
@@ -745,9 +753,9 @@ export const BLIND_SPOTS = [
     fix: 'NOW FIXED: scripts/generate-research-files.js runs at prebuild, walks /public/files/ + /public/images/ via fs.readdirSync, and emits src/lib/research-files.generated.ts. Descriptions come from scripts/file-descriptions.json (sidecar). Files not in the sidecar get auto-generated descriptions so they still appear.',
   },
   {
-    area: 'PDF rendering on Safari ✅ A/B TEST RUNNING',
+    area: 'PDF rendering on Safari ✅ A/B TEST RUNNING + WINNER DECLARATION',
     issue: 'Safari\'s PDF iframe rendering is inconsistent — sometimes shows blank page on first load, requires refresh. Chrome and Firefox are fine.',
-    fix: 'NOW A/B TESTED: visitors are randomly assigned a fallback timer variant (2s/3s/5s, sticky per visitor). The iframe onLoad event cancels the fallback if PDF loads successfully. Outcomes tracked: pdf_loaded, fallback_shown, fallback_then_download. See the Active Experiments section in the Audit view.',
+    fix: 'NOW A/B TESTED with winner declaration: visitors are assigned a fallback timer variant (2s/3s/5s, sticky per visitor) via shouldServeVariant(). Per-visitor sample counts accumulate in localStorage (survive buffer drains). At threshold=100 local pdf_loaded samples, a winner is auto-declared for that visitor. Developer can also declare a winner globally by setting EXPERIMENTS.safari_pdf_fallback_timer.winner in src/lib/analytics.ts. Once declared, all visitors receive the winning variant — losers are removed from rotation. See the Active Experiments panel in the Audit view for live per-variant counts + manual declare buttons.',
   },
   {
     area: 'Offline support',

@@ -1,0 +1,28 @@
+# Cloudflare Worker config — analytics drain for GitHub Pages deployment
+#
+# Setup:
+#   1. npm install -g wrangler
+#   2. wrangler login
+#   3. wrangler deploy
+#   4. The Worker URL is printed at the end — set it as NEXT_PUBLIC_ANALYTICS_ENDPOINT
+#      in your GitHub Actions secrets (or .env.production.local) before build:static.
+#
+# KV namespace:
+#   Created automatically on first deploy. The binding name is ANALYTICS_KV —
+#   do not change it without also updating the Worker code.
+
+name = "mark-tech-analytics"
+main = "analytics-worker.js"
+compatibility_date = "2024-09-25"
+
+# KV namespace for event persistence
+# Create with: wrangler kv:namespace create ANALYTICS_KV
+# Then paste the id below.
+[[kv_namespaces]]
+binding = "ANALYTICS_KV"
+id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+
+# Optional: restrict to specific routes if you have a custom domain
+# routes = [
+#   { pattern = "analytics.yourdomain.com/*", zone_name = "yourdomain.com" }
+# ]

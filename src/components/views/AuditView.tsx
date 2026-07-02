@@ -17,7 +17,8 @@ import {
 } from '@/lib/subpage-data'
 import {
   getMetricStats, clearAnalytics, isAnalyticsEndpointConfigured,
-  type MetricStats,
+  getAllExperimentStatuses, declareWinner, resetExperiments,
+  type MetricStats, type ExperimentStatus,
 } from '@/lib/analytics'
 
 // =============================================================
@@ -243,28 +244,197 @@ function LiveMetricsDashboard() {
   )
 }
 
+// ---------------------------------------------------------------------------
+// ABDecisionsPanel — live experiment statuses + winner declaration (this round)
+// ---------------------------------------------------------------------------
+// Replaces the static "Active Experiments" card with a dynamic panel that:
+//   - Shows per-variant sample counts + success rates
+//   - Shows progress toward the auto-declaration threshold
+//   - When status='running': "Declare Winner" buttons for each variant
+//   - When status='won': shows winner + declaredAt + reason + source
+//   - "Reset" button clears all local decisions + sample counts
+//
+// Auto-declaration (per-visitor threshold) fires automatically inside
+// shouldServeVariant() — this panel just VISUALIZES the state and lets the
+// developer force a manual declaration for testing.
+function ABDecisionsPanel() {
+  const [statuses, setStatuses] = useState<ExperimentStatus[]>([])
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setStatuses(getAllExperimentStatuses())
+  }, [refreshKey])
+
+  // Refresh every 3s so the panel feels live while user interacts
+  useEffect(() => {
+    const id = setInterval(() => setRefreshKey(k => k + 1), 3000)
+    return () => clearInterval(id)
+  }, [])
+
+  const handleDeclareWinner = useCallback((experiment: string, variant: string) => {
+    if (typeof window === 'undefined') return
+    if (!window.confirm(`Declare "${variant}" as the winner of ${experiment}?\n\nThis is a local decision (this browser only). To declare globally, set EXPERIMENTS.${experiment}.winner in src/lib/analytics.ts.`)) return
+    declareWinner(experiment, variant, 'manually declared via Audit dashboard', 'manual')
+    setRefreshKey(k => k + 1)
+  }, [])
+
+  const handleReset = useCallback(() => {
+    if (typeof window === 'undefined') return
+    if (!window.confirm('Reset ALL local A/B decisions and sample counts?\n\nThis will put you back into the experiment pool. Next PDF open will be assigned a fresh variant.')) return
+    resetExperiments()
+    setRefreshKey(k => k + 1)
+  }, [])
+
+  if (statuses.length === 0) {
+    return (
+      <div className="rounded-lg border border-fuchsia-600/30 bg-fuchsia-500/5 p-4">
+        <p className="text-xs text-muted-foreground">No experiments registered.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-3">
+      {statuses.map((s) => {
+        const isWon = s.status === 'won'
+        const progressPct = isWon ? 100 : Math.min(100, Math.round((s.sampleSize / s.threshold) * 100))
+        const variantEntries = s.variantCounts
+          ? Object.entries(s.variantCounts).sort(([a], [b]) => a.localeCompare(b))
+          : []
+        return (
+          <div
+            key={s.experiment}
+            className={`rounded-lg border p-4 ${
+              isWon
+                ? 'border-emerald-600/40 bg-emerald-500/8'
+                : 'border-fuchsia-600/30 bg-fuchsia-500/5'
+            }`}
+          >
+            {/* Header row */}
+            <div className="flex items-start justify-between gap-3 mb-2">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <code className="text-xs font-mono text-foreground">{s.experiment}</code>
+                  <Badge
+                    variant="outline"
+                    className={`text-[10px] ${
+                      isWon
+                        ? 'bg-emerald-500/15 text-emerald-300 border-emerald-600/40'
+                        : 'bg-fuchsia-500/10 text-fuchsia-300 border-fuchsia-600/30'
+                    }`}
+                  >
+                    {isWon ? `Won · ${s.source}` : `Running · ${s.sampleSize}/${s.threshold} samples`}
+                  </Badge>
+                </div>
+                {isWon ? (
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Winner: <code className="font-mono text-emerald-300">{s.winner}</code>
+                    {s.declaredAt && (
+                      <> · declared {new Date(s.declaredAt).toLocaleString()}</>
+                    )}
+                    {s.reason && <> · {s.reason}</>}
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Per-visitor auto-declaration triggers at <code className="font-mono">{s.threshold}</code> local
+                    success samples. Currently at <code className="font-mono">{s.sampleSize}</code>.
+                    Declare manually if you have aggregate stats from the analytics endpoint.
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={handleReset}
+                className="text-[10px] px-2 py-1 rounded border border-rose-600/40 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 transition-colors flex items-center gap-1 shrink-0"
+                aria-label="Reset experiment"
+                title="Reset local decisions + sample counts"
+              >
+                <Trash2 className="w-3 h-3" /> Reset
+              </button>
+            </div>
+
+            {/* Progress bar to threshold (only when running) */}
+            {!isWon && (
+              <div className="mb-3">
+                <div className="h-1.5 rounded-full bg-muted/40 overflow-hidden">
+                  <div
+                    className="h-full bg-fuchsia-500/60 transition-all duration-500"
+                    style={{ width: `${progressPct}%` }}
+                  />
+                </div>
+                <div className="text-[10px] text-muted-foreground mt-1">
+                  {progressPct}% to auto-declaration
+                </div>
+              </div>
+            )}
+
+            {/* Per-variant breakdown (when running) */}
+            {!isWon && variantEntries.length > 0 && (
+              <div className="grid grid-cols-3 gap-2 text-xs mb-3">
+                {variantEntries.map(([variant, counts]) => {
+                  const rate = counts.total > 0 ? Math.round((counts.success / counts.total) * 100) : 0
+                  const isAssigned = counts.total > 0
+                  return (
+                    <div
+                      key={variant}
+                      className={`rounded border p-2 transition-colors ${
+                        isAssigned ? 'border-fuchsia-600/30 bg-card/40' : 'border-border/30 bg-muted/10 opacity-60'
+                      }`}
+                    >
+                      <div className="text-muted-foreground text-[10px]">{variant}ms</div>
+                      <div className="font-mono font-bold text-sm">{counts.success}/{counts.total}</div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5">
+                        {isAssigned ? `${rate}% success` : 'no samples'}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Declare-winner buttons (when running) */}
+            {!isWon && (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] text-muted-foreground">Declare winner:</span>
+                {(['2000', '3000', '5000'] as const).map((v) => (
+                  <button
+                    key={v}
+                    onClick={() => handleDeclareWinner(s.experiment, v)}
+                    className="text-[10px] px-2 py-0.5 rounded border border-emerald-600/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 transition-colors font-mono"
+                  >
+                    {v}ms
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Winner banner (when won) */}
+            {isWon && (
+              <div className="mt-2 p-2 rounded border border-emerald-600/30 bg-emerald-500/8">
+                <div className="flex items-center gap-2 text-xs">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span className="text-emerald-200">
+                    All visitors now receive the <code className="font-mono">{s.winner}ms</code> variant.
+                    Losers are no longer in rotation.
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 export default function AuditView({ onSwitchView }: { onSwitchView: (v: ViewKey) => void }) {
   // Live stats for the metrics dashboard (Task A)
   const [liveStats, setLiveStats] = useState<MetricStats[] | null>(null)
-  // A/B test variant assignment for the experiments card (Task C)
-  const [abVariant, setAbVariant] = useState<string>('?')
 
   useEffect(() => {
     // Reading from localStorage on mount is the canonical "sync with external system" use case.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLiveStats(getMetricStats())
-    // Read A/B assignment directly from localStorage so AuditView
-    // doesn't trigger an assignment for visitors who haven't seen a PDF yet.
-    try {
-      const raw = localStorage.getItem('mark-tech-ab-assignments')
-      if (raw) {
-        const all = JSON.parse(raw)
-        const assign = all['safari_pdf_fallback_timer']
-        if (assign?.variant) {
-          setAbVariant(`${assign.variant}ms`)
-        }
-      }
-    } catch { /* ignore */ }
     // Refresh every 5s so the dashboard feels live while user interacts
     const id = setInterval(() => {
       setLiveStats(getMetricStats())
@@ -591,7 +761,7 @@ export default function AuditView({ onSwitchView }: { onSwitchView: (v: ViewKey)
         </div>
 
         {/* ============================================================= */}
-        {/* EXPERIMENTS — A/B test status (Task C) */}
+        {/* EXPERIMENTS — A/B test status + winner declaration (Task C) */}
         {/* ============================================================= */}
         <div className="mt-10 border-t border-border/50 pt-8">
           <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
@@ -599,43 +769,9 @@ export default function AuditView({ onSwitchView }: { onSwitchView: (v: ViewKey)
             Active Experiments
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Active A/B tests running on this build. Each visitor is assigned a sticky variant on first visit; outcomes are tracked via the analytics pipeline above.
+            Active A/B tests running on this build. Each visitor is assigned a sticky variant on first visit; outcomes are tracked via the analytics pipeline above. When the per-visitor sample count crosses threshold (100), a winner is auto-declared for that visitor — or declare manually using the buttons below.
           </p>
-          <div className="rounded-lg border border-border/40 bg-muted/15 p-4">
-            <div className="flex items-start justify-between gap-4 mb-3">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <code className="text-xs font-mono text-foreground">safari_pdf_fallback_timer</code>
-                  <Badge variant="outline" className="text-[10px] bg-fuchsia-500/10 text-fuchsia-300 border-fuchsia-600/30">
-                    Running
-                  </Badge>
-                </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Tests whether the Safari PDF fallback overlay should appear after 2s, 3s, or 5s. Hypothesis: 3s is too aggressive for slow connections — visitors see the fallback even when the PDF would have loaded half a second later. Success metric: <code className="text-[10px]">pdf_loaded</code> outcome without prior <code className="text-[10px]">fallback_shown</code>.
-                </p>
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-2 text-xs">
-              <div className="rounded border border-border/40 p-2 bg-card/30">
-                <div className="text-muted-foreground">Variant A</div>
-                <div className="font-mono font-bold text-base">2000ms</div>
-                <div className="text-[10px] text-muted-foreground mt-0.5">Aggressive</div>
-              </div>
-              <div className="rounded border border-border/40 p-2 bg-card/30">
-                <div className="text-muted-foreground">Variant B</div>
-                <div className="font-mono font-bold text-base">3000ms</div>
-                <div className="text-[10px] text-muted-foreground mt-0.5">Original</div>
-              </div>
-              <div className="rounded border border-border/40 p-2 bg-card/30">
-                <div className="text-muted-foreground">Variant C</div>
-                <div className="font-mono font-bold text-base">5000ms</div>
-                <div className="text-[10px] text-muted-foreground mt-0.5">Patient</div>
-              </div>
-            </div>
-            <p className="text-[10px] text-muted-foreground mt-3">
-              Your variant: <code className="font-mono">{abVariant}</code>. Outcome events appear in the <code className="font-mono">modal_dwell_time_ms</code> metric above with <code className="font-mono">_experiment</code> payload.
-            </p>
-          </div>
+          <ABDecisionsPanel />
         </div>
 
         {/* ============================================================= */}
