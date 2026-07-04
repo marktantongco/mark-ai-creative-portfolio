@@ -1,0 +1,55 @@
+{
+  "_meta": {
+    "_comment": "Sidecar for SECOND_ORDER_EFFECTS. Build-time generator scripts/generate-audit-content.js reads this file and emits src/lib/audit-content.generated.ts. To add a new entry: add an object here, run prebuild — no source code changes needed.",
+    "_format": "key = stable id (lowercase-kebab), value = { decision, firstOrder, secondOrder, thirdOrder, order }"
+  },
+  "static-files-over-ssr-api": {
+    "decision": "Move from /api/files (SSR) to /public/files (static)",
+    "firstOrder": "Files work on both Vercel and GitHub Pages without code changes",
+    "secondOrder": "Removes SSR dependency entirely → portfolio can be deployed to any static host (Cloudflare Pages, Netlify, S3) without re-architecture",
+    "thirdOrder": "Hiring conversation shifts from 'we use Vercel' to 'we deploy anywhere' — broader appeal to engineering cultures that avoid vendor lock-in",
+    "order": 1
+  },
+  "inline-preview-modal": {
+    "decision": "Inline preview modal for all file types",
+    "firstOrder": "Visitors engage with artifacts without leaving the page",
+    "secondOrder": "Average session duration increases → SEO signals improve → portfolio ranks higher for 'AI creative technologist' queries",
+    "thirdOrder": "Inbound recruiter traffic qualitatively shifts — recruiters who saw the modal contact with specific questions about specific files, not generic 'are you available' pings",
+    "order": 2
+  },
+  "syntax-highlighting": {
+    "decision": "Add syntax highlighting to code viewer",
+    "firstOrder": "Python and bash files become readable instead of monospace blobs",
+    "secondOrder": "Visitors actually read the scripts → understand the system depth → perceive the portfolio as senior-level work, not junior-level",
+    "thirdOrder": "Salary expectations calibrated upward because the visitor's mental model of 'what this person can do' includes 'writes production deployment scripts'",
+    "order": 3
+  },
+  "guided-tour-mode": {
+    "decision": "Guided Tour mode in research archive",
+    "firstOrder": "Visitors walk through the story in narrative order instead of browsing randomly",
+    "secondOrder": "Time-on-page for the research archive doubles — visitors reach the audit PDF (chapter 5) instead of bouncing at chapter 1",
+    "thirdOrder": "The audit PDF's animal-metaphor framing becomes the dominant lens through which visitors describe the portfolio — 'the owl/eagle/beaver thing' becomes a brand identifier",
+    "order": 4
+  },
+  "prebuild-sync-script": {
+    "decision": "Prebuild sync script",
+    "firstOrder": "New artifacts in /download/ automatically appear in /public/files/",
+    "secondOrder": "Artifact drift becomes impossible → trust in the research archive increases → visitors stop second-guessing whether they're seeing the latest version",
+    "thirdOrder": "The portfolio becomes a living document — adding a new case study is 'drop PDF in /download/, commit, push' with zero manual publishing steps",
+    "order": 5
+  },
+  "experiments-registry-extraction": {
+    "decision": "Extract EXPERIMENTS into a pure registry module (single source of truth)",
+    "firstOrder": "Eliminates dual-registry sync hazard between analytics.ts and aggregate/route.ts",
+    "secondOrder": "Declaring an A/B winner becomes a single-file edit instead of a coordinated two-file dance — developer friction drops to zero, the chance of drift-related bugs drops to zero with it",
+    "thirdOrder": "The pattern generalizes — future config that needs to be visible to both client and server (e.g. feature flags, rollout percentages) follows the same 'pure module both sides import' recipe, giving the codebase a repeatable structural primitive",
+    "order": 6
+  },
+  "sidecar-driven-audit-content": {
+    "decision": "Apply sidecar-driven build-time pattern to SECOND_ORDER_EFFECTS and BLIND_SPOTS",
+    "firstOrder": "Last two hardcoded analysis arrays become data-driven — the entire enhanced-analysis section of the audit dashboard is now sidecar-fed",
+    "secondOrder": "Adding a blind spot or a second-order effect no longer requires editing TypeScript source — non-engineers (e.g. the author reflecting on their own work after a conversation) can add entries via JSON edits alone",
+    "thirdOrder": "The audit dashboard becomes a living artifact that grows with the project's self-reflection — each new lesson learned can be captured as a sidecar entry within minutes, making the portfolio itself a continuously-improving postmortem",
+    "order": 7
+  }
+}

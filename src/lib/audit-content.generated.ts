@@ -3,19 +3,22 @@
 // + generate-guided-tour.js).
 //
 // Sources:
-//   scripts/audit-perspectives.json  → AUDIT_PERSPECTIVES_GENERATED
-//   scripts/failure-modes.json       → FAILURE_MODES_GENERATED
-//   scripts/contrarian-views.json    → CONTRARIAN_VIEWS_GENERATED
+//   scripts/audit-perspectives.json   → AUDIT_PERSPECTIVES_GENERATED
+//   scripts/failure-modes.json        → FAILURE_MODES_GENERATED
+//   scripts/contrarian-views.json     → CONTRARIAN_VIEWS_GENERATED
+//   scripts/second-order-effects.json → SECOND_ORDER_EFFECTS_GENERATED
+//   scripts/blind-spots.json          → BLIND_SPOTS_GENERATED
 //
 // To add a new audit perspective (e.g. a 6th animal metaphor):
 //   1. Add an entry to scripts/audit-perspectives.json with {id, name, title, ...}.
 //   2. If the id is not in AuditView.tsx ICON_MAP, add it there too.
 //   3. Run `bun run prebuild` — this file regenerates.
 //
-// To add a new failure mode or contrarian view: just edit the sidecar JSON.
-// No source code changes needed.
+// To add a new failure mode, contrarian view, second-order effect, or blind
+// spot: just edit the corresponding sidecar JSON. No source code changes
+// needed.
 
-import type { AuditPerspective, FailureMode, ContrarianView } from './subpage-data'
+import type { AuditPerspective, FailureMode, ContrarianView, SecondOrderEffect, BlindSpot } from './subpage-data'
 
 export const AUDIT_PERSPECTIVES_GENERATED: AuditPerspective[] = [
   {
@@ -196,10 +199,105 @@ export const CONTRARIAN_VIEWS_GENERATED: ContrarianView[] = [
   },
 ]
 
+export const SECOND_ORDER_EFFECTS_GENERATED: SecondOrderEffect[] = [
+  {
+    decision: "Move from /api/files (SSR) to /public/files (static)",
+    firstOrder: "Files work on both Vercel and GitHub Pages without code changes",
+    secondOrder: "Removes SSR dependency entirely → portfolio can be deployed to any static host (Cloudflare Pages, Netlify, S3) without re-architecture",
+    thirdOrder: "Hiring conversation shifts from 'we use Vercel' to 'we deploy anywhere' — broader appeal to engineering cultures that avoid vendor lock-in",
+  },
+  {
+    decision: "Inline preview modal for all file types",
+    firstOrder: "Visitors engage with artifacts without leaving the page",
+    secondOrder: "Average session duration increases → SEO signals improve → portfolio ranks higher for 'AI creative technologist' queries",
+    thirdOrder: "Inbound recruiter traffic qualitatively shifts — recruiters who saw the modal contact with specific questions about specific files, not generic 'are you available' pings",
+  },
+  {
+    decision: "Add syntax highlighting to code viewer",
+    firstOrder: "Python and bash files become readable instead of monospace blobs",
+    secondOrder: "Visitors actually read the scripts → understand the system depth → perceive the portfolio as senior-level work, not junior-level",
+    thirdOrder: "Salary expectations calibrated upward because the visitor's mental model of 'what this person can do' includes 'writes production deployment scripts'",
+  },
+  {
+    decision: "Guided Tour mode in research archive",
+    firstOrder: "Visitors walk through the story in narrative order instead of browsing randomly",
+    secondOrder: "Time-on-page for the research archive doubles — visitors reach the audit PDF (chapter 5) instead of bouncing at chapter 1",
+    thirdOrder: "The audit PDF's animal-metaphor framing becomes the dominant lens through which visitors describe the portfolio — 'the owl/eagle/beaver thing' becomes a brand identifier",
+  },
+  {
+    decision: "Prebuild sync script",
+    firstOrder: "New artifacts in /download/ automatically appear in /public/files/",
+    secondOrder: "Artifact drift becomes impossible → trust in the research archive increases → visitors stop second-guessing whether they're seeing the latest version",
+    thirdOrder: "The portfolio becomes a living document — adding a new case study is 'drop PDF in /download/, commit, push' with zero manual publishing steps",
+  },
+  {
+    decision: "Extract EXPERIMENTS into a pure registry module (single source of truth)",
+    firstOrder: "Eliminates dual-registry sync hazard between analytics.ts and aggregate/route.ts",
+    secondOrder: "Declaring an A/B winner becomes a single-file edit instead of a coordinated two-file dance — developer friction drops to zero, the chance of drift-related bugs drops to zero with it",
+    thirdOrder: "The pattern generalizes — future config that needs to be visible to both client and server (e.g. feature flags, rollout percentages) follows the same 'pure module both sides import' recipe, giving the codebase a repeatable structural primitive",
+  },
+  {
+    decision: "Apply sidecar-driven build-time pattern to SECOND_ORDER_EFFECTS and BLIND_SPOTS",
+    firstOrder: "Last two hardcoded analysis arrays become data-driven — the entire enhanced-analysis section of the audit dashboard is now sidecar-fed",
+    secondOrder: "Adding a blind spot or a second-order effect no longer requires editing TypeScript source — non-engineers (e.g. the author reflecting on their own work after a conversation) can add entries via JSON edits alone",
+    thirdOrder: "The audit dashboard becomes a living artifact that grows with the project's self-reflection — each new lesson learned can be captured as a sidecar entry within minutes, making the portfolio itself a continuously-improving postmortem",
+  },
+]
+
+export const BLIND_SPOTS_GENERATED: BlindSpot[] = [
+  {
+    area: "Mobile modal UX",
+    issue: "The preview modal is optimized for desktop (max-w-5xl). On mobile, code files become horizontally scrollable walls of text. PDFs are barely readable.",
+    fix: "Add a mobile-specific modal layout: full-screen, swipe-to-dismiss, with a 'download for offline reading' CTA taking precedence over inline preview.",
+  },
+  {
+    area: "Accessibility of syntax highlighter",
+    issue: "react-syntax-highlighter renders colored spans. Screen readers may read each token separately, destroying code comprehension for visually impaired visitors.",
+    fix: "Add aria-label='Source code, N lines' on the pre element and a 'copy to read in editor' button as the primary CTA on mobile/a11y modes.",
+  },
+  {
+    area: "Search index freshness ✅ FIXED",
+    issue: "RESEARCH_FILES WAS a hardcoded array in subpage-data.ts. New files added to /download/ did not appear until a developer updated the array.",
+    fix: "NOW FIXED: scripts/generate-research-files.js runs at prebuild, walks /public/files/ + /public/images/ via fs.readdirSync, and emits src/lib/research-files.generated.ts. Descriptions come from scripts/file-descriptions.json (sidecar). Files not in the sidecar get auto-generated descriptions so they still appear.",
+  },
+  {
+    area: "PDF rendering on Safari ✅ A/B TEST RUNNING + WINNER DECLARATION",
+    issue: "Safari's PDF iframe rendering is inconsistent — sometimes shows blank page on first load, requires refresh. Chrome and Firefox are fine.",
+    fix: "NOW A/B TESTED with winner declaration: visitors are assigned a fallback timer variant (2s/3s/5s, sticky per visitor) via shouldServeVariant(). Per-visitor sample counts accumulate in localStorage (survive buffer drains). At threshold=100 local pdf_loaded samples, a winner is auto-declared for that visitor. Developer can also declare a winner globally by setting EXPERIMENTS.safari_pdf_fallback_timer.winner in src/lib/experiments-registry.ts (single source of truth as of 2026-07-04). Once declared, all visitors receive the winning variant — losers are removed from rotation. See the Active Experiments panel in the Audit view for live per-variant counts + manual declare buttons.",
+  },
+  {
+    area: "Offline support",
+    issue: "No service worker. Visitors who lose connectivity mid-tour lose all state. (Note: tour position is now persisted via URL params + localStorage mirror.)",
+    fix: "Add a minimal service worker that caches /files/* and /images/*. Tour position persists via ?chapter=N URL param. Resume on reconnect.",
+  },
+  {
+    area: "Internationalization",
+    issue: "All file descriptions are English. The portfolio targets Filipino and international audiences — non-English speakers get no artifact context.",
+    fix: "Add a translations sidecar (en.json, fil.json) and use next-intl for artifact descriptions. This is the single biggest accessibility win for the local audience.",
+  },
+  {
+    area: "Versioning of artifacts",
+    issue: "When a PDF is regenerated (e.g., audit.pdf), the old version is overwritten. Visitors cannot compare versions or see what changed.",
+    fix: "Versioned filenames (audit_v3.pdf) with a 'current' symlink. Add a 'What changed' diff view in the modal for repeat visitors.",
+  },
+  {
+    area: "Analytics blind to value",
+    issue: "Page views tell you traffic. They do not tell you whether visitors understood the work. A visitor who opens audit.pdf and bounces in 3 seconds looks identical to one who reads it for 5 minutes.",
+    fix: "Add modal_dwell_time_ms (above) and segment by 'engaged' (>30s) vs 'bounce' (<5s). Optimize content for the engaged segment, not the bounce segment.",
+  },
+  {
+    area: "Dual-registry sync hazard ✅ FIXED",
+    issue: "EXPERIMENTS was duplicated as EXPERIMENTS_SERVER in aggregate/route.ts, requiring coordinated edits when declaring an A/B winner. High risk of drift — a developer who edits one file but not the other produces silent divergence between the variant visitors see and the variant the audit dashboard reports.",
+    fix: "NOW FIXED: src/lib/experiments-registry.ts is a pure module with zero runtime side effects (no localStorage, no window, no fs). Both analytics.ts and aggregate/route.ts import the SAME EXPERIMENTS object. Declaring a winner is now a single-file edit. The dual-registry sync hazard listed in AGENTS.md §2.9 lesson 7 is permanently eliminated.",
+  },
+]
+
 // Stats for build log visibility
 export const AUDIT_CONTENT_STATS = {
   perspectives: 5,
   failureModes: 6,
   contrarianViews: 5,
-  generatedAt: 1783142639064,
+  secondOrderEffects: 7,
+  blindSpots: 9,
+  generatedAt: 1783143651495,
 }

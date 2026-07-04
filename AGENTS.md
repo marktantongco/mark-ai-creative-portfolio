@@ -126,7 +126,7 @@ export function assetPath(path: string): string {
 
 ### 2.3 Build-Time Generation Pattern (established + extended)
 
-Four artifacts are now generated at prebuild from the filesystem + sidecar JSON, NOT hardcoded:
+Six artifacts are now generated at prebuild from the filesystem + sidecar JSON, NOT hardcoded:
 
 | Artifact | Generator script | Sidecar | Output | Source |
 |---|---|---|---|---|
@@ -135,6 +135,8 @@ Four artifacts are now generated at prebuild from the filesystem + sidecar JSON,
 | `AUDIT_PERSPECTIVES` | `scripts/generate-audit-content.js` | `scripts/audit-perspectives.json` | `src/lib/audit-content.generated.ts` | Sidecar only |
 | `FAILURE_MODES` | `scripts/generate-audit-content.js` | `scripts/failure-modes.json` | `src/lib/audit-content.generated.ts` | Sidecar only |
 | `CONTRARIAN_VIEWS` | `scripts/generate-audit-content.js` | `scripts/contrarian-views.json` | `src/lib/audit-content.generated.ts` | Sidecar only |
+| `SECOND_ORDER_EFFECTS` | `scripts/generate-audit-content.js` | `scripts/second-order-effects.json` | `src/lib/audit-content.generated.ts` | Sidecar only |
+| `BLIND_SPOTS` | `scripts/generate-audit-content.js` | `scripts/blind-spots.json` | `src/lib/audit-content.generated.ts` | Sidecar only |
 | `public/files/*` | `scripts/sync-files.js` | (n/a) | `/public/files/*` | `/download/*` |
 
 **`prebuild` chain** (in `package.json`):
@@ -151,7 +153,7 @@ Four artifacts are now generated at prebuild from the filesystem + sidecar JSON,
 **To add a 6th audit perspective (e.g. a new animal metaphor):**
 1. Add an entry to `scripts/audit-perspectives.json` with `{id, name, title, icon, color, domain, keyInsight, detailedAnalysis, hiddenFactors[], recommendation, order}`
 2. If the `id` is not in `AuditView.tsx`'s `ICON_MAP` (currently: owl, eagle, beaver, dolphin, elephant), add it there too
-3. Run `bun run prebuild` — `src/lib/audit-content.generated.ts` regenerates. **No source code changes needed for failure modes or contrarian views** — just edit the sidecar JSON.
+3. Run `bun run prebuild` — `src/lib/audit-content.generated.ts` regenerates. **No source code changes needed for failure modes, contrarian views, second-order effects, or blind spots** — just edit the sidecar JSON.
 
 **Rule**: NEVER hand-edit `.generated.ts` files. They are overwritten on every build.
 
@@ -197,9 +199,9 @@ All 12 metrics are wired through `src/lib/analytics.ts`. The contract:
 
 **Winner declaration workflow (three paths):**
 
-1. **Hard-coded** (highest precedence) — set `winner`, `winnerDeclaredAt`, `winnerReason` on the experiment entry in `src/lib/analytics.ts` `EXPERIMENTS` registry AND on the duplicated `EXPERIMENTS_SERVER` registry in `src/app/api/analytics/aggregate/route.ts`. Ship. All visitors get the winner. **Both registries must stay in sync** — see aggregate route header for why duplication exists.
+1. **Hard-coded** (highest precedence) — set `winner`, `winnerDeclaredAt`, `winnerReason` on the experiment entry in **`src/lib/experiments-registry.ts`** (the single source of truth, imported by both `analytics.ts` and `aggregate/route.ts`). Ship. All visitors get the winner. **No second file to keep in sync** — see §2.9 lesson 7 (resolved 2026-07-04) for the history of why this used to be a two-file edit.
 2. **Per-visitor auto-declaration** — each visitor accumulates local sample counts; when their count crosses threshold, the variant with the highest LOCAL success rate is declared for THEM only. Biased (single-visitor data) but ensures convergence without developer action.
-3. **Server-suggested winner** — `GET /api/analytics/aggregate` computes a suggested winner from server-side aggregate. Once total samples cross threshold AND each variant has ≥ `MIN_SAMPLES_PER_VARIANT` (10) samples, the route returns `suggestedWinner` in the response. The Audit dashboard renders an amber action card: "Set `EXPERIMENTS.<name>.winner = '<variant>'`, ship, remove losing variants." The developer makes the call (no auto-apply — too risky to ship a change without human review).
+3. **Server-suggested winner** — `GET /api/analytics/aggregate` computes a suggested winner from server-side aggregate. Once total samples cross threshold AND each variant has ≥ `MIN_SAMPLES_PER_VARIANT` (10) samples, the route returns `suggestedWinner` in the response. The Audit dashboard renders an amber action card: "Set `EXPERIMENTS.<name>.winner = '<variant>'` in `src/lib/experiments-registry.ts`, ship, remove losing variants." The developer makes the call (no auto-apply — too risky to ship a change without human review).
 
 **Closing an experiment**: once a winner is hard-coded, optionally remove the losing variants from the `variants` array (keeps the config tidy). `shouldServeVariant` returns the winner regardless of whether losers are still in the array.
 
@@ -297,7 +299,7 @@ Tour position lives in the URL as `?chapter=N` (1-indexed). `localStorage` key `
 4. **localStorage is per-origin** — on GitHub Pages, all repos under `github.io` share the origin. Namespace keys with `mark-tech-`.
 5. **Prebuild must be idempotent** — re-running produces identical output. Wipe destination before sync.
 6. **Generated files must not be hand-edited** — overwrite on every build. The header says `DO NOT EDIT BY HAND`.
-7. **Dual-registry sync (EXPERIMENTS)** — `src/lib/analytics.ts` defines `EXPERIMENTS` for client-side variant assignment; `src/app/api/analytics/aggregate/route.ts` duplicates `EXPERIMENTS_SERVER` for server-side aggregate. When declaring a winner, update BOTH. The duplication exists because `analytics.ts` touches `localStorage` at module top-level (via `getVisitorId`), which throws on the server. A future refactor would extract a pure registry module both can import.
+7. **Dual-registry sync (EXPERIMENTS)** — ✅ **RESOLVED 2026-07-04.** Previously `src/lib/analytics.ts` defined `EXPERIMENTS` for client-side variant assignment and `src/app/api/analytics/aggregate/route.ts` duplicated it as `EXPERIMENTS_SERVER` for server-side aggregate. Declaring a winner required a coordinated two-file edit; high risk of silent drift. **Fix**: extracted `src/lib/experiments-registry.ts` — a pure module with zero runtime side effects (no `localStorage`, no `window`, no `fs`). Both sides import the SAME `EXPERIMENTS` object. Declaring a winner is now a single-file edit. The lesson is kept here so future agents understand why the registry module exists and why it must remain pure (do not add `localStorage`/`window`/`fs` imports to it — the moment it becomes impure, the duplication hazard returns).
 8. **Sidecar JSON validation** — every generator validates sidecar entries. Invalid entries are skipped with a warning, NOT hard-failed. This means a typo in one entry doesn't break the build — but it does silently drop that entry. Always check the prebuild log for `[gen-*] ⚠️` warnings.
 9. **Worker KV id must be a build-time secret, not committed** — `wrangler.toml` uses `${ANALYTICS_KV_ID}` substitution. Never hard-code the KV namespace id in the toml. The `deploy.sh` script reads it from the env or auto-creates the namespace and exports the id.
 

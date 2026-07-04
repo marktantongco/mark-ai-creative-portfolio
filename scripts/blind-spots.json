@@ -1,0 +1,69 @@
+{
+  "_meta": {
+    "_comment": "Sidecar for BLIND_SPOTS. Build-time generator scripts/generate-audit-content.js reads this file and emits src/lib/audit-content.generated.ts. To add a new entry: add an object here, run prebuild — no source code changes needed.",
+    "_format": "key = stable id (lowercase-kebab), value = { area, issue, fix, status, order }. status is one of: 'open', 'fixed', 'experiment-running'."
+  },
+  "mobile-modal-ux": {
+    "area": "Mobile modal UX",
+    "issue": "The preview modal is optimized for desktop (max-w-5xl). On mobile, code files become horizontally scrollable walls of text. PDFs are barely readable.",
+    "fix": "Add a mobile-specific modal layout: full-screen, swipe-to-dismiss, with a 'download for offline reading' CTA taking precedence over inline preview.",
+    "status": "open",
+    "order": 1
+  },
+  "syntax-highlighter-a11y": {
+    "area": "Accessibility of syntax highlighter",
+    "issue": "react-syntax-highlighter renders colored spans. Screen readers may read each token separately, destroying code comprehension for visually impaired visitors.",
+    "fix": "Add aria-label='Source code, N lines' on the pre element and a 'copy to read in editor' button as the primary CTA on mobile/a11y modes.",
+    "status": "open",
+    "order": 2
+  },
+  "search-index-freshness": {
+    "area": "Search index freshness ✅ FIXED",
+    "issue": "RESEARCH_FILES WAS a hardcoded array in subpage-data.ts. New files added to /download/ did not appear until a developer updated the array.",
+    "fix": "NOW FIXED: scripts/generate-research-files.js runs at prebuild, walks /public/files/ + /public/images/ via fs.readdirSync, and emits src/lib/research-files.generated.ts. Descriptions come from scripts/file-descriptions.json (sidecar). Files not in the sidecar get auto-generated descriptions so they still appear.",
+    "status": "fixed",
+    "order": 3
+  },
+  "pdf-rendering-safari": {
+    "area": "PDF rendering on Safari ✅ A/B TEST RUNNING + WINNER DECLARATION",
+    "issue": "Safari's PDF iframe rendering is inconsistent — sometimes shows blank page on first load, requires refresh. Chrome and Firefox are fine.",
+    "fix": "NOW A/B TESTED with winner declaration: visitors are assigned a fallback timer variant (2s/3s/5s, sticky per visitor) via shouldServeVariant(). Per-visitor sample counts accumulate in localStorage (survive buffer drains). At threshold=100 local pdf_loaded samples, a winner is auto-declared for that visitor. Developer can also declare a winner globally by setting EXPERIMENTS.safari_pdf_fallback_timer.winner in src/lib/experiments-registry.ts (single source of truth as of 2026-07-04). Once declared, all visitors receive the winning variant — losers are removed from rotation. See the Active Experiments panel in the Audit view for live per-variant counts + manual declare buttons.",
+    "status": "experiment-running",
+    "order": 4
+  },
+  "offline-support": {
+    "area": "Offline support",
+    "issue": "No service worker. Visitors who lose connectivity mid-tour lose all state. (Note: tour position is now persisted via URL params + localStorage mirror.)",
+    "fix": "Add a minimal service worker that caches /files/* and /images/*. Tour position persists via ?chapter=N URL param. Resume on reconnect.",
+    "status": "open",
+    "order": 5
+  },
+  "internationalization": {
+    "area": "Internationalization",
+    "issue": "All file descriptions are English. The portfolio targets Filipino and international audiences — non-English speakers get no artifact context.",
+    "fix": "Add a translations sidecar (en.json, fil.json) and use next-intl for artifact descriptions. This is the single biggest accessibility win for the local audience.",
+    "status": "open",
+    "order": 6
+  },
+  "artifact-versioning": {
+    "area": "Versioning of artifacts",
+    "issue": "When a PDF is regenerated (e.g., audit.pdf), the old version is overwritten. Visitors cannot compare versions or see what changed.",
+    "fix": "Versioned filenames (audit_v3.pdf) with a 'current' symlink. Add a 'What changed' diff view in the modal for repeat visitors.",
+    "status": "open",
+    "order": 7
+  },
+  "analytics-blind-to-value": {
+    "area": "Analytics blind to value",
+    "issue": "Page views tell you traffic. They do not tell you whether visitors understood the work. A visitor who opens audit.pdf and bounces in 3 seconds looks identical to one who reads it for 5 minutes.",
+    "fix": "Add modal_dwell_time_ms (above) and segment by 'engaged' (>30s) vs 'bounce' (<5s). Optimize content for the engaged segment, not the bounce segment.",
+    "status": "open",
+    "order": 8
+  },
+  "dual-registry-sync-hazard": {
+    "area": "Dual-registry sync hazard ✅ FIXED",
+    "issue": "EXPERIMENTS was duplicated as EXPERIMENTS_SERVER in aggregate/route.ts, requiring coordinated edits when declaring an A/B winner. High risk of drift — a developer who edits one file but not the other produces silent divergence between the variant visitors see and the variant the audit dashboard reports.",
+    "fix": "NOW FIXED: src/lib/experiments-registry.ts is a pure module with zero runtime side effects (no localStorage, no window, no fs). Both analytics.ts and aggregate/route.ts import the SAME EXPERIMENTS object. Declaring a winner is now a single-file edit. The dual-registry sync hazard listed in AGENTS.md §2.9 lesson 7 is permanently eliminated.",
+    "status": "fixed",
+    "order": 9
+  }
+}

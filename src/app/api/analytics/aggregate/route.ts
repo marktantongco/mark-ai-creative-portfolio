@@ -62,6 +62,12 @@ import { NextResponse } from 'next/server'
 import { promises as fs } from 'fs'
 import path from 'path'
 
+// Single source of truth — see src/lib/experiments-registry.ts.
+// (AGENTS.md §2.9 lesson 7 — RESOLVED 2026-07-04: previously this route
+// duplicated EXPERIMENTS_SERVER alongside the client-side EXPERIMENTS.
+// Both sides now import from the same pure module.)
+import { EXPERIMENTS } from '@/lib/experiments-registry'
+
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 export const revalidate = 0 // always fresh — analytics is real-time
@@ -77,15 +83,15 @@ const CORS = {
 }
 
 // ---------------------------------------------------------------------------
-// EXPERIMENTS registry — duplicated server-side.
-// This MUST stay in sync with src/lib/analytics.ts EXPERIMENTS.
-// Why duplicate instead of import? Because analytics.ts uses localStorage
-// at module top-level (via getVisitorId etc.) which throws on the server.
-// A future refactor would extract a pure registry module both can import.
-// For now, the contract is documented in AGENTS.md §2.5.
+// EXPERIMENTS — the single registry, imported from the pure module.
+// No more dual-registry sync hazard. To declare a winner, edit
+// src/lib/experiments-registry.ts — this route picks it up automatically.
+//
+// Note: ExperimentConfig.tieBreaker is a function and is intentionally
+// unused server-side. We compute suggested winners using successRate only.
 // ---------------------------------------------------------------------------
 
-interface ExperimentConfigServer {
+type ExperimentConfigServer = {
   name: string
   variants: string[]
   successOutcome: string
@@ -95,18 +101,9 @@ interface ExperimentConfigServer {
   winnerReason?: string
 }
 
-const EXPERIMENTS_SERVER: Record<string, ExperimentConfigServer> = {
-  safari_pdf_fallback_timer: {
-    name: 'safari_pdf_fallback_timer',
-    variants: ['2000', '3000', '5000'],
-    successOutcome: 'pdf_loaded',
-    threshold: 100,
-    // To declare a winner after analyzing aggregate stats:
-    //   winner: '3000',
-    //   winnerDeclaredAt: '2026-07-15T00:00:00Z',
-    //   winnerReason: '78% success rate vs 62% (2000) and 81% (5000) — 3000ms wins on UX/quality tradeoff',
-  },
-}
+// Cast away the function-typed `tieBreaker` for server-side use.
+// The cast is safe because we never read tieBreaker here.
+const EXPERIMENTS_SERVER = EXPERIMENTS as Record<string, ExperimentConfigServer>
 
 const MIN_SAMPLES_PER_VARIANT = 10 // below this, successRate is not trustworthy
 

@@ -427,35 +427,19 @@ export function trackABOutcome(
 //   their own observed success rates. This is biased (single-visitor data)
 //   but ensures the experiment converges even without developer action.
 
-export interface ExperimentConfig {
-  /** Experiment name (matches the value passed to trackABOutcome) */
-  name: string
-  /** All possible variants */
-  variants: string[]
-  /** The outcome that counts as "success" (e.g., 'pdf_loaded') */
-  successOutcome: string
-  /** Sample size at which per-visitor auto-declaration triggers */
-  threshold: number
-  /** Tie-breaker: when multiple variants have equal success rate, pick the one this returns */
-  tieBreaker?: (variants: string[]) => string
-  /** HARD-CODED WINNER — set this after analyzing aggregate stats. Once set, all visitors get this variant. */
-  winner?: string
-  /** ISO timestamp of when the winner was declared (for Audit dashboard display) */
-  winnerDeclaredAt?: string
-  /** Why the winner was declared (for Audit dashboard display) */
-  winnerReason?: string
-}
-
-export const EXPERIMENTS: Record<string, ExperimentConfig> = {
-  safari_pdf_fallback_timer: {
-    name: 'safari_pdf_fallback_timer',
-    variants: ['2000', '3000', '5000'],
-    successOutcome: 'pdf_loaded',
-    threshold: 100,
-    // On tie, prefer shorter timer (faster UX)
-    tieBreaker: (vs) => vs.slice().sort((a, b) => parseInt(a, 10) - parseInt(b, 10))[0],
-  },
-}
+// ---------------------------------------------------------------------------
+// EXPERIMENTS registry — imported from the pure registry module.
+// See src/lib/experiments-registry.ts for the full contract.
+//
+// (AGENTS.md §2.9 lesson 7 — RESOLVED 2026-07-04: the previous local
+// definition was duplicated server-side in aggregate/route.ts as
+// EXPERIMENTS_SERVER. Both sides now import from the same pure module,
+// eliminating the dual-registry sync hazard.)
+// ---------------------------------------------------------------------------
+import { EXPERIMENTS } from './experiments-registry'
+import type { ExperimentConfig } from './experiments-registry'
+export { EXPERIMENTS } from './experiments-registry'
+export type { ExperimentConfig } from './experiments-registry'
 
 // ---------------------------------------------------------------------------
 // A/B decisions — persisted per-visitor in localStorage (survives drain)

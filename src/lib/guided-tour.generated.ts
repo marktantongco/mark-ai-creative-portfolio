@@ -133,5 +133,5 @@ export const GUIDED_TOUR_STATS = {
   total: 19,
   missingFiles: 0,
   orphanedFiles: 19,
-  generatedAt: 1783142638992,
+  generatedAt: 1783143651428,
 }

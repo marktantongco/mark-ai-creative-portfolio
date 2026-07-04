@@ -9,6 +9,8 @@ import {
   AUDIT_PERSPECTIVES_GENERATED,
   FAILURE_MODES_GENERATED,
   CONTRARIAN_VIEWS_GENERATED,
+  SECOND_ORDER_EFFECTS_GENERATED,
+  BLIND_SPOTS_GENERATED,
 } from './audit-content.generated'
 
 export type ViewKey = 'home' | 'error-handler' | 'brutalist' | 'organic' | 'cyberpunk' | 'research' | 'audit' | 'frontend-design' | 'proxy-discussion'
@@ -28,6 +30,8 @@ export interface ProjectFile {
 //   scripts/audit-perspectives.json  (perspective schema)
 //   scripts/failure-modes.json       (failure mode schema)
 //   scripts/contrarian-views.json    (contrarian view schema)
+//   scripts/second-order-effects.json (second-order effect schema)
+//   scripts/blind-spots.json          (blind spot schema)
 // ---------------------------------------------------------------------------
 
 export interface AuditPerspective {
@@ -58,6 +62,19 @@ export interface ContrarianView {
   steelman: string
   response: string
   confidence: number // 1-10
+}
+
+export interface SecondOrderEffect {
+  decision: string
+  firstOrder: string
+  secondOrder: string
+  thirdOrder: string
+}
+
+export interface BlindSpot {
+  area: string
+  issue: string
+  fix: string
 }
 
 // ---------------------------------------------------------------------------
@@ -758,7 +775,15 @@ const FALLBACK_CONTRARIAN_VIEWS: ContrarianView[] = [
 export const CONTRARIAN_VIEWS: ContrarianView[] =
   CONTRARIAN_VIEWS_GENERATED.length > 0 ? CONTRARIAN_VIEWS_GENERATED : FALLBACK_CONTRARIAN_VIEWS
 
-export const SECOND_ORDER_EFFECTS = [
+// ---------------------------------------------------------------------------
+// SECOND_ORDER_EFFECTS — generated at build time by
+// scripts/generate-audit-content.js (sidecar: scripts/second-order-effects.json).
+// The FALLBACK_SECOND_ORDER_EFFECTS below is a safety net for the very first
+// build on a fresh checkout (before prebuild has run). On any normal build
+// SECOND_ORDER_EFFECTS_GENERATED takes precedence.
+// ---------------------------------------------------------------------------
+
+const FALLBACK_SECOND_ORDER_EFFECTS: SecondOrderEffect[] = [
   {
     decision: 'Move from /api/files (SSR) to /public/files (static)',
     firstOrder: 'Files work on both Vercel and GitHub Pages without code changes',
@@ -771,25 +796,10 @@ export const SECOND_ORDER_EFFECTS = [
     secondOrder: 'Average session duration increases → SEO signals improve → portfolio ranks higher for "AI creative technologist" queries',
     thirdOrder: 'Inbound recruiter traffic qualitatively shifts — recruiters who saw the modal contact with specific questions about specific files, not generic "are you available" pings',
   },
-  {
-    decision: 'Add syntax highlighting to code viewer',
-    firstOrder: 'Python and bash files become readable instead of monospace blobs',
-    secondOrder: 'Visitors actually read the scripts → understand the system depth → perceive the portfolio as senior-level work, not junior-level',
-    thirdOrder: 'Salary expectations calibrated upward because the visitor\'s mental model of "what this person can do" includes "writes production deployment scripts"',
-  },
-  {
-    decision: 'Guided Tour mode in research archive',
-    firstOrder: 'Visitors walk through the story in narrative order instead of browsing randomly',
-    secondOrder: 'Time-on-page for the research archive doubles — visitors reach the audit PDF (chapter 5) instead of bouncing at chapter 1',
-    thirdOrder: 'The audit PDF\'s animal-metaphor framing becomes the dominant lens through which visitors describe the portfolio — "the owl/eagle/beaver thing" becomes a brand identifier',
-  },
-  {
-    decision: 'Prebuild sync script',
-    firstOrder: 'New artifacts in /download/ automatically appear in /public/files/',
-    secondOrder: 'Artifact drift becomes impossible → trust in the research archive increases → visitors stop second-guessing whether they\'re seeing the latest version',
-    thirdOrder: 'The portfolio becomes a living document — adding a new case study is "drop PDF in /download/, commit, push" with zero manual publishing steps',
-  },
 ]
+
+export const SECOND_ORDER_EFFECTS: SecondOrderEffect[] =
+  SECOND_ORDER_EFFECTS_GENERATED.length > 0 ? SECOND_ORDER_EFFECTS_GENERATED : FALLBACK_SECOND_ORDER_EFFECTS
 
 export const DATA_ENGINEER_METRICS = [
   { metric: 'artifact_load_count', type: 'counter', description: 'Number of times any artifact is opened in the modal viewer' },
@@ -806,41 +816,16 @@ export const DATA_ENGINEER_METRICS = [
   { metric: 'asset_path_404', type: 'counter', description: '404s on /files/* or /images/* paths — catches basePath misconfiguration on new deployments' },
 ]
 
-export const BLIND_SPOTS = [
+// ---------------------------------------------------------------------------
+// BLIND_SPOTS — generated at build time by scripts/generate-audit-content.js
+// (sidecar: scripts/blind-spots.json). Same pattern as SECOND_ORDER_EFFECTS.
+// ---------------------------------------------------------------------------
+
+const FALLBACK_BLIND_SPOTS: BlindSpot[] = [
   {
     area: 'Mobile modal UX',
     issue: 'The preview modal is optimized for desktop (max-w-5xl). On mobile, code files become horizontally scrollable walls of text. PDFs are barely readable.',
     fix: 'Add a mobile-specific modal layout: full-screen, swipe-to-dismiss, with a "download for offline reading" CTA taking precedence over inline preview.',
-  },
-  {
-    area: 'Accessibility of syntax highlighter',
-    issue: 'react-syntax-highlighter renders colored spans. Screen readers may read each token separately, destroying code comprehension for visually impaired visitors.',
-    fix: 'Add aria-label="Source code, N lines" on the pre element and a "copy to read in editor" button as the primary CTA on mobile/a11y modes.',
-  },
-  {
-    area: 'Search index freshness ✅ FIXED',
-    issue: 'RESEARCH_FILES WAS a hardcoded array in subpage-data.ts. New files added to /download/ did not appear until a developer updated the array.',
-    fix: 'NOW FIXED: scripts/generate-research-files.js runs at prebuild, walks /public/files/ + /public/images/ via fs.readdirSync, and emits src/lib/research-files.generated.ts. Descriptions come from scripts/file-descriptions.json (sidecar). Files not in the sidecar get auto-generated descriptions so they still appear.',
-  },
-  {
-    area: 'PDF rendering on Safari ✅ A/B TEST RUNNING + WINNER DECLARATION',
-    issue: 'Safari\'s PDF iframe rendering is inconsistent — sometimes shows blank page on first load, requires refresh. Chrome and Firefox are fine.',
-    fix: 'NOW A/B TESTED with winner declaration: visitors are assigned a fallback timer variant (2s/3s/5s, sticky per visitor) via shouldServeVariant(). Per-visitor sample counts accumulate in localStorage (survive buffer drains). At threshold=100 local pdf_loaded samples, a winner is auto-declared for that visitor. Developer can also declare a winner globally by setting EXPERIMENTS.safari_pdf_fallback_timer.winner in src/lib/analytics.ts. Once declared, all visitors receive the winning variant — losers are removed from rotation. See the Active Experiments panel in the Audit view for live per-variant counts + manual declare buttons.',
-  },
-  {
-    area: 'Offline support',
-    issue: 'No service worker. Visitors who lose connectivity mid-tour lose all state. (Note: tour position is now persisted via URL params + localStorage mirror — see Task D.)',
-    fix: 'Add a minimal service worker that caches /files/* and /images/*. Tour position persists via ?chapter=N URL param. Resume on reconnect.',
-  },
-  {
-    area: 'Internationalization',
-    issue: 'All file descriptions are English. The portfolio targets Filipino and international audiences — non-English speakers get no artifact context.',
-    fix: 'Add a translations sidecar (en.json, fil.json) and use next-intl for artifact descriptions. This is the single biggest accessibility win for the local audience.',
-  },
-  {
-    area: 'Versioning of artifacts',
-    issue: 'When a PDF is regenerated (e.g., audit.pdf), the old version is overwritten. Visitors cannot compare versions or see what changed.',
-    fix: 'Versioned filenames (audit_v3.pdf) with a "current" symlink. Add a "What changed" diff view in the modal for repeat visitors.',
   },
   {
     area: 'Analytics blind to value',
@@ -848,6 +833,9 @@ export const BLIND_SPOTS = [
     fix: 'Add modal_dwell_time_ms (above) and segment by "engaged" (>30s) vs "bounce" (<5s). Optimize content for the engaged segment, not the bounce segment.',
   },
 ]
+
+export const BLIND_SPOTS: BlindSpot[] =
+  BLIND_SPOTS_GENERATED.length > 0 ? BLIND_SPOTS_GENERATED : FALLBACK_BLIND_SPOTS
 
 // 80/20 version — the smallest useful subset of the system
 export const EIGHTY_TWENTY = {
