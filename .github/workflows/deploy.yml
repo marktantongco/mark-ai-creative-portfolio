@@ -32,6 +32,12 @@ jobs:
       - name: Build static export
         env:
           NEXT_STATIC_EXPORT: "true"
+          # Wired to the Cloudflare Analytics Worker. Set in:
+          #   Settings → Secrets and variables → Actions → New secret
+          # If unset, the build still succeeds — the local buffer just
+          # won't drain on GitHub Pages (events stay in localStorage and
+          # surface in the Audit view for this browser only).
+          NEXT_PUBLIC_ANALYTICS_ENDPOINT: ${{ secrets.NEXT_PUBLIC_ANALYTICS_ENDPOINT }}
         run: bun run build:static
 
       - name: Add .nojekyll

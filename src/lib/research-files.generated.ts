@@ -158,5 +158,5 @@ export const RESEARCH_FILES_STATS = {
   "shell": 2,
   "document": 3
 },
-  generatedAt: 1782983498088,
+  generatedAt: 1783142638894,
 }

@@ -15,15 +15,17 @@
     "sync-files": "node scripts/sync-files.js",
     "gen-research": "node scripts/generate-research-files.js",
     "gen-tour": "node scripts/generate-guided-tour.js",
-    "prebuild": "node scripts/sync-files.js && node scripts/generate-research-files.js && node scripts/generate-guided-tour.js",
-    "build": "node scripts/sync-files.js && node scripts/generate-research-files.js && node scripts/generate-guided-tour.js && next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/",
-    "build:static": "node scripts/sync-files.js && node scripts/generate-research-files.js && node scripts/generate-guided-tour.js && mv src/app/api/files _api_files_tmp && mv src/app/api/analytics _api_analytics_tmp && NEXT_STATIC_EXPORT=true next build; mv _api_files_tmp src/app/api/files; mv _api_analytics_tmp src/app/api/analytics",
+    "gen-audit": "node scripts/generate-audit-content.js",
+    "prebuild": "node scripts/sync-files.js && node scripts/generate-research-files.js && node scripts/generate-guided-tour.js && node scripts/generate-audit-content.js",
+    "build": "node scripts/sync-files.js && node scripts/generate-research-files.js && node scripts/generate-guided-tour.js && node scripts/generate-audit-content.js && next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/",
+    "build:static": "node scripts/sync-files.js && node scripts/generate-research-files.js && node scripts/generate-guided-tour.js && node scripts/generate-audit-content.js && mv src/app/api/files _api_files_tmp && mv src/app/api/analytics _api_analytics_tmp && NEXT_STATIC_EXPORT=true next build; mv _api_files_tmp src/app/api/files; mv _api_analytics_tmp src/app/api/analytics",
     "start": "NODE_ENV=production bun .next/standalone/server.js 2>&1 | tee server.log",
     "lint": "eslint .",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "db:reset": "prisma migrate reset"
+    "db:reset": "prisma migrate reset",
+    "worker:deploy": "cd workers && bash deploy.sh"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

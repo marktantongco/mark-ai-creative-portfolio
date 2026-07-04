@@ -124,19 +124,22 @@ export function assetPath(path: string): string {
 - DO NOT apply to `<Link href>` or `<Image src>` — Next.js handles those.
 - Forgetting this is the #1 cause of broken images on GitHub Pages.
 
-### 2.3 Build-Time Generation Pattern (NEW — established by this round)
+### 2.3 Build-Time Generation Pattern (established + extended)
 
-Three artifacts are now generated at prebuild from the filesystem + sidecar JSON, NOT hardcoded:
+Four artifacts are now generated at prebuild from the filesystem + sidecar JSON, NOT hardcoded:
 
-| Artifact | Generator script | Sidecar | Output | Source dirs |
+| Artifact | Generator script | Sidecar | Output | Source |
 |---|---|---|---|---|
-| `RESEARCH_FILES` | `scripts/generate-research-files.js` | `scripts/file-descriptions.json` | `src/lib/research-files.generated.ts` | `/public/files/*`, `/public/images/*` |
+| `RESEARCH_FILES` | `scripts/generate-research-files.js` | `scripts/file-descriptions.json` | `src/lib/research-files.generated.ts` | `/public/files/*`, `/public/images/*` (fs walk) |
 | `GUIDED_TOUR` | `scripts/generate-guided-tour.js` | `scripts/tour-chapters.json` | `src/lib/guided-tour.generated.ts` | Sidecar only |
+| `AUDIT_PERSPECTIVES` | `scripts/generate-audit-content.js` | `scripts/audit-perspectives.json` | `src/lib/audit-content.generated.ts` | Sidecar only |
+| `FAILURE_MODES` | `scripts/generate-audit-content.js` | `scripts/failure-modes.json` | `src/lib/audit-content.generated.ts` | Sidecar only |
+| `CONTRARIAN_VIEWS` | `scripts/generate-audit-content.js` | `scripts/contrarian-views.json` | `src/lib/audit-content.generated.ts` | Sidecar only |
 | `public/files/*` | `scripts/sync-files.js` | (n/a) | `/public/files/*` | `/download/*` |
 
 **`prebuild` chain** (in `package.json`):
 ```
-"prebuild": "node scripts/sync-files.js && node scripts/generate-research-files.js && node scripts/generate-guided-tour.js"
+"prebuild": "node scripts/sync-files.js && node scripts/generate-research-files.js && node scripts/generate-guided-tour.js && node scripts/generate-audit-content.js"
 ```
 
 **To add a new artifact:**
@@ -145,7 +148,14 @@ Three artifacts are now generated at prebuild from the filesystem + sidecar JSON
 3. (Optional) Add a tour chapter entry to `scripts/tour-chapters.json` — if absent, file is not in the tour
 4. Run `bun run prebuild` (or rely on the build hook)
 
+**To add a 6th audit perspective (e.g. a new animal metaphor):**
+1. Add an entry to `scripts/audit-perspectives.json` with `{id, name, title, icon, color, domain, keyInsight, detailedAnalysis, hiddenFactors[], recommendation, order}`
+2. If the `id` is not in `AuditView.tsx`'s `ICON_MAP` (currently: owl, eagle, beaver, dolphin, elephant), add it there too
+3. Run `bun run prebuild` — `src/lib/audit-content.generated.ts` regenerates. **No source code changes needed for failure modes or contrarian views** — just edit the sidecar JSON.
+
 **Rule**: NEVER hand-edit `.generated.ts` files. They are overwritten on every build.
+
+**Fallback contract**: every `.generated.ts` file ships with a `FALLBACK_*` array in `subpage-data.ts` so the very first build on a fresh checkout (before prebuild runs) still works. The public const picks generated-or-fallback via `GENERATED.length > 0 ? GENERATED : FALLBACK`.
 
 ### 2.4 Analytics Contract (12 DATA_ENGINEER_METRICS)
 
@@ -185,6 +195,14 @@ All 12 metrics are wired through `src/lib/analytics.ts`. The contract:
 
 **Winner-declaration threshold**: 100 events with `_outcome === 'pdf_loaded'` for the experiment. After threshold, the variant with the highest success rate wins; ties broken by shorter timer (faster UX).
 
+**Winner declaration workflow (three paths):**
+
+1. **Hard-coded** (highest precedence) — set `winner`, `winnerDeclaredAt`, `winnerReason` on the experiment entry in `src/lib/analytics.ts` `EXPERIMENTS` registry AND on the duplicated `EXPERIMENTS_SERVER` registry in `src/app/api/analytics/aggregate/route.ts`. Ship. All visitors get the winner. **Both registries must stay in sync** — see aggregate route header for why duplication exists.
+2. **Per-visitor auto-declaration** — each visitor accumulates local sample counts; when their count crosses threshold, the variant with the highest LOCAL success rate is declared for THEM only. Biased (single-visitor data) but ensures convergence without developer action.
+3. **Server-suggested winner** — `GET /api/analytics/aggregate` computes a suggested winner from server-side aggregate. Once total samples cross threshold AND each variant has ≥ `MIN_SAMPLES_PER_VARIANT` (10) samples, the route returns `suggestedWinner` in the response. The Audit dashboard renders an amber action card: "Set `EXPERIMENTS.<name>.winner = '<variant>'`, ship, remove losing variants." The developer makes the call (no auto-apply — too risky to ship a change without human review).
+
+**Closing an experiment**: once a winner is hard-coded, optionally remove the losing variants from the `variants` array (keeps the config tidy). `shouldServeVariant` returns the winner regardless of whether losers are still in the array.
+
 ### 2.6 Tour Position Contract
 
 Tour position lives in the URL as `?chapter=N` (1-indexed). `localStorage` key `research-tour-position` is a **fallback mirror**, not the source of truth.
@@ -208,9 +226,13 @@ Tour position lives in the URL as `?chapter=N` (1-indexed). `localStorage` key `
 ├── scripts/
 │   ├── sync-files.js              # /download/* → /public/files/*
 │   ├── generate-research-files.js # Walks /public/{files,images}/* → research-files.generated.ts
-│   ├── generate-guided-tour.js    # NEW: tour-chapters.json → guided-tour.generated.ts
+│   ├── generate-guided-tour.js    # tour-chapters.json → guided-tour.generated.ts
+│   ├── generate-audit-content.js  # audit-perspectives.json + failure-modes.json + contrarian-views.json → audit-content.generated.ts
 │   ├── file-descriptions.json     # Sidecar: fileName → description
-│   └── tour-chapters.json         # NEW Sidecar: fileName → {chapter, narrative, why, order}
+│   ├── tour-chapters.json         # Sidecar: fileName → {chapter, narrative, why, order}
+│   ├── audit-perspectives.json    # Sidecar: perspective id → {id, name, title, ...}
+│   ├── failure-modes.json         # Sidecar: failure mode id → {mode, trigger, impact, ...}
+│   └── contrarian-views.json      # Sidecar: contrarian id → {claim, steelman, response, confidence}
 ├── src/
 │   ├── app/
 │   │   ├── layout.tsx             # Root layout — basePath-aware favicon
@@ -218,19 +240,22 @@ Tour position lives in the URL as `?chapter=N` (1-indexed). `localStorage` key `
 │   │   ├── globals.css
 │   │   └── api/
 │   │       ├── files/             # SSR file serving (excluded from build:static)
-│   │       └── analytics/         # NEW: Vercel Edge Function for analytics drain (excluded from build:static)
+│   │       └── analytics/         # Vercel analytics drain (excluded from build:static)
+│   │           ├── route.ts       # POST drain + GET raw counts
+│   │           └── aggregate/route.ts  # GET joined with EXPERIMENTS registry → variant traffic %
 │   ├── lib/
-│   │   ├── utils.ts               # assetPath() helper
+│   │   ├── utils.ts               # assetPath() helper + BASE_PATH export
 │   │   ├── analytics.ts           # 12-metric tracker + A/B framework
-│   │   ├── subpage-data.ts        # Shared data — imports .generated.ts files
+│   │   ├── subpage-data.ts        # Shared data — imports .generated.ts files (with FALLBACK_* safety net)
 │   │   ├── research-files.generated.ts   # AUTO-GENERATED
-│   │   └── guided-tour.generated.ts      # NEW: AUTO-GENERATED
+│   │   ├── guided-tour.generated.ts      # AUTO-GENERATED
+│   │   └── audit-content.generated.ts    # AUTO-GENERATED (perspectives + failure modes + contrarian)
 │   ├── components/
 │   │   ├── CodeBlock.tsx          # react-syntax-highlighter wrapper
 │   │   ├── ui/                    # shadcn/ui components
 │   │   └── views/
 │   │       ├── ResearchReportView.tsx   # File archive + modal + guided tour + A/B Safari fallback
-│   │       ├── AuditView.tsx            # Analytics dashboard
+│   │       ├── AuditView.tsx            # Analytics dashboard (per-visitor + server aggregate panels)
 │   │       ├── BrutalistDesignView.tsx
 │   │       ├── OrganicDesignView.tsx
 │   │       ├── CyberpunkDesignView.tsx
@@ -238,7 +263,10 @@ Tour position lives in the URL as `?chapter=N` (1-indexed). `localStorage` key `
 │   │       └── ProxyDiscussionView.tsx
 │   └── hooks/
 ├── workers/
-│   └── analytics-worker.js        # NEW: Cloudflare Worker for GitHub Pages analytics drain
+│   ├── analytics-worker.js        # Cloudflare Worker — KV drain for GitHub Pages
+│   ├── wrangler.toml              # Cloudflare config (KV id via ${ANALYTICS_KV_ID} env var)
+│   ├── deploy.sh                  # Idempotent deploy: login → KV create → deploy → print URL
+│   └── README.md                  # SOP for one-time Worker setup + GitHub Actions secret wiring
 ├── next.config.ts
 ├── package.json
 └── README.md
@@ -250,11 +278,16 @@ Tour position lives in the URL as `?chapter=N` (1-indexed). `localStorage` key `
 |---|---|
 | `bun install` | Install deps |
 | `bun run dev` | Dev server on :3000 |
-| `bun run prebuild` | Run all generators (sync + research + tour) |
-| `bun run build` | Vercel SSR build (standalone) |
-| `bun run build:static` | GitHub Pages static export (moves API routes aside) |
+| `bun run prebuild` | Run all generators (sync + research + tour + audit-content) |
+| `bun run build` | Vercel SSR build (standalone) — runs all generators first |
+| `bun run build:static` | GitHub Pages static export (moves API routes aside) — runs all generators first |
 | `bun run start` | Run the standalone SSR server |
 | `bun run lint` | ESLint |
+| `bun run worker:deploy` | Deploy the Cloudflare Analytics Worker (idempotent — see `workers/README.md`) |
+| `bun run gen-research` | Regenerate only `research-files.generated.ts` |
+| `bun run gen-tour` | Regenerate only `guided-tour.generated.ts` |
+| `bun run gen-audit` | Regenerate only `audit-content.generated.ts` |
+| `bun run sync-files` | Sync only `/download/*` → `/public/files/*` |
 
 ### 2.9 Hard-Won Lessons (do not repeat these mistakes)
 
@@ -264,6 +297,26 @@ Tour position lives in the URL as `?chapter=N` (1-indexed). `localStorage` key `
 4. **localStorage is per-origin** — on GitHub Pages, all repos under `github.io` share the origin. Namespace keys with `mark-tech-`.
 5. **Prebuild must be idempotent** — re-running produces identical output. Wipe destination before sync.
 6. **Generated files must not be hand-edited** — overwrite on every build. The header says `DO NOT EDIT BY HAND`.
+7. **Dual-registry sync (EXPERIMENTS)** — `src/lib/analytics.ts` defines `EXPERIMENTS` for client-side variant assignment; `src/app/api/analytics/aggregate/route.ts` duplicates `EXPERIMENTS_SERVER` for server-side aggregate. When declaring a winner, update BOTH. The duplication exists because `analytics.ts` touches `localStorage` at module top-level (via `getVisitorId`), which throws on the server. A future refactor would extract a pure registry module both can import.
+8. **Sidecar JSON validation** — every generator validates sidecar entries. Invalid entries are skipped with a warning, NOT hard-failed. This means a typo in one entry doesn't break the build — but it does silently drop that entry. Always check the prebuild log for `[gen-*] ⚠️` warnings.
+9. **Worker KV id must be a build-time secret, not committed** — `wrangler.toml` uses `${ANALYTICS_KV_ID}` substitution. Never hard-code the KV namespace id in the toml. The `deploy.sh` script reads it from the env or auto-creates the namespace and exports the id.
+
+### 2.10 Cloudflare Worker Deployment Contract
+
+The Worker (`workers/analytics-worker.js`) is the analytics drain target for GitHub Pages. Without it, the local buffer drains to `/api/analytics` (Vercel-only) — on GitHub Pages, events accumulate in localStorage and surface only in the Audit view for that single browser.
+
+**Deploy workflow (one-time):**
+1. `npm install -g wrangler && wrangler login` (OAuth in browser)
+2. `bun run worker:deploy` — script does: KV namespace create-or-reuse → substitute id → `wrangler deploy` → print Worker URL
+3. In GitHub repo: Settings → Secrets → Actions → add `NEXT_PUBLIC_ANALYTICS_ENDPOINT = <Worker URL>` (and optionally `ANALYTICS_KV_ID` for CI re-deploys)
+4. Push to `main` — the GitHub Actions workflow passes `NEXT_PUBLIC_ANALYTICS_ENDPOINT` as an env var into `bun run build:static`, which bakes it into the static bundle. Buffer starts draining.
+
+**Failure detection:**
+- If `NEXT_PUBLIC_ANALYTICS_ENDPOINT` is unset in the build, `analytics.ts` silently falls back to local-only mode (no errors thrown). The Audit view shows "endpoint not configured" notice.
+- If the Worker returns non-2xx, the buffer keeps the events in localStorage and retries on next drain tick (every 30s + on `visibilitychange`/`pagehide`).
+- If KV writes are rate-limited (free tier: 1k/day), POSTs return 5xx; buffer drains next day. Acceptable for a portfolio.
+
+**Cost headroom:** free tier covers ~500x portfolio traffic. See `workers/README.md` for the cost projection table.
 
 ---
 

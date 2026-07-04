@@ -1,0 +1,41 @@
+{
+  "_meta": {
+    "_comment": "Sidecar for CONTRARIAN_VIEWS. Build-time generator scripts/generate-audit-content.js reads this file and emits src/lib/audit-content.generated.ts. To add a new contrarian view: add an entry here, run prebuild — no source code changes needed.",
+    "_format": "key = stable id (lowercase-kebab), value = { claim, steelman, response, confidence (1-10), order }"
+  },
+  "over-engineered-portfolio": {
+    "claim": "The three-tier architecture is over-engineered for a portfolio site",
+    "steelman": "A portfolio site serves static files. Failure modes are: build error (catch in CI), DNS error (Cloudflare handles it), deploy error (git push again). No part of this requires pre-flight checks, session checkpointing, or failover targets. The whole system is theater — a portfolio piece masquerading as production infrastructure.",
+    "response": "True for a portfolio. False for the practice. The system is not justified by the portfolio's reliability needs — it is justified by the skill it demonstrates. Hiring managers reading the code see a developer who thinks in systems. That is the actual deliverable.",
+    "confidence": 8,
+    "order": 1
+  },
+  "animal-metaphors-dilute-credibility": {
+    "claim": "Animal metaphors dilute technical credibility",
+    "steelman": "Senior engineers roll their eyes at \"Owl, Eagle, Beaver\" framing. It reads like a marketing deck, not a post-mortem. The same analysis in plain English (detection gaps, strategic risks, practical steps) would land harder with technical audiences.",
+    "response": "Half right. For technical audiences, plain English wins. But the portfolio audience is mixed — designers, recruiters, founders. The animal metaphors are an accessibility layer that gets mixed audiences to read the analysis. The detailedAnalysis fields contain the plain-English version for those who want it.",
+    "confidence": 7,
+    "order": 2
+  },
+  "inlining-is-ux-regression": {
+    "claim": "Inlining all artifacts is a UX regression — links are better",
+    "steelman": "Modal viewers force one-file-at-a-time consumption. The original design (download + open externally) let visitors keep files open in tabs, compare side-by-side, and use their preferred tools. Modals are a marketing decision, not an ergonomics decision.",
+    "response": "True for power users. False for the 80% who never download. Modals convert \"this file exists\" into \"this file is interesting\" — they lower the activation energy to engage. The download button is still there for power users. Win-win.",
+    "confidence": 9,
+    "order": 3
+  },
+  "prebuild-sync-unnecessary": {
+    "claim": "The prebuild sync script is unnecessary — just commit /public/files/",
+    "steelman": "A prebuild script adds a build step that can fail in CI. Committing /public/files/ directly is simpler, requires zero Node code, and is the standard Next.js pattern for static assets.",
+    "response": "True if you trust yourself to never forget. False the moment you add a new PDF to /download/ and forget to copy it to /public/files/. The sync script costs 30 lines of code and eliminates an entire class of \"why is this 404\" debugging. Worth it.",
+    "confidence": 9,
+    "order": 4
+  },
+  "fit-scores-arbitrary": {
+    "claim": "Fit scores for proxies are arbitrary numbers",
+    "steelman": "Assigning \"85\" to the Resilience Proxy implies a precision the analysis does not have. The scoring invites readers to treat it as data when it is opinion. A qualitative \"high/medium/low\" would be more honest.",
+    "response": "Fair. The numbers are anchors for discussion, not measurements. The fix is not to remove them — it is to label them as anchors. We should add \"Methodology: fit score = weighted average of complexity (40%), reliability gain (40%), operational overhead (20%), judged by author.\" Honest about subjectivity.",
+    "confidence": 8,
+    "order": 5
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "_meta": {
+    "_comment": "Sidecar for FAILURE_MODES. Build-time generator scripts/generate-audit-content.js reads this file and emits src/lib/audit-content.generated.ts. To add a new failure mode: add an entry here, run prebuild — no source code changes needed.",
+    "_format": "key = stable id (lowercase-kebab), value = { mode, trigger, impact, mitigation, detectionTime, recoveryTime, severity, order }"
+  },
+  "git-lock-cascade": {
+    "mode": "Git Lock Cascade",
+    "trigger": "git rebase interrupted + zsh prompt hook fires simultaneously",
+    "impact": "Total session death — no component can recover alone",
+    "mitigation": "Pre-flight lock detection (Tier 1) + checkpoint restore (Tier 3)",
+    "detectionTime": "< 500ms",
+    "recoveryTime": "2-5s",
+    "severity": "critical",
+    "order": 1
+  },
+  "shell-hook-deadlock": {
+    "mode": "Shell Hook Deadlock",
+    "trigger": "Framework guard loops waiting for lock release that never comes",
+    "impact": "Interactive shell unusable; developer forced to kill terminal",
+    "mitigation": "Hook timeout (3s) + force-clean on deadlock detection",
+    "detectionTime": "3s (timeout)",
+    "recoveryTime": "1-2s",
+    "severity": "high",
+    "order": 2
+  },
+  "framework-guard-loop": {
+    "mode": "Framework Guard Loop",
+    "trigger": "Guard re-enters itself when checking state it modified",
+    "impact": "CPU spike, eventual OOM kill, no useful work done",
+    "mitigation": "Guard recursion depth limit (max 2) + circuit breaker",
+    "detectionTime": "< 100ms (depth check)",
+    "recoveryTime": "immediate",
+    "severity": "high",
+    "order": 3
+  },
+  "checkpoint-corruption": {
+    "mode": "Checkpoint Corruption",
+    "trigger": "Power loss during checkpoint write, or disk full",
+    "impact": "Recovery script cannot restore state; manual intervention required",
+    "mitigation": "Atomic write (temp file + rename) + checksum validation",
+    "detectionTime": "on next read",
+    "recoveryTime": "manual (5-15 min)",
+    "severity": "medium",
+    "order": 4
+  },
+  "failover-target-unreachable": {
+    "mode": "Failover Target Unreachable",
+    "trigger": "Both Vercel and GitHub Pages have network issues simultaneously",
+    "impact": "Deployment delayed, but no state lost",
+    "mitigation": "Local fallback server (next best-effort) + deferred deploy",
+    "detectionTime": "30s (health check interval)",
+    "recoveryTime": "deferred (operator-driven)",
+    "severity": "low",
+    "order": 5
+  },
+  "error-log-saturation": {
+    "mode": "Error Log Saturation",
+    "trigger": "Sustained error storm fills the 50-entry rolling log",
+    "impact": "Historical context lost; recurring patterns invisible",
+    "mitigation": "Log rotation + summary entry (top 3 errors + counts)",
+    "detectionTime": "immediate",
+    "recoveryTime": "immediate",
+    "severity": "low",
+    "order": 6
+  }
+}

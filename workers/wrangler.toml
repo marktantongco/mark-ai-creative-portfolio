@@ -1,28 +1,51 @@
 # Cloudflare Worker config — analytics drain for GitHub Pages deployment
 #
-# Setup:
+# Setup (one-time, see workers/README.md for full SOP):
 #   1. npm install -g wrangler
 #   2. wrangler login
-#   3. wrangler deploy
-#   4. The Worker URL is printed at the end — set it as NEXT_PUBLIC_ANALYTICS_ENDPOINT
-#      in your GitHub Actions secrets (or .env.production.local) before build:static.
+#   3. wrangler kv:namespace create ANALYTICS_KV
+#      → copy the printed `id` and export it:
+#        export ANALYTICS_KV_ID=<id-from-stdout>
+#      (or paste it directly into the env file below)
+#   4. cd workers && bash deploy.sh
+#   5. Copy the Worker URL printed by wrangler deploy — e.g.
+#      https://mark-tech-analytics.<your-sub>.workers.dev
+#   6. Set NEXT_PUBLIC_ANALYTICS_ENDPOINT=<that URL> in your GitHub Actions
+#      secrets (Settings → Secrets and variables → Actions → New secret).
+#      Also set ANALYTICS_KV_ID=<id-from-step-3> so the deploy workflow
+#      can re-deploy the Worker from CI if you add that job (see
+#      .github/workflows/deploy.yml).
 #
 # KV namespace:
-#   Created automatically on first deploy. The binding name is ANALYTICS_KV —
-#   do not change it without also updating the Worker code.
+#   The binding name is ANALYTICS_KV — do not change it without also
+#   updating the Worker code (workers/analytics-worker.js). The KV id
+#   is read from the ANALYTICS_KV_ID env var (preferred for CI) and
+#   falls back to the literal placeholder for local dev. If neither is
+#   set, wrangler deploy will fail with a clear error.
 
 name = "mark-tech-analytics"
 main = "analytics-worker.js"
 compatibility_date = "2024-09-25"
 
-# KV namespace for event persistence
-# Create with: wrangler kv:namespace create ANALYTICS_KV
-# Then paste the id below.
+# Auto-generate preview URLs — useful for testing a deploy before going live.
+preview_urls = true
+
+# KV namespace for event persistence.
+# The id is read from the env var ANALYTICS_KV_ID (set in CI secrets or
+# exported locally). Wrangler substitutes ${VAR} at deploy time.
 [[kv_namespaces]]
 binding = "ANALYTICS_KV"
-id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+id = "${ANALYTICS_KV_ID}"
 
-# Optional: restrict to specific routes if you have a custom domain
+# Optional: restrict to a custom domain. Uncomment and edit if you have one.
 # routes = [
 #   { pattern = "analytics.yourdomain.com/*", zone_name = "yourdomain.com" }
 # ]
+
+# Observability — tail logs in `wrangler tail` for debugging drains.
+[observability]
+enabled = true
+
+# Limits — Cloudflare Workers free tier is plenty for a personal portfolio.
+# CPU time per request: 10ms (analytics POSTs are KV read-modify-write, ~5ms).
+# Memory: 128MB.

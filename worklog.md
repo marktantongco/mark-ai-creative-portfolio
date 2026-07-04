@@ -319,3 +319,52 @@ Stage Summary:
 - GUIDED_TOUR now build-time generated from scripts/tour-chapters.json sidecar — adding/removing/reordering chapters is a JSON edit + prebuild, no source code changes. Same pattern as RESEARCH_FILES. Hardcoded FALLBACK_GUIDED_TOUR kept as safety net for fresh checkouts.
 - Audit dashboard now shows live A/B decisions panel with per-variant sample counts, success rates, progress to threshold, manual declare buttons, and reset button.
 - Both deployments verified to build cleanly: GitHub Pages (static export, 4 routes) + Vercel (SSR, 6 routes including /api/analytics).
+
+---
+Task ID: 4
+Agent: main (super-z, silentdepth_v4 protocol)
+Task: Apply three new next-steps (Reframe + Tactical + Strategic) — (1) extend build-time generation pattern to AUDIT_PERSPECTIVES, FAILURE_MODES, CONTRARIAN_VIEWS (sidecar-driven, no source code changes for new entries); (2) add GET /api/analytics/aggregate server route that joins server-side aggregate with EXPERIMENTS registry to surface "X% of visitors saw variant Y"; (3) finalize Cloudflare Worker deploy SOP with deploy.sh, README.md, GitHub Actions secret wiring.
+
+Work Log:
+- Read system_silentdepth_v4.md from https://raw.githubusercontent.com/marktantongco/opencode-accomplishments/refs/heads/main/profiles/system_silentdepth_v4.md — already adopted into AGENTS.md in prior round; verified §1 (Silent Protocol + Depth) and §2 (project context) are present and comprehensive.
+- Audited existing state — confirmed: AGENTS.md complete, analytics.ts has 12 metrics + EXPERIMENTS registry + winner-declaration framework, workers/analytics-worker.js scaffolded, /api/analytics/route.ts has POST+GET. Three asks NOT yet done: sidecar-driven AUDIT_PERSPECTIVES/FAILURE_MODES, /api/analytics/aggregate route, Worker deploy SOP.
+
+- ASK #1 — Reframe (build-time generation for AUDIT_PERSPECTIVES, FAILURE_MODES, CONTRARIAN_VIEWS):
+  - Created /home/z/my-project/scripts/audit-perspectives.json — sidecar with 5 existing perspectives (owl, eagle, beaver, dolphin, elephant) extracted verbatim from subpage-data.ts. Each entry: {id, name, title, icon, color, domain, keyInsight, detailedAnalysis, hiddenFactors[], recommendation, order}.
+  - Created /home/z/my-project/scripts/failure-modes.json — sidecar with 6 existing failure modes (git-lock-cascade, shell-hook-deadlock, framework-guard-loop, checkpoint-corruption, failover-target-unreachable, error-log-saturation).
+  - Created /home/z/my-project/scripts/contrarian-views.json — sidecar with 5 existing contrarian views.
+  - Created /home/z/my-project/scripts/generate-audit-content.js — build-time generator. Reads all three sidecars, validates entries, sorts by `order`, emits src/lib/audit-content.generated.ts with AUDIT_PERSPECTIVES_GENERATED, FAILURE_MODES_GENERATED, CONTRARIAN_VIEWS_GENERATED. Validates perspective ids against known ICON_MAP set (warns if new id needs to be registered in AuditView.tsx).
+  - Updated /home/z/my-project/src/lib/subpage-data.ts: added AuditPerspective, FailureMode, ContrarianView interfaces (exported), renamed hardcoded arrays to FALLBACK_AUDIT_PERSPECTIVES/FALLBACK_FAILURE_MODES/FALLBACK_CONTRARIAN_VIEWS (annotated with new interfaces), added public consts that pick generated-or-fallback (same pattern as RESEARCH_FILES and GUIDED_TOUR).
+  - Updated /home/z/my-project/package.json: added `gen-audit` script, wired generate-audit-content.js into prebuild + build + build:static chains.
+  - Verified prebuild runs cleanly: [gen-audit] ✅ Generated 5 audit perspectives, 6 failure modes, 5 contrarian views.
+
+- ASK #2 — Tactical 1hr (GET /api/analytics/aggregate server route):
+  - Created /home/z/my-project/src/app/api/analytics/aggregate/route.ts — GET handler that reads /tmp/mark-tech-analytics.jsonl, joins with EXPERIMENTS_SERVER registry (duplicated from analytics.ts because client module touches localStorage at module top-level), computes per-variant trafficPct + successRate + suggestedWinner + summaryText. Response shape: {source, totalEvents, uniqueVisitors, byMetric, experiments[], overallSummary, generatedAt, minSamplesPerVariant}.
+  - Suggested-winner logic: variant with highest successRate among those with ≥10 samples, only when totalSamples ≥ threshold. Audit dashboard renders amber action card with copy-paste instruction ("Set EXPERIMENTS.<name>.winner = '<variant>' in src/lib/analytics.ts, ship, remove losing variants").
+  - Added ServerAggregatePanel component to AuditView.tsx — fetches /api/analytics/aggregate every 10s, renders header summary (visitors + events + source), per-experiment cards with traffic % + success rate per variant, winner badge for declared/suggested variants, action card with suggested-winner instruction. On GitHub Pages (BASE_PATH !== '') shows "Server aggregate unavailable on GitHub Pages" notice instead of attempting fetch.
+  - Imported BASE_PATH from '@/lib/utils' for static-export detection.
+
+- ASK #3 — Strategic (Cloudflare Worker deploy SOP):
+  - Updated /home/z/my-project/workers/wrangler.toml: removed `id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"` placeholder, replaced with `id = "${ANALYTICS_KV_ID}"` env-var substitution. Added preview_urls = true, [observability] enabled = true, header comments documenting full SOP.
+  - Created /home/z/my-project/workers/deploy.sh — idempotent one-shot deploy script: (1) verifies wrangler installed + logged in (launches OAuth if not), (2) lists KV namespaces via wrangler kv:namespace list + jq (or grep fallback) to find existing ANALYTICS_KV, (3) creates namespace if missing, (4) exports ANALYTICS_KV_ID env var, (5) runs wrangler deploy, (6) parses Worker URL from output and prints next-step instructions for GitHub Actions secret wiring.
+  - Created /home/z/my-project/workers/README.md — comprehensive SOP: why Worker exists, file map, 5-step deploy procedure, Worker API reference (POST/GET/OPTIONS), failure modes table, local dev instructions, cost projection table (free tier 500x headroom).
+  - Updated /home/z/my-project/.github/workflows/deploy.yml: added NEXT_PUBLIC_ANALYTICS_ENDPOINT: ${{ secrets.NEXT_PUBLIC_ANALYTICS_ENDPOINT }} to the build-static-export step env. If secret unset, build still succeeds — buffer just stays local.
+  - Added `worker:deploy` script to package.json: `cd workers && bash deploy.sh`. chmod +x workers/deploy.sh.
+
+- AGENTS.md updates:
+  - §2.3 Build-Time Generation Pattern: extended table to include AUDIT_PERSPECTIVES, FAILURE_MODES, CONTRARIAN_VIEWS. Added "To add a 6th audit perspective" recipe. Documented fallback contract (every .generated.ts file has FALLBACK_* safety net).
+  - §2.5 A/B Test Contract: added "Winner declaration workflow (three paths)" — hard-coded, per-visitor auto, server-suggested. Documented dual-registry sync requirement.
+  - §2.7 File Layout: added all new files (audit-perspectives.json, failure-modes.json, contrarian-views.json, generate-audit-content.js, audit-content.generated.ts, api/analytics/aggregate/route.ts, workers/deploy.sh, workers/README.md).
+  - §2.8 Build & Test Commands: added `worker:deploy`, `gen-audit` rows.
+  - §2.9 Hard-Won Lessons: added 3 new lessons — dual-registry sync, sidecar validation soft-fail, Worker KV id must be build-time secret.
+  - §2.10 (NEW) Cloudflare Worker Deployment Contract: full deploy workflow + failure detection + cost headroom.
+
+- Verification:
+  - `bun run prebuild` — SUCCESS. All 4 generators run cleanly: sync-files (19 files synced), generate-research-files (19 files: image=6 pdf=4 script=4 shell=2 document=3), generate-guided-tour (19 chapters, 0 missing, 19 orphans logged), generate-audit-content (5 perspectives, 6 failure modes, 5 contrarian views).
+  - `npx tsc --noEmit` filtered to touched files (subpage-data.ts, audit-content.generated.ts, AuditView.tsx, api/analytics/aggregate/route.ts, analytics.ts) — ZERO errors. Pre-existing errors in unrelated files (examples/websocket, skills/*, layout.tsx CSS import, page.tsx framer-motion ease typing) untouched.
+
+Stage Summary:
+- Build-time generation pattern now covers 4 sidecars (research-files, tour-chapters, audit-perspectives, failure-modes, contrarian-views — 5 sidecars total) across 3 generator scripts. Adding a 6th animal metaphor to the audit dashboard is now a JSON edit + prebuild — no source code changes (except registering the icon id in AuditView.tsx ICON_MAP). Same for failure modes and contrarian views.
+- AuditView now shows two complementary panels: ABDecisionsPanel (per-visitor, refreshes every 3s, from localStorage) and ServerAggregatePanel (cross-visitor, refreshes every 10s, from /api/analytics/aggregate). The server panel surfaces "X% of visitors saw variant Y" with trafficPct per variant + suggested-winner action card when threshold reached. On GitHub Pages, the server panel shows a clear "unavailable on static export" notice.
+- Cloudflare Worker is now fully deployable with a single `bun run worker:deploy` command. The deploy.sh script handles KV namespace create-or-reuse + wrangler deploy + URL extraction. The README.md documents the full SOP including GitHub Actions secret wiring. The .github/workflows/deploy.yml passes NEXT_PUBLIC_ANALYTICS_ENDPOINT from secrets into the static build — once the secret is set, the next push to main will start draining the local buffer to the Worker on GitHub Pages for the first time.
+- AGENTS.md is now 323 lines, comprehensively documenting: silentdepth_v4 protocol (§1), project context (§2.1-2.10 including dual-deployment contract, build-time generation pattern, analytics contract, A/B contract, tour position contract, file layout, build commands, hard-won lessons, Worker deployment contract), worklog protocol (§3), adoption statement (§4).

@@ -20,6 +20,7 @@ import {
   getAllExperimentStatuses, declareWinner, resetExperiments,
   type MetricStats, type ExperimentStatus,
 } from '@/lib/analytics'
+import { BASE_PATH } from '@/lib/utils'
 
 // =============================================================
 // ICON MAP
@@ -427,6 +428,262 @@ function ABDecisionsPanel() {
   )
 }
 
+// ---------------------------------------------------------------------------
+// ServerAggregatePanel — fetches /api/analytics/aggregate (Vercel-only) and
+// shows server-side traffic % per variant, joined with the EXPERIMENTS
+// registry. On GitHub Pages static export, the route doesn't exist — we
+// detect that via BASE_PATH and show a helpful "unavailable" notice instead
+// of attempting a fetch that 404s.
+// ---------------------------------------------------------------------------
+
+interface AggregateVariant {
+  variant: string
+  samples: number
+  successes: number
+  successRate: number
+  trafficPct: number
+  isWinner: boolean
+  isHardCodedWinner: boolean
+}
+
+interface AggregateExperiment {
+  experiment: string
+  status: 'won' | 'running'
+  declaredWinner?: string
+  declaredAt?: number
+  declaredReason?: string
+  threshold: number
+  totalSamples: number
+  totalSuccesses: number
+  variants: AggregateVariant[]
+  suggestedWinner?: string
+  summaryText: string
+}
+
+interface AggregateResponse {
+  source?: string
+  totalEvents?: number
+  uniqueVisitors?: number
+  byMetric?: Record<string, number>
+  experiments?: AggregateExperiment[]
+  overallSummary?: string
+  generatedAt?: number
+  minSamplesPerVariant?: number
+  error?: string
+}
+
+function ServerAggregatePanel() {
+  const [agg, setAgg] = useState<AggregateResponse | null>(null)
+  const [err, setErr] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  // On GitHub Pages (BASE_PATH !== '') the route doesn't exist — skip fetch.
+  const isStaticExport = BASE_PATH !== ''
+
+  useEffect(() => {
+    if (isStaticExport) {
+      setLoading(false)
+      return
+    }
+    let cancelled = false
+    setLoading(true)
+    fetch('/api/analytics/aggregate', { cache: 'no-store' })
+      .then(async (r) => {
+        if (!r.ok) {
+          const text = await r.text().catch(() => r.statusText)
+          throw new Error(`HTTP ${r.status}: ${text.slice(0, 200)}`)
+        }
+        return r.json() as Promise<AggregateResponse>
+      })
+      .then((data) => {
+        if (cancelled) return
+        setAgg(data)
+        setErr(null)
+      })
+      .catch((e) => {
+        if (cancelled) return
+        setErr(String(e?.message || e))
+      })
+      .finally(() => {
+        if (cancelled) return
+        setLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [refreshKey, isStaticExport])
+
+  // Refresh every 10s — slower than the per-visitor panel (3s) because this
+  // hits the server.
+  useEffect(() => {
+    if (isStaticExport) return
+    const id = setInterval(() => setRefreshKey(k => k + 1), 10000)
+    return () => clearInterval(id)
+  }, [isStaticExport])
+
+  if (isStaticExport) {
+    return (
+      <div className="mt-3 rounded-lg border border-amber-600/30 bg-amber-500/5 p-4">
+        <div className="flex items-start gap-2">
+          <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
+          <div className="text-xs text-muted-foreground leading-relaxed">
+            <strong className="text-amber-300">Server aggregate unavailable on GitHub Pages.</strong>{' '}
+            Static export has no API routes. The Cloudflare Worker at{' '}
+            <code className="font-mono">NEXT_PUBLIC_ANALYTICS_ENDPOINT</code> collects events;
+            query its <code className="font-mono">GET /</code> endpoint for aggregate stats.
+            Per-visitor counts above are still live (this browser only).
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (loading && !agg) {
+    return (
+      <div className="mt-3 rounded-lg border border-sky-600/30 bg-sky-500/5 p-4">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Activity className="w-3.5 h-3.5 animate-pulse text-sky-400" />
+          Fetching server aggregate from /api/analytics/aggregate …
+        </div>
+      </div>
+    )
+  }
+
+  if (err) {
+    return (
+      <div className="mt-3 rounded-lg border border-rose-600/30 bg-rose-500/5 p-4">
+        <div className="flex items-start gap-2">
+          <AlertTriangle className="w-4 h-4 text-rose-400 mt-0.5 shrink-0" />
+          <div className="text-xs">
+            <strong className="text-rose-300">Failed to load server aggregate.</strong>
+            <pre className="mt-1 font-mono text-[10px] text-rose-300/80 whitespace-pre-wrap break-all">{err}</pre>
+            <button
+              onClick={() => setRefreshKey(k => k + 1)}
+              className="mt-2 text-[10px] px-2 py-0.5 rounded border border-rose-600/40 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!agg || !agg.experiments || agg.experiments.length === 0) {
+    return (
+      <div className="mt-3 rounded-lg border border-sky-600/30 bg-sky-500/5 p-4">
+        <p className="text-xs text-muted-foreground">No server-side experiments configured.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="mt-3 space-y-3">
+      {/* Header summary */}
+      <div className="rounded-lg border border-sky-600/30 bg-sky-500/5 p-3">
+        <div className="flex items-center gap-2 mb-2">
+          <TrendingUp className="w-4 h-4 text-sky-400" />
+          <span className="text-xs font-semibold text-sky-200">Server Aggregate</span>
+          <Badge variant="outline" className="text-[10px] bg-sky-500/10 text-sky-300 border-sky-600/30">
+            {agg.uniqueVisitors ?? 0} visitors · {agg.totalEvents ?? 0} events
+          </Badge>
+          {agg.source && agg.source !== 'empty' && (
+            <Badge variant="outline" className="text-[10px] bg-muted/20 text-muted-foreground border-border/40">
+              source: {agg.source.split('/').pop()}
+            </Badge>
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          {agg.overallSummary}
+        </p>
+      </div>
+
+      {/* Per-experiment cards */}
+      {agg.experiments.map((exp) => {
+        const isWon = exp.status === 'won'
+        const totalSamples = exp.totalSamples
+        return (
+          <div
+            key={exp.experiment}
+            className={`rounded-lg border p-4 ${
+              isWon
+                ? 'border-emerald-600/40 bg-emerald-500/8'
+                : 'border-sky-600/30 bg-sky-500/5'
+            }`}
+          >
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
+              <code className="text-xs font-mono text-foreground">{exp.experiment}</code>
+              <Badge
+                variant="outline"
+                className={`text-[10px] ${
+                  isWon
+                    ? 'bg-emerald-500/15 text-emerald-300 border-emerald-600/40'
+                    : 'bg-sky-500/10 text-sky-300 border-sky-600/30'
+                }`}
+              >
+                {isWon ? `Won · ${exp.declaredWinner}ms` : `Running · ${totalSamples}/${exp.threshold} samples`}
+              </Badge>
+              {exp.suggestedWinner && !isWon && (
+                <Badge variant="outline" className="text-[10px] bg-amber-500/15 text-amber-300 border-amber-600/40">
+                  suggested: {exp.suggestedWinner}ms
+                </Badge>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed mb-3">{exp.summaryText}</p>
+
+            {/* Per-variant table — traffic %, samples, success rate */}
+            <div className="grid grid-cols-3 gap-2 text-xs">
+              {exp.variants.map((v) => {
+                const trafficPct = Math.round(v.trafficPct * 100)
+                const successPct = Math.round(v.successRate * 100)
+                return (
+                  <div
+                    key={v.variant}
+                    className={`rounded border p-2 transition-colors ${
+                      v.isWinner
+                        ? 'border-emerald-600/50 bg-emerald-500/10'
+                        : v.samples > 0
+                          ? 'border-sky-600/30 bg-card/40'
+                          : 'border-border/30 bg-muted/10 opacity-60'
+                    }`}
+                  >
+                    <div className="text-muted-foreground text-[10px]">{v.variant}ms</div>
+                    <div className="font-mono font-bold text-sm">{trafficPct}%</div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">
+                      {v.samples > 0
+                        ? `${v.samples} samples · ${successPct}% success`
+                        : 'no samples'}
+                    </div>
+                    {v.isWinner && (
+                      <div className="text-[9px] text-emerald-300 mt-1 flex items-center gap-1">
+                        <CheckCircle2 className="w-2.5 h-2.5" /> winner
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Suggested-winner action — only if running and a suggestion exists */}
+            {!isWon && exp.suggestedWinner && (
+              <div className="mt-3 p-2 rounded border border-amber-600/30 bg-amber-500/8 text-xs text-amber-200">
+                <strong>Suggested action:</strong> set{' '}
+                <code className="font-mono">EXPERIMENTS.{exp.experiment}.winner = '{exp.suggestedWinner}'</code>{' '}
+                in <code className="font-mono">src/lib/analytics.ts</code>, ship, remove losing variants.
+                Threshold reached ({totalSamples}/{exp.threshold}).
+              </div>
+            )}
+            {!isWon && !exp.suggestedWinner && totalSamples >= exp.threshold && (
+              <div className="mt-3 p-2 rounded border border-amber-600/30 bg-amber-500/8 text-xs text-amber-200">
+                Threshold reached but no variant has ≥ {agg.minSamplesPerVariant} samples yet — keep collecting.
+              </div>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 export default function AuditView({ onSwitchView }: { onSwitchView: (v: ViewKey) => void }) {
   // Live stats for the metrics dashboard (Task A)
   const [liveStats, setLiveStats] = useState<MetricStats[] | null>(null)
@@ -772,6 +1029,7 @@ export default function AuditView({ onSwitchView }: { onSwitchView: (v: ViewKey)
             Active A/B tests running on this build. Each visitor is assigned a sticky variant on first visit; outcomes are tracked via the analytics pipeline above. When the per-visitor sample count crosses threshold (100), a winner is auto-declared for that visitor — or declare manually using the buttons below.
           </p>
           <ABDecisionsPanel />
+          <ServerAggregatePanel />
         </div>
 
         {/* ============================================================= */}

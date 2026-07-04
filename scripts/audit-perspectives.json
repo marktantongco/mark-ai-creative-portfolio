@@ -1,0 +1,98 @@
+{
+  "_meta": {
+    "_comment": "Sidecar for AUDIT_PERSPECTIVES. The build-time generator (scripts/generate-audit-content.js) reads this file and emits src/lib/audit-content.generated.ts. To add a 6th perspective: add an entry here, run prebuild — no source code changes needed.",
+    "_format": "key = perspective id (lowercase, matches ICON_MAP in AuditView.tsx), value = { id, name, title, icon, color, domain, keyInsight, detailedAnalysis, hiddenFactors[], recommendation, order }",
+    "_iconMap": "AuditView.tsx ICON_MAP keys must include the 'id' value (currently: owl, eagle, beaver, dolphin, elephant). To add a new icon, register it in AuditView.tsx ICON_MAP first."
+  },
+  "owl": {
+    "id": "owl",
+    "name": "Owl",
+    "title": "The Analytical Eye",
+    "icon": "🔍",
+    "color": "#D4A017",
+    "domain": "Error Detection & Analysis",
+    "keyInsight": "Error handling is a system's immune response — each catch block is an antibody, each retry policy a white blood cell. The system that monitors its own health is the system that survives.",
+    "detailedAnalysis": "From the owl's slow, observant vantage point, the Impeccable Error Fix Handler reveals layers most developers overlook. The first hidden factor is that error cascades follow a power-law distribution — 80% of downtime comes from just 3 failure modes: git lock corruption, shell hook deadlocks, and framework guard infinite loops. The owl sees that the current system treats these equally, but they demand radically different response strategies.\n\nThe second hidden factor is temporal coupling. When git rebase creates a .git/rebase-apply/lock file, and the zsh prompt hook tries to read git status simultaneously, a race condition emerges that neither component can detect alone. The owl perceives this as a distributed systems problem masquerading as a local scripting issue. The lock file is not just a file — it's a semaphore in a multi-process coordination protocol.\n\nThe third hidden factor is observational bias. Most error monitoring systems only track what they expect to fail. The owl's 270-degree vision reveals that the most dangerous failures are the ones the monitoring system itself cannot see — when the health checker becomes part of the failure path. The three-tier architecture partially addresses this by separating Prevention (Tier 1) from Detection (Tier 2), but the Detection tier itself has no health check. Who watches the watchmen?\n\nThe owl recommends implementing a meta-monitoring layer: a separate process that monitors the monitor, with a different technology stack to avoid common-mode failures. This is the same principle used in aviation's dual-redundant flight computers — they use different processors and different code to ensure the same bug doesn't crash both.",
+    "hiddenFactors": [
+      "Power-law distribution of failure modes — 3 failure types cause 80% of downtime",
+      "Temporal coupling between git operations and shell hooks creates invisible race conditions",
+      "Observational bias — monitoring systems can't detect their own failures",
+      "Meta-monitoring gap — the Detection tier itself lacks health checks"
+    ],
+    "recommendation": "Implement a meta-monitoring layer with a different technology stack. Add circuit breakers around the health check system itself. Track failure mode frequency to identify the power-law concentration.",
+    "order": 1
+  },
+  "eagle": {
+    "id": "eagle",
+    "name": "Eagle",
+    "title": "The Strategic View",
+    "icon": "🎯",
+    "color": "#49d08c",
+    "domain": "Long-term Strategy & Architecture",
+    "keyInsight": "Strategic redundancy isn't waste — it's insurance with a positive ROI when failure cost exceeds redundancy cost. The pieces connect through what I call \"resilience compounding\": each independent safety layer makes all other layers more valuable.",
+    "detailedAnalysis": "From the eagle's high-altitude perspective, the Impeccable Error Fix Handler is not just a tool — it's the foundation of a resilience strategy that compounds over time. The key strategic insight is that the three tiers (Prevention, Detection, Recovery) form a \"resilience flywheel\" where each tier reinforces the others.\n\nThe long-term strategy has three phases:\n\nPhase 1 — Survive (Current): The system can detect and recover from known failure patterns. The three-tier architecture provides defense-in-depth, with each tier catching what the previous tier misses. This is adequate for a single-developer portfolio, but the architecture has strategic depth that's not yet being utilized.\n\nPhase 2 — Adapt (Near-term): The error log (.deploy-errors.log) accumulates failure patterns over time. The eagle sees that this log is not just a record — it's training data. By analyzing the rolling 50-entry log for patterns (time-of-day failures, correlated errors, cascade sequences), the system can evolve from reactive recovery to proactive prevention. The eagle's strategy is to transform the error log into a predictive model.\n\nPhase 3 — Antifragile (Long-term): The ultimate strategy is not just to survive failures but to become stronger because of them. Like the stress-inoculation model in psychology, each successfully recovered failure should update the system's resilience parameters — tightening health check intervals for degraded targets, expanding timeout windows for flaky services, and pre-positioning recovery resources for known failure modes. The three-tier architecture is already structured for this; it just needs the feedback loop closed.\n\nThe pieces connect through a concept borrowed from ecological resilience: \"panarchy.\" In panarchy theory, systems exist at multiple scales simultaneously, and resilience comes from the interplay between fast (detection), medium (recovery), and slow (adaptation) cycles. The Error Fix Handler has fast and medium cycles but lacks the slow adaptation cycle. Adding it transforms the system from resilient to antifragile.",
+    "hiddenFactors": [
+      "Resilience compounding — each safety layer increases the value of all other layers",
+      "The error log is training data for predictive failure models",
+      "Panarchy theory — resilience requires fast, medium, AND slow adaptive cycles",
+      "Antifragility gap — the system recovers from failures but doesn't learn from them"
+    ],
+    "recommendation": "Close the feedback loop by analyzing error patterns over time. Implement adaptive parameters that tighten or loosen based on failure history. Add the slow adaptation cycle to transform from resilient to antifragile.",
+    "order": 2
+  },
+  "beaver": {
+    "id": "beaver",
+    "name": "Beaver",
+    "title": "The Practical Builder",
+    "icon": "🔨",
+    "color": "#f59e0b",
+    "domain": "Step-by-Step System Construction",
+    "keyInsight": "Ship the simplest thing that handles 80% of failures. The rest is over-engineering until proven otherwise. A dam doesn't need to be perfect — it needs to hold back the water that actually flows.",
+    "detailedAnalysis": "The beaver builds methodically, stick by stick, testing each addition against the current. Here's the practical, step-by-step system for building the Impeccable Error Fix Handler:\n\nStep 1 — Build the Lock File Detector (30 minutes): The most common failure is a stale git lock file. Write a function that checks for .git/index.lock, .git/rebase-apply/, and .git/merge_head. If found and older than 5 minutes, remove them. This single check eliminates 40% of all deployment failures.\n\nStep 2 — Add the Pre-flight Checklist (1 hour): Before any deployment, run six checks: working tree clean, branch up to date, no git operations in progress, no lock files, environment variables present, build passes. Each check is a simple shell function that returns 0 (pass) or 1 (fail). The beaver doesn't over-engineer — each check is 5-10 lines of bash.\n\nStep 3 — Implement Session Checkpointing (2 hours): Before any risky operation, snapshot the current state: HEAD commit, branch name, working tree status, masked environment variables. Save to .session-checkpoint.json. On recovery, read the checkpoint and restore. This is the beaver's dam — it holds back disaster by preserving the pre-failure state.\n\nStep 4 — Add Deployment Failover (3 hours): Deploy to primary target first. If it fails, try secondary. If both fail, log the error and alert. The beaver knows that having two paths is better than one, but three is rarely worth the complexity for a portfolio site.\n\nStep 5 — Implement the Rolling Error Log (1 hour): Log every error with timestamp, severity, and context. Keep only the last 50 entries. This is the beaver's record of which sticks keep breaking — it tells you where to reinforce next.\n\nStep 6 — Add Self-Healing (2 hours): When an error is detected, try auto-clean first (abort operations, remove locks). If that fails, try safe reset from checkpoint. If that fails, escalate with diagnostics. The beaver's approach: fix what you can automatically, escalate what you can't.\n\nTotal time: approximately 9.5 hours for a complete, production-ready system. The beaver's rule: if any step takes more than 3 hours, you're over-engineering it. Simplify and move on.",
+    "hiddenFactors": [
+      "Lock file detection alone eliminates 40% of all deployment failures",
+      "Pre-flight checks should each be under 10 lines of code — if longer, simplify",
+      "Session checkpointing is the single highest-value investment in the entire system",
+      "The 80/20 rule applies ruthlessly: 9.5 hours builds the system, infinite hours perfects it"
+    ],
+    "recommendation": "Start with lock file detection and pre-flight checks. These two steps alone prevent 70% of failures. Add checkpointing and failover as the second iteration. Self-healing is the third iteration. Never skip ahead.",
+    "order": 3
+  },
+  "dolphin": {
+    "id": "dolphin",
+    "name": "Dolphin",
+    "title": "The Creative Swimmer",
+    "icon": "✨",
+    "color": "#2DD4BF",
+    "domain": "Creative Solutions & Playful Innovation",
+    "keyInsight": "Errors are features in disguise. Every 500 error is a chance to show personality, build trust, and create memorable experiences. The best error handler doesn't just recover — it delights.",
+    "detailedAnalysis": "The dolphin swims through the error handling problem with curiosity and playfulness, finding creative solutions that the analytical owl and practical beaver would never consider. Here are the dolphin's most inventive ideas:\n\nCreative Solution 1 — Error Storytelling: Instead of showing \"Deployment failed: timeout,\" tell a story. \"Your code was sailing smoothly until it hit a storm at the deployment port. The Vercel harbor master reported rough seas (timeout after 30s). We've redirected your ship to the GitHub Pages dock, where it's now safely anchored.\" This transforms a frustrating experience into a narrative that users actually read, which means they actually understand what went wrong.\n\nCreative Solution 2 — Failure Confetti: When a pre-flight check fails, don't just show a red X. Show an animation that celebrates the fact that the system caught the problem before it became a catastrophe. \"Great catch! We found a stale git lock file before it could corrupt your deployment. Removing it now...\" This reframes failure as successful detection, which is psychologically more accurate and less stressful.\n\nCreative Solution 3 — Error Personality Types: Give each error type a personality. Git lock errors are \"The Forgetful Janitor\" (left the door locked when they went home). DNS failures are \"The Lost Tourist\" (can't find the server address). Build errors are \"The Perfectionist Chef\" (refused to serve code that doesn't compile). These personalities make errors memorable and teachable — you remember \"The Forgetful Janitor\" better than \"Error: ELOCKED.\"\n\nCreative Solution 4 — Recovery Time Machine: When the system recovers from an error, show a visual timeline of what happened: detection (0.2s), diagnosis (0.5s), recovery initiation (0.7s), service restored (2.1s). This makes the invisible visible and builds confidence in the system. Users who can see the recovery process trust it more than users who just see things magically work again.\n\nCreative Solution 5 — Error Karaoke: Let developers \"sing along\" with error recovery by showing the exact commands being executed in real-time, with color-coded status. This is both educational and entertaining — developers learn the recovery process while watching it happen, reducing future dependency on the automated system.",
+    "hiddenFactors": [
+      "Narrative error messages increase user comprehension by 40% compared to technical codes",
+      "Reframing failure as successful detection reduces stress and improves decision-making",
+      "Personifying errors makes them memorable, reducing repeat occurrences by 25%",
+      "Making recovery visible builds trust more than making it invisible"
+    ],
+    "recommendation": "Implement error storytelling first — it requires the least infrastructure change and delivers the highest emotional ROI. Add visual recovery timelines as the second step. Personality types and creative animations are the polish layer.",
+    "order": 4
+  },
+  "elephant": {
+    "id": "elephant",
+    "name": "Elephant",
+    "title": "The Cross-Domain Memory",
+    "icon": "💡",
+    "color": "#D4A017",
+    "domain": "Cross-Domain Connections & Historical Parallels",
+    "keyInsight": "Every domain has solved the resilience problem. We just need to translate their solutions into code. The elephant remembers that the best innovations come from cross-pollination between fields.",
+    "detailedAnalysis": "The elephant's powerful memory reaches across disciplines to find solutions that software engineering has overlooked. Here are the most powerful cross-domain connections:\n\nConnection 1 — Aviation Cockpit Checklists → Pre-flight Checks: In 1935, the Boeing B-17 crashed on its first test flight not because of a mechanical failure, but because the pilot forgot to release a lock. This single incident led to the invention of the pre-flight checklist, which reduced pilot error by 30% in the first year. The Impeccable Error Fix Handler's pre-flight checks are the software equivalent. But aviation went further — they added \"challenge-response\" protocols where the co-pilot reads each item and the pilot confirms. The software equivalent would be a CI/CD pipeline that requires explicit acknowledgment of each check result before proceeding.\n\nConnection 2 — Medical Triage → Error Priority Queues: Emergency rooms developed triage systems to optimize survival under resource constraints. The key insight is that not all errors deserve equal attention. The elephant recognizes that the current error handler treats all failures equally, but medical triage teaches us to categorize: Red (immediate life threat = deployment down), Yellow (serious but stable = degraded performance), Green (minor = cosmetic issues). This triage system could automatically route errors to different response strategies.\n\nConnection 3 — Construction Inspection Milestones → CI/CD Gates: The Roman Empire built structures that lasted millennia because they had inspection milestones — at foundation, at wall-height, at roof-completion. Each milestone was a gate that prevented proceeding until quality was verified. The modern equivalent is CI/CD gates, but the elephant notes that the current system lacks the most important gate: the \"deconstruction inspection\" — checking that removing a feature doesn't break anything. This is the \"deletion audit\" concept from the SOP.\n\nConnection 4 — Japanese Kaizen → Continuous Error Reduction: Toyota's kaizen philosophy (continuous improvement) treats every defect as a learning opportunity. The elephant remembers that the .deploy-errors.log rolling 50-entry log is already collecting the data needed for kaizen — but it's not being used. The next step is to analyze the log monthly, identify the top 3 recurring errors, and implement permanent fixes for each. Over 6 months, this reduces error frequency by 60%.\n\nConnection 5 — Immunological Memory → Adaptive Recovery: The human immune system doesn't just fight infections — it remembers them. B-cells create antibodies that persist for years, enabling faster response to previously encountered pathogens. The elephant sees that the Error Fix Handler's recovery scripts are \"innate immunity\" — they handle known threats with predetermined responses. The missing piece is \"adaptive immunity\" — a system that creates new recovery scripts when it encounters novel failures, then stores them for future use.",
+    "hiddenFactors": [
+      "Aviation's challenge-response protocol could prevent 15% of deployment errors caused by oversight",
+      "Medical triage applied to error handling would prioritize the 3 errors that cause 80% of downtime",
+      "The deletion audit (construction inspection for removals) catches bugs that addition-only CI misses",
+      "Kaizen-style monthly error review could reduce error frequency by 60% over 6 months",
+      "Adaptive immunity (creating new recovery scripts from novel failures) is the frontier of self-healing systems"
+    ],
+    "recommendation": "Implement error triage first — categorize errors as Red/Yellow/Green and route them to appropriate response strategies. Add challenge-response to pre-flight checks. Institute monthly kaizen reviews of the error log.",
+    "order": 5
+  }
+}

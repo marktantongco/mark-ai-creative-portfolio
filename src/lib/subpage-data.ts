@@ -5,6 +5,11 @@
 import { assetPath } from './utils'
 import { RESEARCH_FILES_GENERATED } from './research-files.generated'
 import { GUIDED_TOUR_GENERATED } from './guided-tour.generated'
+import {
+  AUDIT_PERSPECTIVES_GENERATED,
+  FAILURE_MODES_GENERATED,
+  CONTRARIAN_VIEWS_GENERATED,
+} from './audit-content.generated'
 
 export type ViewKey = 'home' | 'error-handler' | 'brutalist' | 'organic' | 'cyberpunk' | 'research' | 'audit' | 'frontend-design' | 'proxy-discussion'
 
@@ -14,6 +19,45 @@ export interface ProjectFile {
   size: number
   path: string
   description: string
+}
+
+// ---------------------------------------------------------------------------
+// Audit content types — exported so the build-time generator
+// (scripts/generate-audit-content.js) can import them as type-only deps.
+// Keep these in sync with the sidecar JSON schemas documented in:
+//   scripts/audit-perspectives.json  (perspective schema)
+//   scripts/failure-modes.json       (failure mode schema)
+//   scripts/contrarian-views.json    (contrarian view schema)
+// ---------------------------------------------------------------------------
+
+export interface AuditPerspective {
+  id: string
+  name: string
+  title: string
+  icon: string
+  color: string
+  domain: string
+  keyInsight: string
+  detailedAnalysis: string
+  hiddenFactors: string[]
+  recommendation: string
+}
+
+export interface FailureMode {
+  mode: string
+  trigger: string
+  impact: string
+  mitigation: string
+  detectionTime: string
+  recoveryTime: string
+  severity: 'critical' | 'high' | 'medium' | 'low'
+}
+
+export interface ContrarianView {
+  claim: string
+  steelman: string
+  response: string
+  confidence: number // 1-10
 }
 
 // ---------------------------------------------------------------------------
@@ -165,8 +209,20 @@ const FALLBACK_RESEARCH_FILES: ProjectFile[] = [
 export const RESEARCH_FILES: ProjectFile[] =
   RESEARCH_FILES_GENERATED.length > 0 ? RESEARCH_FILES_GENERATED : FALLBACK_RESEARCH_FILES
 
-// Audit perspectives data (expanded from the 5 animal metaphors)
-export const AUDIT_PERSPECTIVES = [
+// ---------------------------------------------------------------------------
+// Audit perspectives — sidecar-driven (scripts/audit-perspectives.json →
+// src/lib/audit-content.generated.ts).
+//
+// The FALLBACK_AUDIT_PERSPECTIVES below is a safety net for the very first
+// build on a fresh checkout (before prebuild runs). After the first prebuild,
+// AUDIT_PERSPECTIVES_GENERATED takes precedence.
+//
+// To add a 6th animal-metaphor perspective: edit the sidecar JSON, run
+// prebuild — no source code changes needed (except registering the icon id
+// in AuditView.tsx ICON_MAP).
+// ---------------------------------------------------------------------------
+
+const FALLBACK_AUDIT_PERSPECTIVES: AuditPerspective[] = [
   {
     id: 'owl',
     name: 'Owl',
@@ -304,6 +360,9 @@ Connection 5 — Immunological Memory → Adaptive Recovery: The human immune sy
     recommendation: 'Implement error triage first — categorize errors as Red/Yellow/Green and route them to appropriate response strategies. Add challenge-response to pre-flight checks. Institute monthly kaizen reviews of the error log.',
   },
 ]
+
+export const AUDIT_PERSPECTIVES: AuditPerspective[] =
+  AUDIT_PERSPECTIVES_GENERATED.length > 0 ? AUDIT_PERSPECTIVES_GENERATED : FALLBACK_AUDIT_PERSPECTIVES
 
 // Frontend design perspectives
 export const FRONTEND_PERSPECTIVES = [
@@ -598,7 +657,12 @@ export const GUIDED_TOUR: TourStop[] =
 // Metrics, Blind Spots (the questions the user explicitly asked)
 // =============================================================
 
-export const FAILURE_MODES = [
+// ---------------------------------------------------------------------------
+// Failure modes — sidecar-driven (scripts/failure-modes.json →
+// src/lib/audit-content.generated.ts). Same pattern as AUDIT_PERSPECTIVES.
+// ---------------------------------------------------------------------------
+
+const FALLBACK_FAILURE_MODES: FailureMode[] = [
   {
     mode: 'Git Lock Cascade',
     trigger: 'git rebase interrupted + zsh prompt hook fires simultaneously',
@@ -655,7 +719,10 @@ export const FAILURE_MODES = [
   },
 ]
 
-export const CONTRARIAN_VIEWS = [
+export const FAILURE_MODES: FailureMode[] =
+  FAILURE_MODES_GENERATED.length > 0 ? FAILURE_MODES_GENERATED : FALLBACK_FAILURE_MODES
+
+const FALLBACK_CONTRARIAN_VIEWS: ContrarianView[] = [
   {
     claim: 'The three-tier architecture is over-engineered for a portfolio site',
     steelman: 'A portfolio site serves static files. Failure modes are: build error (catch in CI), DNS error (Cloudflare handles it), deploy error (git push again). No part of this requires pre-flight checks, session checkpointing, or failover targets. The whole system is theater — a portfolio piece masquerading as production infrastructure.',
@@ -687,6 +754,9 @@ export const CONTRARIAN_VIEWS = [
     confidence: 8,
   },
 ]
+
+export const CONTRARIAN_VIEWS: ContrarianView[] =
+  CONTRARIAN_VIEWS_GENERATED.length > 0 ? CONTRARIAN_VIEWS_GENERATED : FALLBACK_CONTRARIAN_VIEWS
 
 export const SECOND_ORDER_EFFECTS = [
   {
